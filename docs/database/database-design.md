@@ -227,8 +227,8 @@ DDLは `src/main/resources/sql/schema.sql` に定義しています。
 |---|---|---|
 | `departments` | `UserDao`, `WorkReportDao`, `MonthlyReportDao` | 部署名表示、検索、帳票出力 |
 | `users` | `UserDao`, `WorkReportDao`, `MonthlyReportDao`, `ReportHistoryDao` | ログイン認証、社員名表示、作成者表示 |
-| `work_reports` | `WorkReportDao`, `MonthlyReportDao` | 日報登録、作業実績検索、月次集計 |
-| `report_output_histories` | `ReportHistoryDao` | 帳票作成履歴登録、一覧表示、再ダウンロード |
+| `work_reports` | `DashboardDao`, `WorkReportDao`, `MonthlyReportDao` | ダッシュボード集計、日報登録、作業実績検索、月次集計 |
+| `report_output_histories` | `DashboardDao`, `ReportHistoryDao` | ダッシュボード集計、帳票作成履歴登録、検索、詳細表示、再ダウンロード |
 
 DAOでは、これらのテーブルを機能に合わせてJOINし、EntityまたはDTOへ変換します。たとえば `ReportHistoryDao` は履歴テーブルとユーザーテーブルをJOINし、一覧表示に必要な作成者名を含む `ReportHistoryDto` を作成します。
 

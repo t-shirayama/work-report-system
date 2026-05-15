@@ -1,6 +1,6 @@
 # Controller / Service / DAO 構成
 
-このドキュメントでは、簡易ログイン機能を例にして、Controller / Service / DAO の役割分担を説明します。
+このドキュメントでは、実装済み機能を例にして、Controller / Service / DAO の役割分担を説明します。
 
 本プロジェクトでは、Spring Boot、Spring Security、JPA、MyBatis、Hibernateは使用しません。Spring MVCとSpring JDBCを使い、SQLはDAO層に明示的に記述します。
 
@@ -22,14 +22,30 @@ Oracle Database
 
 この分け方により、画面遷移の変更、業務ルールの変更、SQLの変更をそれぞれ追いやすくしています。
 
-## 今回の対象ファイル
+## 主な対象ファイル
 
 | ファイル | 役割 |
 |---|---|
 | `LoginController.java` | ログイン画面表示、ログイン実行、ダッシュボード表示、ログアウト |
+| `DashboardController.java` | DB集計結果を使ったダッシュボード表示 |
+| `WorkReportController.java` | 作業日報登録、作業実績検索 |
+| `MonthlyReportController.java` | 月次報告書Excel出力 |
+| `ReportHistoryController.java` | 帳票作成履歴検索、詳細、再ダウンロード |
 | `LoginForm.java` | ログインIDとパスワードの入力値を保持 |
+| `WorkReportForm.java` | 作業日報登録の入力値を保持 |
+| `WorkReportSearchForm.java` | 作業実績検索条件を保持 |
+| `MonthlyReportForm.java` | 月次報告書出力条件を保持 |
+| `ReportHistorySearchForm.java` | 帳票作成履歴検索条件を保持 |
 | `UserService.java` | 認証処理の業務判断 |
+| `DashboardService.java` | ダッシュボード集計結果の組み立て |
+| `WorkReportService.java` | 作業日報登録、検索条件チェック |
+| `MonthlyReportService.java` | 月次帳票データ作成と出力処理の制御 |
+| `ReportHistoryService.java` | 帳票作成履歴登録、検索、ファイル読込確認 |
 | `UserDao.java` | `users` テーブルからログインIDでユーザーを検索 |
+| `DashboardDao.java` | ダッシュボード用の集計SQLを実行 |
+| `WorkReportDao.java` | `work_reports` へのINSERTと検索SQLを実行 |
+| `MonthlyReportDao.java` | 月次報告書用の集計SQLを実行 |
+| `ReportHistoryDao.java` | `report_output_histories` のINSERT、検索、詳細取得 |
 | `User.java` | DBから取得したユーザー情報 |
 | `login.jsp` | ログイン画面 |
 | `dashboard.jsp` | ログイン後のダッシュボード |
@@ -171,6 +187,35 @@ Controllerは入力値を受け取り、入力チェックと登録処理を `Wo
 主キーはOracle向けDDLで定義した `seq_work_reports.NEXTVAL` を使用します。
 
 SQLはDAOに明示的に記述し、入力値は `BeanPropertySqlParameterSource` によりバインド変数として渡します。
+
+## ダッシュボード機能の責務分担
+
+ダッシュボードは、静的な画面ではなくDB上の実データを集計して表示します。
+
+| レイヤ | 役割 |
+|---|---|
+| `DashboardController` | セッション確認、ログインユーザーとログイン時刻のModel設定、Service呼び出し |
+| `DashboardService` | 本日の登録件数、今月の総作業時間、未出力件数、最近の活動をDTOにまとめる |
+| `DashboardDao` | `work_reports` と `report_output_histories` への集計SQL、最近の活動SQLを実行する |
+| `DashboardDto` | ダッシュボード画面に表示する集計値を保持する |
+| `DashboardActivityDto` | 最近の活動一覧の1行分を保持する |
+
+Controllerは画面表示に必要な値をModelへ詰めるだけにし、集計SQLは `DashboardDao` に閉じ込めています。
+
+## 帳票作成履歴機能の責務分担
+
+帳票作成履歴では、一覧検索、詳細確認、再ダウンロードを扱います。
+
+| レイヤ | 役割 |
+|---|---|
+| `ReportHistoryController` | 一覧、詳細、ダウンロードURLを受け取り、画面遷移やレスポンス出力を制御する |
+| `ReportHistoryService` | 履歴登録、履歴取得、ダウンロード可能なファイルかどうかの確認を行う |
+| `ReportHistoryDao` | `report_output_histories` と `users` をJOINし、検索・詳細取得・INSERTを行う |
+| `ReportHistorySearchForm` | 対象年月、帳票種別、作成者、ステータスの検索条件を保持する |
+| `ReportHistoryDto` | 一覧・詳細画面に表示する履歴情報を保持する |
+| `DownloadResponseUtil` | Excelダウンロード用のHTTPヘッダーとレスポンス書き込みを共通化する |
+
+ステータス表示は、DAOのSELECT内で `SUCCESS` を「完了」、`ERROR` を「エラー」、`PROCESSING` を「処理中」に変換しています。非同期処理は未実装ですが、DB定義済みの `PROCESSING` は画面表示に対応しています。
 
 ## 例外処理の考え方
 

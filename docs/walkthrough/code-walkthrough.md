@@ -114,6 +114,15 @@ return namedParameterJdbcTemplate.queryForObject(SELECT_BY_LOGIN_ID, params, new
 
 最近の活動は、作業日報登録と帳票出力履歴を時系列でまとめた表示です。
 
+処理の流れは以下です。
+
+1. `DashboardController#dashboard` がセッションからログインユーザーを取得する
+2. 未ログインの場合は `/login` へリダイレクトする
+3. ログイン済みの場合は `DashboardService#getDashboard` を呼び出す
+4. `DashboardService` が `DashboardDao` の集計メソッドを呼び出す
+5. `DashboardDto` と最近の活動一覧をModelへ設定する
+6. `dashboard.jsp` が集計カードと活動一覧を表示する
+
 ## logout
 
 `GET /logout` または `POST /logout` でログアウトできます。
@@ -373,12 +382,11 @@ GET /report-histories/{id}/download
 
 - Spring Securityによる認証・認可
 - パスワードハッシュ化
-- 入力チェックの詳細化
+- 入力チェックのさらなる詳細化
 - DB接続エラー時の専用エラー画面
 - 権限別メニュー制御
 - 作業日報の一覧、編集、削除
 - 作業実績検索のページング
-- 帳票作成履歴の検索条件
 - 帳票ファイルの削除運用
 
 ## 面談前の説明ポイント
