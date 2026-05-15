@@ -1,12 +1,14 @@
 package com.example.workreport.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,11 +20,13 @@ import com.example.workreport.dto.MonthlyReportFileDto;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.MonthlyReportForm;
 import com.example.workreport.service.MonthlyReportService;
+import com.example.workreport.util.DownloadResponseUtil;
+import com.example.workreport.util.SessionUtils;
 
 @Controller
 public class MonthlyReportController {
 
-    private static final String LOGIN_USER_SESSION_KEY = "loginUser";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonthlyReportController.class);
 
     private final MonthlyReportService monthlyReportService;
 
@@ -67,30 +71,26 @@ public class MonthlyReportController {
         try {
             reportFile = monthlyReportService.createReport(monthlyReportForm, loginUser);
         } catch (IOException e) {
-            model.addAttribute("loginUser", loginUser);
-            model.addAttribute("monthlyReportForm", monthlyReportForm);
-            model.addAttribute("errors", java.util.Arrays.asList("Excel出力に失敗しました。帳票作成履歴にエラー内容を保存しました。"));
-            return "monthly-report-form";
+            LOGGER.warn("Failed to export monthly report. userId={}, targetYear={}, targetMonth={}",
+                    loginUser.getUserId(), monthlyReportForm.getTargetYear(), monthlyReportForm.getTargetMonth(), e);
+            return showExportError(model, loginUser, monthlyReportForm);
         } catch (RuntimeException e) {
-            model.addAttribute("loginUser", loginUser);
-            model.addAttribute("monthlyReportForm", monthlyReportForm);
-            model.addAttribute("errors", java.util.Arrays.asList("Excel出力に失敗しました。帳票作成履歴にエラー内容を保存しました。"));
-            return "monthly-report-form";
+            LOGGER.warn("Failed to export monthly report. userId={}, targetYear={}, targetMonth={}",
+                    loginUser.getUserId(), monthlyReportForm.getTargetYear(), monthlyReportForm.getTargetMonth(), e);
+            return showExportError(model, loginUser, monthlyReportForm);
         }
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", buildContentDisposition(reportFile.getFileName()));
-        response.setContentLength(reportFile.getContent().length);
-        response.getOutputStream().write(reportFile.getContent());
-        response.getOutputStream().flush();
+        DownloadResponseUtil.writeExcel(response, reportFile.getFileName(), reportFile.getContent());
         return null;
     }
 
-    private String buildContentDisposition(String fileName) throws IOException {
-        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
-        return "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName;
+    private String showExportError(Model model, User loginUser, MonthlyReportForm monthlyReportForm) {
+        model.addAttribute("loginUser", loginUser);
+        model.addAttribute("monthlyReportForm", monthlyReportForm);
+        model.addAttribute("errors", Arrays.asList("Excel出力に失敗しました。帳票作成履歴にエラー内容を保存しました。"));
+        return "monthly-report-form";
     }
 
     private User getLoginUser(HttpSession session) {
-        return (User) session.getAttribute(LOGIN_USER_SESSION_KEY);
+        return SessionUtils.getLoginUser(session);
     }
 }

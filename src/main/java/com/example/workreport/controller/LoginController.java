@@ -14,16 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.example.workreport.common.SessionKeys;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.LoginForm;
 import com.example.workreport.service.UserService;
 
 @Controller
 public class LoginController {
-
-    private static final String LOGIN_USER_SESSION_KEY = "loginUser";
-
-    private static final String LOGIN_AT_SESSION_KEY = "loginAt";
 
     private final UserService userService;
 
@@ -48,8 +45,8 @@ public class LoginController {
             return "login";
         }
 
-        session.setAttribute(LOGIN_USER_SESSION_KEY, user);
-        session.setAttribute(LOGIN_AT_SESSION_KEY, new SimpleDateFormat("yyyy/MM/dd HH:mm").format(new Date()));
+        session.setAttribute(SessionKeys.LOGIN_USER, user);
+        session.setAttribute(SessionKeys.LOGIN_AT, new SimpleDateFormat("yyyy/MM/dd HH:mm").format(new Date()));
         return "redirect:/dashboard";
     }
 

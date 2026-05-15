@@ -38,6 +38,9 @@ public class ReportHistoryService {
     }
 
     public List<ReportHistoryDto> search(ReportHistorySearchForm form) {
+        if (form == null) {
+            return reportHistoryDao.findAll();
+        }
         return reportHistoryDao.search(form);
     }
 

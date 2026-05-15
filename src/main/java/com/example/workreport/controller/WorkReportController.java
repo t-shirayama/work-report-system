@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.workreport.common.SessionKeys;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.WorkReportForm;
 import com.example.workreport.form.WorkReportSearchForm;
 import com.example.workreport.service.WorkReportService;
+import com.example.workreport.util.SessionUtils;
 
 @Controller
 public class WorkReportController {
-
-    private static final String LOGIN_USER_SESSION_KEY = "loginUser";
 
     private final WorkReportService workReportService;
 
@@ -56,7 +56,7 @@ public class WorkReportController {
         }
 
         workReportService.register(workReportForm, loginUser);
-        session.setAttribute("registeredWorkReport", workReportForm);
+        session.setAttribute(SessionKeys.REGISTERED_WORK_REPORT, workReportForm);
         return "redirect:/work-reports/complete";
     }
 
@@ -68,7 +68,7 @@ public class WorkReportController {
         }
 
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("registeredWorkReport", session.getAttribute("registeredWorkReport"));
+        model.addAttribute("registeredWorkReport", session.getAttribute(SessionKeys.REGISTERED_WORK_REPORT));
         return "work-report-complete";
     }
 
@@ -107,6 +107,6 @@ public class WorkReportController {
     }
 
     private User getLoginUser(HttpSession session) {
-        return (User) session.getAttribute(LOGIN_USER_SESSION_KEY);
+        return SessionUtils.getLoginUser(session);
     }
 }

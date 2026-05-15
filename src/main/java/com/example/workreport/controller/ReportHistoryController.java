@@ -1,11 +1,12 @@
 package com.example.workreport.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,11 +17,13 @@ import com.example.workreport.dto.ReportHistoryDto;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.ReportHistorySearchForm;
 import com.example.workreport.service.ReportHistoryService;
+import com.example.workreport.util.DownloadResponseUtil;
+import com.example.workreport.util.SessionUtils;
 
 @Controller
 public class ReportHistoryController {
 
-    private static final String LOGIN_USER_SESSION_KEY = "loginUser";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportHistoryController.class);
 
     private final ReportHistoryService reportHistoryService;
 
@@ -73,6 +76,7 @@ public class ReportHistoryController {
         ReportHistoryDto history = reportHistoryService.findById(id);
         byte[] content = reportHistoryService.readReportFile(history);
         if (history == null || content == null) {
+            LOGGER.warn("Report file was not found or unavailable. historyId={}, userId={}", id, loginUser.getUserId());
             model.addAttribute("loginUser", loginUser);
             model.addAttribute("reportHistorySearchForm", new ReportHistorySearchForm());
             model.addAttribute("reportHistories", reportHistoryService.findAll());
@@ -80,20 +84,11 @@ public class ReportHistoryController {
             return "report-history-list";
         }
 
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", buildContentDisposition(history.getFileName()));
-        response.setContentLength(content.length);
-        response.getOutputStream().write(content);
-        response.getOutputStream().flush();
+        DownloadResponseUtil.writeExcel(response, history.getFileName(), content);
         return null;
     }
 
-    private String buildContentDisposition(String fileName) throws IOException {
-        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
-        return "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName;
-    }
-
     private User getLoginUser(HttpSession session) {
-        return (User) session.getAttribute(LOGIN_USER_SESSION_KEY);
+        return SessionUtils.getLoginUser(session);
     }
 }

@@ -9,13 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.workreport.entity.User;
 import com.example.workreport.service.DashboardService;
+import com.example.workreport.util.SessionUtils;
 
 @Controller
 public class DashboardController {
-
-    private static final String LOGIN_USER_SESSION_KEY = "loginUser";
-
-    private static final String LOGIN_AT_SESSION_KEY = "loginAt";
 
     private final DashboardService dashboardService;
 
@@ -26,13 +23,13 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        User loginUser = (User) session.getAttribute(LOGIN_USER_SESSION_KEY);
+        User loginUser = SessionUtils.getLoginUser(session);
         if (loginUser == null) {
             return "redirect:/login";
         }
 
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("loginAt", session.getAttribute(LOGIN_AT_SESSION_KEY));
+        model.addAttribute("loginAt", SessionUtils.getLoginAt(session));
         model.addAttribute("dashboard", dashboardService.getDashboard());
         return "dashboard";
     }

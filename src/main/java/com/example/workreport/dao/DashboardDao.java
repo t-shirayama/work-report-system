@@ -30,7 +30,8 @@ public class DashboardDao {
     private static final String COUNT_NOT_OUTPUT_MONTHLY_REPORTS =
             "SELECT COUNT(*) "
                     + "FROM users u "
-                    + "WHERE NOT EXISTS ( "
+                    + "WHERE u.role_code = 'USER' "
+                    + "  AND NOT EXISTS ( "
                     + "    SELECT 1 "
                     + "    FROM report_output_histories roh "
                     + "    WHERE roh.created_by = u.user_id "
