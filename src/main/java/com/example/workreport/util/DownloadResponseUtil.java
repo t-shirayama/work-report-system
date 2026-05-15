@@ -16,7 +16,7 @@ public final class DownloadResponseUtil {
     public static void writeExcel(HttpServletResponse response, String fileName, byte[] content) throws IOException {
         response.setContentType(EXCEL_CONTENT_TYPE);
         response.setHeader("Content-Disposition", buildContentDisposition(fileName));
-        response.setContentLength(content.length);
+        response.setContentLengthLong(content.length);
         response.getOutputStream().write(content);
         response.getOutputStream().flush();
     }

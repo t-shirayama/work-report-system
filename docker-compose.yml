@@ -7,9 +7,9 @@ services:
     ports:
       - "1521:1521"
     environment:
-      ORACLE_PASSWORD: oracle_admin
-      APP_USER: work_report
-      APP_USER_PASSWORD: work_report
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-oracle_admin}
+      APP_USER: ${APP_USER:-work_report}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD:-work_report}
     volumes:
       - oracle-data:/opt/oracle/oradata
       - ./docker/oracle/init:/container-entrypoint-initdb.d:ro

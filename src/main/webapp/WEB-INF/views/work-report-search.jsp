@@ -69,12 +69,28 @@
 
                         <div class="search-field">
                             <label for="employeeName">社員</label>
-                            <form:input path="employeeName" id="employeeName" cssClass="entry-input" placeholder="社員名を入力" />
+                            <c:choose>
+                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
+                                    <form:input path="employeeName" id="employeeName" cssClass="entry-input" placeholder="社員名を入力" />
+                                </c:when>
+                                <c:otherwise>
+                                    <form:hidden path="employeeName" />
+                                    <div class="readonly-field"><c:out value="${loginUser.employeeName}" /></div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <div class="search-field">
                             <label for="departmentName">部署</label>
-                            <form:input path="departmentName" id="departmentName" cssClass="entry-input" placeholder="部署名を入力" />
+                            <c:choose>
+                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
+                                    <form:input path="departmentName" id="departmentName" cssClass="entry-input" placeholder="部署名を入力" />
+                                </c:when>
+                                <c:otherwise>
+                                    <form:hidden path="departmentName" />
+                                    <div class="readonly-field"><c:out value="${loginUser.departmentName}" /></div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <div class="search-field">

@@ -314,6 +314,8 @@ mvn package
 target/work-report-system.war
 ```
 
+現在の単体テストは、Service層の入力チェックと権限制御、ファイル名サニタイズ、帳票ファイル読込時のパス制限を中心に配置しています。
+
 この時点でMavenが見つからない場合は、MavenのインストールまたはSTS同梱Mavenの利用設定を確認してください。
 
 ### 13.6 STSへのインポート
@@ -388,18 +390,20 @@ src/main/resources/application.properties
 Docker Composeで起動したOracle Database Freeへ接続する開発用設定になっています。
 
 ```properties
-jdbc.driverClassName=oracle.jdbc.OracleDriver
-jdbc.url=jdbc:oracle:thin:@//localhost:1521/FREEPDB1
-jdbc.username=work_report
-jdbc.password=work_report
+jdbc.driverClassName=${JDBC_DRIVER_CLASS_NAME:oracle.jdbc.OracleDriver}
+jdbc.url=${JDBC_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
+jdbc.username=${JDBC_USERNAME:work_report}
+jdbc.password=${JDBC_PASSWORD:work_report}
 ```
+
+Docker Compose側のDBユーザーや管理者パスワードを変更する場合は、`.env.example` を参考に `.env` を作成します。`.env` はコミット対象外です。アプリケーション側の `JDBC_URL`、`JDBC_USERNAME`、`JDBC_PASSWORD` を変更する場合は、STS/Tomcatの起動構成で環境変数として設定します。上記のデフォルト値はローカル開発専用であり、運用環境では環境変数、JNDI、外部設定ファイルなどへ外部化します。
 
 ### 14.2 よくある確認ポイント
 
 | 症状 | 確認ポイント |
 |---|---|
 | `docker compose ps` で `healthy` にならない | 初回起動中の可能性があります。数分待ってから再確認します |
-| DB接続に失敗する | `docker compose ps`、ポート `1521`、`application.properties` のURLを確認します |
+| DB接続に失敗する | `docker compose ps`、ポート `1521`、`.env`、`application.properties` のURLを確認します |
 | `mvn` が認識されない | MavenがPATHに設定されているか、STS同梱Mavenを使う設定か確認します |
 | Tomcat起動時にServlet API関連で失敗する | `javax.servlet-api` と `javax.servlet.jsp-api` が `provided` スコープになっているか確認します |
 | 404になる | URLのコンテキストパスが `work-report-system` になっているか、STSのModules設定を確認します |
@@ -433,10 +437,11 @@ docker compose up -d oracle-db
 - `GET /login` は `LoginController` がログイン画面を表示し、`POST /login` の認証処理はSpring Securityが実行
 - ログイン成功時はHTTPセッションにログインユーザーとログイン時刻を保存し、ログアウト時にセッションを破棄
 - `GET /dashboard` では `DashboardController` がDB集計結果を取得し、ログイン時刻はセッション値を表示
+- 作業実績検索では、一般ユーザーは自分の作業実績だけを参照し、管理者は全ユーザー分を検索できる
 - 帳票作成履歴は `GET /report-histories` で検索、`GET /report-histories/{id}` で詳細確認、`GET /report-histories/{id}/download` で再ダウンロード
 - 月次報告書出力では、帳票履歴登録をトランザクション管理し、履歴登録失敗時は生成済みファイルを削除する
 
-DB接続情報は開発用の固定値です。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点では `DriverManagerDataSource` を使用していますが、運用環境ではアプリケーションサーバーまたは接続プール設定でコネクション管理を行う想定です。
+DB接続情報は環境変数で上書きできる開発用デフォルト値を持ちます。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点では `DriverManagerDataSource` を使用していますが、運用環境ではアプリケーションサーバーまたは接続プール設定でコネクション管理を行う想定です。
 
 ## 15. 設計・実装ポイント
 

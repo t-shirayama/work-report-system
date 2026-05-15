@@ -81,7 +81,7 @@ public class WorkReportController {
 
         model.addAttribute("loginUser", loginUser);
         model.addAttribute("workReportSearchForm", new WorkReportSearchForm());
-        model.addAttribute("searchResults", workReportService.search(new WorkReportSearchForm()));
+        model.addAttribute("searchResults", workReportService.search(new WorkReportSearchForm(), loginUser));
         return "work-report-search";
     }
 
@@ -98,11 +98,11 @@ public class WorkReportController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("searchResults", workReportService.search(new WorkReportSearchForm()));
+            model.addAttribute("searchResults", workReportService.search(new WorkReportSearchForm(), loginUser));
             return "work-report-search";
         }
 
-        model.addAttribute("searchResults", workReportService.search(workReportSearchForm));
+        model.addAttribute("searchResults", workReportService.search(workReportSearchForm, loginUser));
         return "work-report-search";
     }
 

@@ -123,14 +123,26 @@ public class WorkReportService {
         return errors;
     }
 
-    public List<WorkReportSearchResultDto> search(WorkReportSearchForm form) {
+    public List<WorkReportSearchResultDto> search(WorkReportSearchForm form, User loginUser) {
         return workReportDao.search(
                 toSqlDate(parseWorkDate(form.getDateFrom())),
                 toSqlDate(parseWorkDate(form.getDateTo())),
                 form.getEmployeeName(),
                 form.getDepartmentName(),
                 form.getWorkCategory(),
-                form.getProjectName());
+                form.getProjectName(),
+                getSearchUserId(loginUser));
+    }
+
+    private Long getSearchUserId(User loginUser) {
+        if (loginUser == null || isAdmin(loginUser)) {
+            return null;
+        }
+        return loginUser.getUserId();
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && "ADMIN".equals(user.getRoleCode());
     }
 
     private Date toSqlDate(java.util.Date value) {

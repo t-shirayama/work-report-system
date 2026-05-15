@@ -63,7 +63,8 @@ public class WorkReportDao {
             String employeeName,
             String departmentName,
             String workCategory,
-            String projectName) {
+            String projectName,
+            Long userId) {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
@@ -95,6 +96,11 @@ public class WorkReportDao {
         if (dateFrom != null) {
             sql.append("  AND wr.work_date >= :dateFrom ");
             params.addValue("dateFrom", dateFrom);
+        }
+
+        if (userId != null) {
+            sql.append("  AND wr.user_id = :userId ");
+            params.addValue("userId", userId);
         }
 
         if (dateTo != null) {

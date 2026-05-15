@@ -22,6 +22,8 @@ upload/
 
 # Local Docker / database data
 oracle-data/
+.env
+!.env.example
 
 # Temporary files
 *.tmp

@@ -257,10 +257,11 @@ Controllerはセッションから `loginUser` を取得し、未ログインの
 1. セッションからログイン中ユーザーを取得する
 2. `WorkReportService#validateSearch` で日付範囲と作業分類を確認する
 3. エラーがある場合は検索画面を再表示する
-4. エラーがない場合は `WorkReportService#search` を呼び出す
+4. エラーがない場合は `WorkReportService#search` に検索条件とログインユーザーを渡す
 5. Serviceが `WorkReportDao#search` を呼び出す
-6. DAOが指定された条件だけWHERE句に追加し、検索結果をDTOへ変換する
-7. JSPが検索結果件数と一覧テーブルを表示する
+6. 一般ユーザーの場合はServiceがログインユーザーIDをDAOへ渡し、DAOが `wr.user_id = :userId` を必ず追加する
+7. DAOが指定された条件だけWHERE句に追加し、検索結果をDTOへ変換する
+8. JSPが検索結果件数と一覧テーブルを表示する
 
 ## 検索SQL
 
@@ -279,11 +280,12 @@ WHERE 1 = 1
 
 ```sql
 AND wr.work_date >= :dateFrom
+AND wr.user_id = :userId
 AND u.employee_name LIKE :employeeName
 AND wr.work_category = :workCategory
 ```
 
-検索条件はすべて `NamedParameterJdbcTemplate` のバインド変数として渡します。ユーザー入力をSQL文字列へ直接連結しません。
+検索条件はすべて `NamedParameterJdbcTemplate` のバインド変数として渡します。ユーザー入力をSQL文字列へ直接連結しません。`ADMIN` は全ユーザー分を検索できますが、`USER` は画面上の条件を改変しても自分の作業実績だけが検索対象になります。
 
 ## 月次報告書Excel出力
 
