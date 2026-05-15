@@ -47,19 +47,22 @@
 
 ## 4. パッケージ構成ルール
 
-正式なルートパッケージは未決です。実装開始時に決定し、全体で統一してください。
+ルートパッケージは `com.example.workreport` とします。
 
-想定構成は以下です。
+基本構成は以下です。
 
 ```text
 com.example.workreport
+  common
+  config
   controller
-  service
   dao
   dto
+  entity
   form
-  report
   exception
+  service
+  util
 ```
 
 ルールは以下です。
@@ -67,10 +70,26 @@ com.example.workreport
 - Controllerは `controller` 配下に配置する
 - Serviceは `service` 配下に配置する
 - DAOは `dao` 配下に配置する
+- Entity相当のDB行データは `entity` 配下に配置する
 - 画面入力用のFormは `form` 配下に配置する
 - レイヤ間で使うデータは `dto` 配下に配置する
-- Excel帳票作成処理は `report` 配下に配置する
+- 共通処理は `common` 配下に配置する
+- Javaベース設定を追加する場合は `config` 配下に配置する
+- 汎用ユーティリティは `util` 配下に配置する
 - 共通例外は `exception` 配下に配置する
+- Excel帳票作成処理を追加する場合は、実装時に `report` パッケージを追加するか、既存パッケージ構成との整合を確認する
+
+## 4.1 Maven / Spring MVC構成ルール
+
+- `pom.xml` の packaging は `war` とする
+- `maven-compiler-plugin` の source / target は `1.8` とする
+- Servlet APIとJSP APIはTomcatが提供するため `provided` スコープにする
+- Spring MVC設定は `src/main/webapp/WEB-INF/spring/dispatcher-servlet.xml` に置く
+- アプリケーション共通設定は `src/main/webapp/WEB-INF/spring/applicationContext.xml` に置く
+- DispatcherServletは `src/main/webapp/WEB-INF/web.xml` で定義する
+- 静的ファイルは `src/main/webapp/resources/` 配下に配置する
+- CSSは `src/main/webapp/resources/css/`、JavaScriptは `src/main/webapp/resources/js/` に配置する
+- 空ディレクトリをGitで管理する必要がある場合は `.gitkeep` を使用する
 
 ## 5. Controller / Service / DAO の責務
 

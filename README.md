@@ -100,9 +100,9 @@
 | View | JSP / JSTLによる画面表示 |
 | Report | Apache POIによるExcel帳票作成 |
 
-## 10. ディレクトリ構成案
+## 10. ディレクトリ構成
 
-実装時点では、以下のようなMaven WARプロジェクト構成を想定します。
+現在は、業務機能を実装する前のMaven WARプロジェクトの土台として、以下の構成を作成しています。
 
 ```text
 work-report-system/
@@ -114,29 +114,29 @@ work-report-system/
     main/
       java/
         com/example/workreport/
+          common/
+          config/
           controller/
-          service/
           dao/
           dto/
+          entity/
           form/
-          report/
           exception/
+          service/
+          util/
       resources/
-        application.properties
-        messages.properties
-        sql/
-        report-template/
       webapp/
+        resources/
+          css/
+          js/
         WEB-INF/
           web.xml
           spring/
             applicationContext.xml
-            servlet-context.xml
+            dispatcher-servlet.xml
           views/
-            login/
-            dashboard/
-            daily/
-            report/
+    test/
+      java/
   docs/
     spring-mvc-basic.md
     controller-service-dao.md
@@ -147,7 +147,9 @@ work-report-system/
     code-walkthrough.md
 ```
 
-このREADME作成時点では、Javaコード、JSP、XML設定ファイル、pom.xmlはまだ作成していません。
+`docs/` 配下の各Markdownファイルは、今後の機能実装や学習メモ作成に合わせて追加します。
+
+現時点では、Javaコード、JSP画面、DB接続処理、業務機能はまだ作成していません。
 
 ## 11. DB設計概要
 
@@ -187,11 +189,14 @@ work-report-system/
 2. `File > Import > Maven > Existing Maven Projects` を選択する
 3. 本プロジェクトのルートディレクトリを選択する
 4. Maven Dependencies が解決されることを確認する
-5. Serversビューで Tomcat 8.5 Server を追加する
-6. Project Facets で Java 1.8 / Dynamic Web Module を確認する
-7. プロジェクトをTomcatへ追加する
-8. Tomcatを起動する
-9. ブラウザで `http://localhost:8080/work-report-system/` にアクセスする
+5. `pom.xml` の packaging が `war` になっていることを確認する
+6. Serversビューで Tomcat 8.5 Server を追加する
+7. Project Facets で Java 1.8 / Dynamic Web Module を確認する
+8. プロジェクトをTomcatへ追加する
+9. Tomcatを起動する
+10. ブラウザで `http://localhost:8080/work-report-system/` にアクセスする
+
+この土台作成時点ではControllerとJSPをまだ作成していないため、Tomcatへの配置確認が主目的です。画面表示は、次工程で最小ControllerとJSPを追加してから確認します。
 
 ## 14. Tomcat 8.5での実行方法
 
@@ -204,6 +209,12 @@ http://localhost:8080/work-report-system/
 ```
 
 アプリケーション本体はDocker前提にしません。Dockerを使用する場合は、Oracle互換DBや検証用DBの起動補助など、必要な範囲に限定します。
+
+現在のSpring MVC設定は以下です。
+
+- `src/main/webapp/WEB-INF/web.xml` で `DispatcherServlet` と `ContextLoaderListener` を定義
+- `src/main/webapp/WEB-INF/spring/dispatcher-servlet.xml` でControllerスキャン、`mvc:annotation-driven`、JSP ViewResolver、静的リソースマッピングを定義
+- `src/main/webapp/WEB-INF/spring/applicationContext.xml` は、将来のDB接続、トランザクション、Service/DAO共通設定の追加場所として用意
 
 ## 15. 学習ポイント
 
@@ -235,7 +246,6 @@ http://localhost:8080/work-report-system/
 
 現時点で未決の事項は以下です。実装時に要件を整理しながら決定します。
 
-- 正式なパッケージ名
 - ログイン認証方式とパスワード管理方式
 - Oracle接続情報の管理方法
 - 帳票テンプレートの具体的なレイアウト
