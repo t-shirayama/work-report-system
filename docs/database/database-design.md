@@ -12,7 +12,7 @@ SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / My
 
 このDB設計は、Spring JDBCで明示的にSQLを書く学習にも使えるようにしています。テーブル同士の関係、主キー、外部キー、検索条件に使う列を確認しながらDAO実装を読むと、SQLと画面機能のつながりを理解しやすくなります。
 
-開発用DBの起動手順は `docs/oracle-docker-setup.md` にまとめています。Docker Composeで起動するOracle Database Freeの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` です。
+開発用DBの起動手順は `docs/database/oracle-docker-setup.md` にまとめています。Docker Composeで起動するOracle Database Freeの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` です。
 
 ## テーブル一覧
 

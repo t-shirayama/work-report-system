@@ -143,17 +143,23 @@ work-report-system/
     test/
       java/
   docs/
-    spring-mvc-basic.md
-    controller-service-dao.md
-    spring-jdbc-basic.md
-    apache-poi-basic.md
-    excel-report-generation.md
-    database-design.md
-    oracle-docker-setup.md
-    code-walkthrough.md
+    README.md
+    architecture/
+      spring-mvc-basic.md
+      controller-service-dao.md
+    database/
+      database-design.md
+      oracle-docker-setup.md
+      spring-jdbc-basic.md
+    reporting/
+      apache-poi-basic.md
+      excel-report-generation.md
+    walkthrough/
+      code-walkthrough.md
+    designs/
 ```
 
-`docs/` 配下の各Markdownファイルは、実装済み機能を教材として読み返せるように整理しています。
+`docs/` 配下の各Markdownファイルは、実装済み機能を教材として読み返せるように整理しています。索引は `docs/README.md` です。
 
 ## 11. DB設計概要
 
@@ -394,7 +400,7 @@ docker compose up -d oracle-db
 
 `down -v` はDocker volumeを削除するため、登録済みデータも消えます。必要なデータがないことを確認してから実行してください。
 
-詳細手順は `docs/oracle-docker-setup.md` も参照してください。
+詳細手順は `docs/database/oracle-docker-setup.md` も参照してください。
 
 ### 14.4 現在のSpring MVC設定
 
@@ -454,28 +460,29 @@ docker compose up -d oracle-db
 
 ## docs配下の学習用ドキュメント
 
-`docs/` 配下には、このプロジェクトを教材として読み進めるための学習用ドキュメントを用意しています。
+`docs/` 配下には、このプロジェクトを教材として読み進めるための学習用ドキュメントを用意しています。索引として `docs/README.md` を用意しているため、基本的にはここから読み始めてください。
 
 | ドキュメント | 内容 |
 |---|---|
-| `docs/spring-mvc-basic.md` | Spring MVCのリクエスト処理、DispatcherServlet、Controller、ViewResolver、JSP表示の流れ |
-| `docs/controller-service-dao.md` | Controller / Service / DAO の責務分担、DTOとEntity、例外処理とログ出力の考え方 |
-| `docs/spring-jdbc-basic.md` | Spring JDBC、NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
-| `docs/database-design.md` | Oracle前提のDB設計、テーブル定義、ER図、インデックス、DAO実装との対応 |
-| `docs/oracle-docker-setup.md` | Docker ComposeによるOracle Database Freeの起動、初期化、接続確認 |
-| `docs/apache-poi-basic.md` | Apache POI 3.17の基本、Workbook / Sheet / Row / Cell、テンプレート方式 |
-| `docs/excel-report-generation.md` | 月次報告書Excel出力、履歴保存、再ダウンロード、例外処理の流れ |
-| `docs/code-walkthrough.md` | ログイン、日報登録、検索、帳票出力、履歴機能をコードの流れで説明 |
+| `docs/README.md` | ドキュメント索引、読む順番、カテゴリ別一覧 |
+| `docs/architecture/spring-mvc-basic.md` | Spring MVCのリクエスト処理、DispatcherServlet、Controller、ViewResolver、JSP表示の流れ |
+| `docs/architecture/controller-service-dao.md` | Controller / Service / DAO の責務分担、DTOとEntity、例外処理とログ出力の考え方 |
+| `docs/database/spring-jdbc-basic.md` | Spring JDBC、NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
+| `docs/database/database-design.md` | Oracle前提のDB設計、テーブル定義、ER図、インデックス、DAO実装との対応 |
+| `docs/database/oracle-docker-setup.md` | Docker ComposeによるOracle Database Freeの起動、初期化、接続確認 |
+| `docs/reporting/apache-poi-basic.md` | Apache POI 3.17の基本、Workbook / Sheet / Row / Cell、テンプレート方式 |
+| `docs/reporting/excel-report-generation.md` | 月次報告書Excel出力、履歴保存、再ダウンロード、例外処理の流れ |
+| `docs/walkthrough/code-walkthrough.md` | ログイン、日報登録、検索、帳票出力、履歴機能をコードの流れで説明 |
 
 おすすめの読む順番は以下です。
 
-1. `docs/spring-mvc-basic.md`
-2. `docs/controller-service-dao.md`
-3. `docs/database-design.md`
-4. `docs/oracle-docker-setup.md`
-5. `docs/spring-jdbc-basic.md`
-6. `docs/apache-poi-basic.md`
-7. `docs/excel-report-generation.md`
-8. `docs/code-walkthrough.md`
+1. `docs/architecture/spring-mvc-basic.md`
+2. `docs/architecture/controller-service-dao.md`
+3. `docs/database/database-design.md`
+4. `docs/database/oracle-docker-setup.md`
+5. `docs/database/spring-jdbc-basic.md`
+6. `docs/reporting/apache-poi-basic.md`
+7. `docs/reporting/excel-report-generation.md`
+8. `docs/walkthrough/code-walkthrough.md`
 
 最初にSpring MVCとレイヤ構成を理解し、その後DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。

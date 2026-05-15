@@ -207,15 +207,19 @@ com.example.workreport
 
 実装とあわせて、以下の学習用ドキュメントを `docs/` 配下に作成・更新します。
 
-- `docs/spring-mvc-basic.md`
-- `docs/controller-service-dao.md`
-- `docs/spring-jdbc-basic.md`
-- `docs/apache-poi-basic.md`
-- `docs/excel-report-generation.md`
-- `docs/database-design.md`
-- `docs/code-walkthrough.md`
+- `docs/README.md`
+- `docs/architecture/spring-mvc-basic.md`
+- `docs/architecture/controller-service-dao.md`
+- `docs/database/spring-jdbc-basic.md`
+- `docs/database/database-design.md`
+- `docs/database/oracle-docker-setup.md`
+- `docs/reporting/apache-poi-basic.md`
+- `docs/reporting/excel-report-generation.md`
+- `docs/walkthrough/code-walkthrough.md`
 
-機能を実装した後は、関連する解説ドキュメントも更新してください。たとえばDAOを追加した場合は `docs/spring-jdbc-basic.md` や `docs/controller-service-dao.md`、帳票出力を追加した場合は `docs/apache-poi-basic.md` や `docs/excel-report-generation.md` を更新対象として検討します。
+機能を実装した後は、関連する解説ドキュメントも更新してください。たとえばDAOを追加した場合は `docs/database/spring-jdbc-basic.md` や `docs/architecture/controller-service-dao.md`、帳票出力を追加した場合は `docs/reporting/apache-poi-basic.md` や `docs/reporting/excel-report-generation.md` を更新対象として検討します。
+
+ドキュメント構成を変更した場合は、`docs/README.md` の索引とREADMEのドキュメント一覧も更新してください。
 
 `docs/designs/` 配下には画面イメージを格納します。画面を実装・調整する場合は、該当するデザイン画像を事前に確認し、JSPとCSSへ反映してください。
 
