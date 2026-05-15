@@ -131,6 +131,10 @@ com.example.workreport
 - 共通ヘッダー、フッター、メニューは部品化を検討する
 - 画面表示用の文言は必要に応じて `messages.properties` などに分離する
 - 入力エラーは画面上で利用者が理解しやすい日本語で表示する
+- 画面実装・修正時は `docs/designs/` 配下の画面イメージを確認し、既存デザインのトーンに合わせる
+- デザインはシンプルな業務システム風とし、白背景、淡いブルー、カード、ヘッダー、サイドメニューを基本にする
+- 画面デザインを過度に複雑にせず、視認性と業務利用時の分かりやすさを優先する
+- JSP内に複雑な業務ロジックを書かず、表示用データはControllerまたはServiceで準備する
 
 ## 7. SQL作成ルール
 
@@ -210,6 +214,8 @@ com.example.workreport
 
 機能を実装した後は、関連する解説ドキュメントも更新してください。たとえばDAOを追加した場合は `docs/spring-jdbc-basic.md` や `docs/controller-service-dao.md`、帳票出力を追加した場合は `docs/apache-poi-basic.md` や `docs/excel-report-generation.md` を更新対象として検討します。
 
+`docs/designs/` 配下には画面イメージを格納します。画面を実装・調整する場合は、該当するデザイン画像を事前に確認し、JSPとCSSへ反映してください。
+
 ## 15. STS / Eclipse 互換性ルール
 
 - STS / Eclipse に `Existing Maven Projects` としてインポートできる構成にする
@@ -244,6 +250,7 @@ com.example.workreport
 Codexが作業するときは、以下を守ってください。
 
 - 作業前に既存ファイルを確認する
+- 画面作業の場合は `docs/designs/` 配下の該当画像を確認してから実装する
 - ユーザーの指示範囲を超える実装を行わない
 - 技術スタックや固定バージョンを勝手に変更しない
 - Javaコード、JSP、XML、pom.xmlを作成する場合は、ユーザーから明示的に依頼された範囲に限定する

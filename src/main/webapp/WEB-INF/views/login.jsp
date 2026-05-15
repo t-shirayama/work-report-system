@@ -7,17 +7,16 @@
     <title>ログイン | 作業日報・月次報告書作成システム</title>
     <link rel="stylesheet" href="<c:url value='/resources/css/common.css' />">
 </head>
-<body>
-<div class="page">
-    <header class="app-header">
-        <div>
-            <p class="app-kicker">Work Report System</p>
-            <h1>作業日報・月次報告書作成システム</h1>
-        </div>
+<body class="login-body">
+<div class="login-page">
+    <header class="login-header">
+        <h1>作業日報・月次報告書作成システム</h1>
+        <p>作業日報および月次報告書の作成・管理を行うシステムです</p>
     </header>
 
-    <main class="main-content narrow">
-        <section class="section">
+    <main class="login-main">
+        <section class="login-card">
+            <div class="login-icon" aria-hidden="true">□</div>
             <h2>ログイン</h2>
 
             <c:if test="${not empty errorMessage}">
@@ -29,21 +28,31 @@
             <form class="form" method="post" action="<c:url value='/login' />">
                 <div class="form-row">
                     <label for="loginId">ログインID</label>
-                    <input type="text" id="loginId" name="loginId" autocomplete="username">
+                    <div class="input-wrap">
+                        <span class="input-icon" aria-hidden="true">ID</span>
+                        <input type="text" id="loginId" name="loginId" placeholder="ログインIDを入力してください" autocomplete="username">
+                    </div>
                 </div>
 
                 <div class="form-row">
                     <label for="password">パスワード</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password">
+                    <div class="input-wrap">
+                        <span class="input-icon" aria-hidden="true">PW</span>
+                        <input type="password" id="password" name="password" placeholder="パスワードを入力してください" autocomplete="current-password">
+                    </div>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="rememberLogin" name="rememberLogin">
+                    <label for="rememberLogin">ログイン状態を保持</label>
                 </div>
 
                 <div class="button-row">
                     <button class="primary-button" type="submit">ログイン</button>
-                    <a class="secondary-link" href="<c:url value='/home' />">トップへ戻る</a>
                 </div>
             </form>
 
-            <p class="note">サンプルデータ投入後は `admin` / `password` などで確認できます。</p>
+            <p class="login-note">社内業務向けシステム</p>
         </section>
     </main>
 </div>
