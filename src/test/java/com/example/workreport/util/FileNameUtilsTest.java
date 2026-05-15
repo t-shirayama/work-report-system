@@ -23,9 +23,26 @@ public class FileNameUtilsTest {
     }
 
     @Test
+    public void sanitizeNamePartUsesDefaultForNullAndTruncatesLongValue() {
+        assertEquals("default", FileNameUtils.sanitizeNamePart(null, "default"));
+        assertEquals(80, FileNameUtils.sanitizeNamePart(repeat("A", 81), "default").length());
+    }
+
+    @Test
     public void isSafeFileNameRejectsPathTraversal() {
+        assertFalse(FileNameUtils.isSafeFileName(null));
+        assertFalse(FileNameUtils.isSafeFileName("   "));
         assertFalse(FileNameUtils.isSafeFileName("../monthly-report.xlsx"));
         assertFalse(FileNameUtils.isSafeFileName("reports\\monthly-report.xlsx"));
+        assertFalse(FileNameUtils.isSafeFileName("C:report.xlsx"));
         assertTrue(FileNameUtils.isSafeFileName("monthly-report.xlsx"));
+    }
+
+    private String repeat(String value, int count) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            builder.append(value);
+        }
+        return builder.toString();
     }
 }

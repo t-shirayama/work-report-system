@@ -345,6 +345,8 @@ target/work-report-system.war
 
 現在の単体テストは、Service層の入力チェックと権限制御、帳票履歴の `PROCESSING -> SUCCESS/ERROR` 遷移、ファイル名サニタイズ、帳票ファイル読込時のパス制限を中心に配置しています。
 
+`mvn test` では JaCoCo によるカバレッジ確認も実行されます。対象はユニットテストで検証する業務ロジック層（Service / Security / Util）とし、画面遷移、DAOのSQL、DTO/Form/Entity、Excelテンプレートへの実書き込みは結合テストまたは画面確認の対象として分けています。ユニットテスト対象のラインカバレッジとブランチカバレッジは 100% を下回るとビルド失敗になります。
+
 この時点でMavenが見つからない場合は、MavenのインストールまたはSTS同梱Mavenの利用設定を確認してください。
 
 ### 13.6 STSへのインポート
