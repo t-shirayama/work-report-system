@@ -109,6 +109,11 @@ work-report-system/
   README.md
   AGENTS.md
   .gitignore
+  docker-compose.yml
+  docker/
+    oracle/
+      init/
+        01-init-work-report.sql
   pom.xml
   src/
     main/
@@ -144,6 +149,7 @@ work-report-system/
     apache-poi-basic.md
     excel-report-generation.md
     database-design.md
+    oracle-docker-setup.md
     code-walkthrough.md
 ```
 
@@ -168,6 +174,8 @@ work-report-system/
 - JDBCドライバはOracle JDBC Driver 19.17.0.0を使用し、Maven依存関係は `ojdbc8:19.17.0.0` とする
 - SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない
 - ポートフォリオ開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
+- 本リポジトリでは、開発用DBとして `docker-compose.yml` でOracle Database Freeを起動する
+- 開発用DBの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` とする
 - 主キーは業務要件に応じて数値IDまたは複合キーを検討する
 - 日付、年月、作業時間を検索しやすい形で保持する
 - 帳票ファイルはファイルシステム保存を基本案とし、DBには保存先パスや作成日時を保持する
@@ -227,6 +235,22 @@ http://localhost:8080/work-report-system/home
 アプリケーション本体はDocker化しません。アプリケーションはSTS + Tomcat 8.5 + Maven WARで起動します。
 
 Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle Database XEを起動する補助用途に限定します。
+
+開発用Oracle Database Freeを起動する場合は、リポジトリルートで以下を実行します。
+
+```powershell
+docker compose up -d oracle-db
+```
+
+初回起動時に、`src/main/resources/sql/schema.sql` と `src/main/resources/sql/sample-data.sql` が `work_report` スキーマへ投入されます。
+
+接続確認は以下で行えます。
+
+```powershell
+docker compose exec oracle-db sqlplus -L work_report/work_report@//localhost:1521/FREEPDB1
+```
+
+詳細手順は `docs/oracle-docker-setup.md` を参照してください。
 
 現在のSpring MVC設定は以下です。
 
@@ -290,6 +314,7 @@ Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle
 | `docs/controller-service-dao.md` | Controller / Service / DAO の責務分担、DTOとEntity、例外処理とログ出力の考え方 |
 | `docs/spring-jdbc-basic.md` | Spring JDBC、NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
 | `docs/database-design.md` | Oracle前提のDB設計、テーブル定義、ER図、インデックス、DAO実装との対応 |
+| `docs/oracle-docker-setup.md` | Docker ComposeによるOracle Database Freeの起動、初期化、接続確認 |
 | `docs/apache-poi-basic.md` | Apache POI 3.17の基本、Workbook / Sheet / Row / Cell、テンプレート方式 |
 | `docs/excel-report-generation.md` | 月次報告書Excel出力、履歴保存、再ダウンロード、例外処理の流れ |
 | `docs/code-walkthrough.md` | ログイン、日報登録、検索、帳票出力、履歴機能をコードの流れで説明 |
@@ -299,9 +324,10 @@ Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle
 1. `docs/spring-mvc-basic.md`
 2. `docs/controller-service-dao.md`
 3. `docs/database-design.md`
-4. `docs/spring-jdbc-basic.md`
-5. `docs/apache-poi-basic.md`
-6. `docs/excel-report-generation.md`
-7. `docs/code-walkthrough.md`
+4. `docs/oracle-docker-setup.md`
+5. `docs/spring-jdbc-basic.md`
+6. `docs/apache-poi-basic.md`
+7. `docs/excel-report-generation.md`
+8. `docs/code-walkthrough.md`
 
 最初にSpring MVCとレイヤ構成を理解し、その後DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。

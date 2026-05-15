@@ -12,7 +12,7 @@ DB接続情報は `src/main/resources/application.properties` に定義します
 
 ```properties
 jdbc.driverClassName=oracle.jdbc.OracleDriver
-jdbc.url=jdbc:oracle:thin:@localhost:1521/FREE
+jdbc.url=jdbc:oracle:thin:@//localhost:1521/FREEPDB1
 jdbc.username=work_report
 jdbc.password=work_report
 ```

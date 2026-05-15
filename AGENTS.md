@@ -46,6 +46,8 @@
 - SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない
 - 開発用DBはDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
 - アプリケーション本体はDocker化せず、STS + Tomcat 8.5 + Maven WARで起動する
+- 開発用DBのDocker Compose構成は `docker-compose.yml` と `docker/oracle/init/` 配下で管理する
+- Docker Composeで起動するOracle Database Freeの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` を基本とする
 - Excel帳票はApache POI 3.17で、テンプレートExcelに値を差し込む方式を前提にする
 - JSPは `src/main/webapp/WEB-INF/views/` 配下に配置する
 - IDE固有ファイルは原則コミットしない
@@ -147,6 +149,7 @@ com.example.workreport
 - 日付、年月、ページングの扱いはOracleの仕様を意識する
 - H2 / PostgreSQL / MySQL互換のためにOracle向けDDLやSQLを薄めない
 - 開発用DBをDocker Composeで用意する場合も、Oracle Database FreeまたはOracle Database XEを使用する
+- 開発用DB初期化では `src/main/resources/sql/schema.sql` と `src/main/resources/sql/sample-data.sql` を使用し、別系統のDDLを増やさない
 - Oracle 11gも考慮する箇所では、Identity列ではなくシーケンス利用を検討する
 
 ## 8. Spring JDBCの使用ルール
@@ -236,6 +239,7 @@ com.example.workreport
 - React / Vue / Angularを使用しない
 - Docker前提のアプリ構成にしない
 - アプリケーション本体をDocker化しない
+- 開発用DB以外の目的でDocker Compose構成を拡張しない
 - H2 / PostgreSQL / MySQL向けのDDL、SQL、DAO実装にしない
 - Java 9以降のAPIを使用しない
 - 最新Springへ勝手に更新しない

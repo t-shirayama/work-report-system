@@ -12,6 +12,8 @@ SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / My
 
 このDB設計は、Spring JDBCで明示的にSQLを書く学習にも使えるようにしています。テーブル同士の関係、主キー、外部キー、検索条件に使う列を確認しながらDAO実装を読むと、SQLと画面機能のつながりを理解しやすくなります。
 
+開発用DBの起動手順は `docs/oracle-docker-setup.md` にまとめています。Docker Composeで起動するOracle Database Freeの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` です。
+
 ## テーブル一覧
 
 | テーブル名 | 概要 |
@@ -20,6 +22,22 @@ SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / My
 | `users` | ログインユーザー情報 |
 | `work_reports` | 日々の作業実績 |
 | `report_output_histories` | 月次報告書の出力履歴 |
+
+## 開発用DB環境
+
+開発用DBは `docker-compose.yml` でOracle Database Freeを起動します。
+
+| 項目 | 値 |
+|---|---|
+| Docker service | `oracle-db` |
+| Image | `gvenzl/oracle-free:23-slim` |
+| Host | `localhost` |
+| Port | `1521` |
+| Service | `FREEPDB1` |
+| User | `work_report` |
+| Password | `work_report` |
+
+初回起動時に `docker/oracle/init/01-init-work-report.sql` が実行され、`src/main/resources/sql/schema.sql` と `src/main/resources/sql/sample-data.sql` が `work_report` スキーマへ投入されます。
 
 ## ER図のテキスト表現
 

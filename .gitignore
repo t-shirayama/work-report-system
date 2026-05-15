@@ -20,6 +20,9 @@ Thumbs.db
 generated-reports/
 upload/
 
+# Local Docker / database data
+oracle-data/
+
 # Temporary files
 *.tmp
 *.bak
