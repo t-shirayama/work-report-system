@@ -180,9 +180,11 @@ public class ReportHistoryService {
     }
 
     private String safeFileName(String fileName) {
-        return FileNameUtils.isSafeFileName(fileName)
-                ? fileName
-                : FileNameUtils.sanitizeNamePart(fileName, "monthly-report") + ".xlsx";
+        if (FileNameUtils.isSafeFileName(fileName)) {
+            return fileName;
+        }
+        String sanitized = FileNameUtils.sanitizeNamePart(fileName, "monthly-report");
+        return sanitized.toLowerCase().endsWith(".xlsx") ? sanitized : sanitized + ".xlsx";
     }
 
     private String buildReportFilePath(String targetYearMonth, String safeFileName) {
