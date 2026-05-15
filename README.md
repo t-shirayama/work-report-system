@@ -280,14 +280,28 @@ Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle
 - サンプルデータの内容
 - テスト用DBをどのように用意するか
 
-## docs配下の学習用ドキュメント作成予定
+## docs配下の学習用ドキュメント
 
-実装とあわせて、以下の学習用ドキュメントを `docs/` 配下に作成していく予定です。
+`docs/` 配下には、このプロジェクトを教材として読み進めるための学習用ドキュメントを用意しています。
 
-- `docs/spring-mvc-basic.md`
-- `docs/controller-service-dao.md`
-- `docs/spring-jdbc-basic.md`
-- `docs/apache-poi-basic.md`
-- `docs/excel-report-generation.md`
-- `docs/database-design.md`
-- `docs/code-walkthrough.md`
+| ドキュメント | 内容 |
+|---|---|
+| `docs/spring-mvc-basic.md` | Spring MVCのリクエスト処理、DispatcherServlet、Controller、ViewResolver、JSP表示の流れ |
+| `docs/controller-service-dao.md` | Controller / Service / DAO の責務分担、DTOとEntity、例外処理とログ出力の考え方 |
+| `docs/spring-jdbc-basic.md` | Spring JDBC、NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
+| `docs/database-design.md` | Oracle前提のDB設計、テーブル定義、ER図、インデックス、DAO実装との対応 |
+| `docs/apache-poi-basic.md` | Apache POI 3.17の基本、Workbook / Sheet / Row / Cell、テンプレート方式 |
+| `docs/excel-report-generation.md` | 月次報告書Excel出力、履歴保存、再ダウンロード、例外処理の流れ |
+| `docs/code-walkthrough.md` | ログイン、日報登録、検索、帳票出力、履歴機能をコードの流れで説明 |
+
+おすすめの読む順番は以下です。
+
+1. `docs/spring-mvc-basic.md`
+2. `docs/controller-service-dao.md`
+3. `docs/database-design.md`
+4. `docs/spring-jdbc-basic.md`
+5. `docs/apache-poi-basic.md`
+6. `docs/excel-report-generation.md`
+7. `docs/code-walkthrough.md`
+
+最初にSpring MVCとレイヤ構成を理解し、その後DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。

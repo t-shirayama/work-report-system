@@ -4,6 +4,8 @@
 
 本プロジェクトではExcelをゼロから生成するのではなく、`src/main/resources/templates/monthly-report-template.xlsx` を読み込み、必要なセルへ値を差し込む方式を採用しています。
 
+Apache POIは、JavaからExcelファイルを読み書きするためのライブラリです。本プロジェクトでは `.xlsx` 形式を扱うため、`XSSFWorkbook` を使用します。
+
 ## 使用する主なクラス
 
 | クラス | 役割 |
@@ -29,6 +31,19 @@ try (InputStream templateStream = getClass().getResourceAsStream(TEMPLATE_PATH);
 ```
 
 try-with-resourcesを使用し、`InputStream`、`Workbook`、`ByteArrayOutputStream` を適切にクローズします。
+
+## Workbook / Sheet / Row / Cell
+
+POIでは、Excelファイルを以下の階層で扱います。
+
+```text
+Workbook: Excelファイル全体
+  Sheet: シート
+    Row: 行
+      Cell: セル
+```
+
+月次報告書では、`Workbook` から先頭の `Sheet` を取得し、固定セルには基本情報やサマリーを設定します。明細部分は、作業実績の件数に応じて `Row` と `Cell` を追加します。
 
 ## セルへの値設定
 
@@ -72,6 +87,25 @@ sheet.shiftRows(startRow + 1, sheet.getLastRowNum(), addRowCount, true, false);
 ```
 
 その後、テンプレート行の高さやセルスタイルをコピーし、データを差し込みます。
+
+月次報告書では、作業分類別集計と日別作業実績の件数が月や社員によって変わります。そのため、テンプレートに用意した明細行の書式をコピーしながら、必要な行数だけ増やします。
+
+## テンプレート方式のメリット
+
+テンプレート方式には、以下のメリットがあります。
+
+- Excel上で帳票レイアウトを調整しやすい
+- 罫線、背景色、列幅、印刷設定をテンプレート側に持たせられる
+- Javaコードは値の差し込みに集中できる
+- 既存業務で使っているExcel帳票を再現しやすい
+
+一方で、セル位置が固定になるため、テンプレート変更時はJava側のセル位置定義も確認する必要があります。
+
+## 例外処理
+
+テンプレートファイルが存在しない、Excelファイルの読み込みに失敗する、出力先へ保存できない、といった場合は例外が発生します。
+
+帳票出力では、例外を利用者にそのまま表示するのではなく、画面には分かりやすいメッセージを表示し、帳票作成履歴には `ERROR` ステータスとエラーメッセージを保存する方針です。
 
 ## POI 3.17での注意点
 

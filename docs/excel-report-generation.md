@@ -2,6 +2,8 @@
 
 このドキュメントでは、月次報告書Excel出力機能の構成と処理の流れを説明します。
 
+月次報告書出力は、入力条件の受け取り、DB検索、集計、Excelテンプレートへの差し込み、ファイル保存、履歴登録、ブラウザダウンロードがつながる機能です。Controller / Service / DAO / POI処理の役割分担を確認する教材として読むことができます。
+
 ## 対象機能
 
 | URL | メソッド | 概要 |
@@ -27,6 +29,10 @@ src/main/resources/templates/monthly-report-template.xlsx
 | `MonthlyReportService` | 入力チェック、対象年月の期間計算、帳票データ作成 |
 | `MonthlyReportDao` | 月次サマリー、作業分類別集計、日別実績のSQL実行 |
 | `ExcelReportService` | Apache POIでテンプレートExcelに値を差し込む |
+| `ReportHistoryService` | 帳票作成履歴の登録、一覧取得、再ダウンロード用確認 |
+| `ReportHistoryDao` | `report_output_histories` へのINSERTとSELECT |
+
+Excel作成と履歴管理は関心が異なるため、`ExcelReportService` と `ReportHistoryService` に分けています。これにより、帳票レイアウトの変更と履歴一覧の変更を別々に追いやすくしています。
 
 ## 出力内容
 
@@ -119,6 +125,8 @@ response.setHeader("Content-Disposition", buildContentDisposition(fileName));
 
 失敗時は `ERROR` として履歴を保存し、エラーメッセージを `error_message` に登録します。
 
+履歴を保存する理由は、利用者が後から同じ帳票を再取得できるようにするためです。また、いつ、誰が、どの対象年月の帳票を作成したかを残すことで、業務上の証跡にもなります。
+
 ## 再ダウンロード
 
 帳票作成履歴一覧は以下のURLで表示します。
@@ -136,6 +144,14 @@ GET /report-histories/{id}/download
 再ダウンロード処理では、履歴IDから `report_output_histories` を検索し、`file_path` に保存されたExcelファイルを読み込んでブラウザへ返します。
 
 ファイルが存在しない場合や、ステータスが `SUCCESS` ではない場合は、一覧画面にエラーメッセージを表示します。
+
+## 例外とログ出力の考え方
+
+Excel出力では、DB検索、テンプレート読み込み、Excel書き込み、ファイル保存、レスポンス出力の各段階で例外が発生する可能性があります。
+
+ログには、対象年月、部署、社員、出力ユーザーID、ファイル名、履歴ID、例外内容を残すと調査しやすくなります。ただし、パスワードなどの秘密情報は出力しません。
+
+利用者向けには、詳細なスタックトレースではなく「帳票の作成に失敗しました」のような分かりやすいメッセージを表示します。詳細はログと `report_output_histories.error_message` から確認する方針です。
 
 ## 今後の改善案
 

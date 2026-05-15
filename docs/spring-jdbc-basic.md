@@ -4,6 +4,8 @@
 
 本プロジェクトでは、DBアクセスにSpring JDBCの `NamedParameterJdbcTemplate` を使用します。JPA / Hibernate / MyBatisは使用しません。
 
+Spring JDBCは、Java標準のJDBCを使いやすくするためのSpringの機能です。SQLを自分で書く方針はそのままに、接続、パラメータ設定、結果取得、例外変換などの定型処理を簡潔に書けます。
+
 ## DB接続設定
 
 DB接続情報は `src/main/resources/application.properties` に定義します。
@@ -49,6 +51,8 @@ public class UserDao {
 
 SQLはDAO層に定義し、ControllerやJSPには書きません。
 
+DAOにSQLを集約することで、画面や業務ロジックからDBアクセスの詳細を切り離します。SQLを確認したいときはDAOを見る、という読み方ができるようになります。
+
 ## バインド変数
 
 ログインID検索では、以下のように名前付きパラメータを使用します。
@@ -66,6 +70,8 @@ MapSqlParameterSource params = new MapSqlParameterSource()
 
 これにより、ユーザー入力をSQL文字列に直接連結せず、SQLインジェクション対策になります。
 
+`NamedParameterJdbcTemplate` は、`?` の順番ではなく `:loginId` のような名前でパラメータを指定できます。条件が増えても対応関係が読みやすく、業務SQLの保守に向いています。
+
 ## RowMapper
 
 SELECT結果は `RowMapper` で `User` に変換します。
@@ -77,6 +83,19 @@ user.setEmployeeName(rs.getString("employee_name"));
 ```
 
 ResultSetの扱いをDAO内に閉じ込めることで、ServiceやControllerはDBの詳細を意識せずに済みます。
+
+## SQLとDTOの対応
+
+SELECT文の結果は、画面や処理で使いやすいDTOまたはEntityに変換します。
+
+| DAO | SQLの主な取得元 | 変換先 |
+|---|---|---|
+| `UserDao` | `users`, `departments` | `User` |
+| `WorkReportDao#search` | `work_reports`, `users`, `departments` | `WorkReportSearchResultDto` |
+| `MonthlyReportDao` | `work_reports`, `users`, `departments` | `MonthlyReportSummaryDto`, `MonthlyReportCategorySummaryDto`, `MonthlyReportDailyDetailDto` |
+| `ReportHistoryDao` | `report_output_histories`, `users` | `ReportHistoryDto`, `ReportOutputHistory` |
+
+たとえば `WorkReportSearchResultDto` は、作業日報テーブルだけでなく社員名、部署名、作業分類表示名も持ちます。これは検索結果画面に必要な形に合わせたDTOです。
 
 ## 認証用SQL
 
@@ -146,6 +165,29 @@ if (StringUtils.hasText(workCategory)) {
 ```
 
 検索結果は `RowMapper` で `WorkReportSearchResultDto` に変換します。画面表示用に、作業日は `TO_CHAR(wr.work_date, 'YYYY/MM/DD')`、作業分類名は `CASE` 式で変換しています。
+
+## 更新系SQL
+
+登録処理では、`NamedParameterJdbcTemplate#update` を使用します。
+
+作業日報登録の `WorkReportDao` では、Oracleのシーケンス `seq_work_reports.NEXTVAL` で主キーを採番し、Formから変換した `WorkReport` の値をバインド変数としてINSERTします。
+
+```sql
+VALUES (
+    seq_work_reports.NEXTVAL,
+    :userId,
+    :departmentId,
+    :workDate,
+    :projectName,
+    :workCategory,
+    :workHours,
+    :workContent,
+    SYSDATE,
+    SYSDATE
+)
+```
+
+INSERT、UPDATE、DELETEでも、検索と同じくユーザー入力をSQL文字列へ直接連結しないことが基本です。
 
 ## 今後の改善
 

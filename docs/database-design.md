@@ -10,6 +10,8 @@
 
 SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せません。
 
+このDB設計は、Spring JDBCで明示的にSQLを書く学習にも使えるようにしています。テーブル同士の関係、主キー、外部キー、検索条件に使う列を確認しながらDAO実装を読むと、SQLと画面機能のつながりを理解しやすくなります。
+
 ## テーブル一覧
 
 | テーブル名 | 概要 |
@@ -34,6 +36,8 @@ users       1 ---- * report_output_histories
 - 1つの部署には複数の作業日報が紐づきます。
 - 1人のユーザーは複数の作業日報を登録できます。
 - 1人のユーザーは複数の月次報告書出力履歴を作成できます。
+
+作業実績検索や月次報告書出力では、`work_reports` を中心に `users` と `departments` をJOINします。日報データにユーザーIDと部署IDを持たせることで、社員名や部署名を検索結果や帳票に表示できます。
 
 ## 各テーブルのカラム定義
 
@@ -159,6 +163,8 @@ users       1 ---- * report_output_histories
 
 作業実績検索では、対象年月、ユーザー、部署、プロジェクト名を条件にする想定です。実装後の検索条件や実行計画に応じて、複合インデックスは見直します。
 
+インデックスは、DBが目的の行を探しやすくするための仕組みです。すべての列に付ければよいものではなく、検索条件、JOIN条件、並び替えでよく使う列を中心に検討します。
+
 ## サンプルデータの説明
 
 サンプルデータは `src/main/resources/sql/sample-data.sql` に定義しています。
@@ -196,6 +202,23 @@ DDLは `src/main/resources/sql/schema.sql` に定義しています。
 - Oracle 11gも想定し、Identity列ではなくシーケンスを用意する
 - サンプルデータ投入後のID衝突を避けるため、シーケンスは `1001` から開始する
 - 論理削除カラムは今回は持たせない
+
+## DAO実装との対応
+
+| テーブル | 主に参照・更新するDAO | 主な用途 |
+|---|---|---|
+| `departments` | `UserDao`, `WorkReportDao`, `MonthlyReportDao` | 部署名表示、検索、帳票出力 |
+| `users` | `UserDao`, `WorkReportDao`, `MonthlyReportDao`, `ReportHistoryDao` | ログイン認証、社員名表示、作成者表示 |
+| `work_reports` | `WorkReportDao`, `MonthlyReportDao` | 日報登録、作業実績検索、月次集計 |
+| `report_output_histories` | `ReportHistoryDao` | 帳票作成履歴登録、一覧表示、再ダウンロード |
+
+DAOでは、これらのテーブルを機能に合わせてJOINし、EntityまたはDTOへ変換します。たとえば `ReportHistoryDao` は履歴テーブルとユーザーテーブルをJOINし、一覧表示に必要な作成者名を含む `ReportHistoryDto` を作成します。
+
+## 例外とデータ整合性
+
+外部キー制約により、存在しないユーザーIDや部署IDを持つ作業日報は登録できません。アプリケーション側でもセッション中の `loginUser` から `userId` と `departmentId` を取得して登録しますが、DB側の制約も最後の防御線として機能します。
+
+DB制約違反や接続エラーが発生した場合は、利用者には分かりやすいエラーメッセージを表示し、ログには調査に必要な情報を残す方針です。
 
 ## 今後の拡張案
 
