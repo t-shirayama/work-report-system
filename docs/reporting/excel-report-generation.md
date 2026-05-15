@@ -102,7 +102,7 @@ response.setHeader("Content-Disposition", buildContentDisposition(fileName));
 
 ファイル保存時は `StandardOpenOption.CREATE_NEW` を使用し、同名ファイルが存在する場合は上書きせずエラーにします。通常は履歴ID付きファイル名により衝突しませんが、保存処理側でも上書きを防ぐ二重の安全策を取っています。
 
-月次報告書の対象者は、内部的には `user_id` で特定します。部署名・社員名は画面表示や帳票表示には使いますが、DB検索条件としては `work_reports.user_id = :userId` を使用します。同姓同名、部署名変更、表記ゆれによる誤集計を避けるためです。
+月次報告書の対象者は、内部的には `user_id` で特定します。部署名・社員名は画面表示や帳票表示には使いますが、DB検索条件としては `work_reports.user_id = :userId` を使用します。同姓同名、部署名変更、表記ゆれによる誤集計を避けるためです。管理者が出力対象として選択できるのは、帳票対象である一般ユーザーのみです。
 
 ## 履歴保存
 
@@ -127,11 +127,11 @@ response.setHeader("Content-Disposition", buildContentDisposition(fileName));
 | `ERROR` | Excel作成または保存に失敗 |
 | `PROCESSING` | 作成中。画面では「処理中」と表示 |
 
-出力開始時は履歴を `PROCESSING` として登録します。処理中の履歴にも、予定ファイル名と予定保存先を保持します。
+出力開始時は履歴を `PROCESSING` として登録します。この時点では履歴ID確定前の仮ファイル名として `_PROCESSING.xlsx` を保持します。
 
-成功時はExcelファイルを `generated-reports/` 配下へ保存し、同じ履歴を `SUCCESS`、保存先パス、`error_message = null` へ更新します。
+履歴ID取得後に履歴ID付きの正式ファイル名を作成します。成功時はExcelファイルを `generated-reports/` 配下へ保存し、同じ履歴を `SUCCESS`、正式ファイル名、保存先パス、`error_message = null` へ更新します。
 
-失敗時は同じ履歴を `ERROR` として更新し、エラーメッセージを `error_message` に登録します。ファイル保存後に失敗した場合は、生成済みファイルの削除を試みます。削除に失敗した場合も元の例外を優先しつつ、ログへ警告を残します。
+失敗時も同じ履歴を `ERROR`、履歴ID付きの正式ファイル名、エラーメッセージへ更新します。ファイル保存後に失敗した場合は、生成済みファイルの削除を試みます。削除に失敗した場合も元の例外を優先しつつ、ログへ警告を残します。
 
 現在のExcel出力は同期処理です。非同期ジョブ化はしていませんが、履歴は以下の状態遷移で管理します。
 

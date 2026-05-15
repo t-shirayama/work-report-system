@@ -318,12 +318,13 @@ http://localhost:8080/work-report-system/monthly-reports/new
 6. `Workbook`、`Sheet`、`Row`、`Cell` を使って値を差し込む
 7. 明細行はテンプレート行の `CellStyle` をコピーしながら動的に追加する
 8. ファイル名に使う社員名を安全な文字へ変換する
-9. `report_output_histories` に `PROCESSING` の帳票作成履歴を登録する
-10. 生成したExcelを `generated-reports/` 配下へ保存する
-11. 成功時は同じ履歴を `SUCCESS` へ更新する
-12. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
+9. `report_output_histories` に `_PROCESSING.xlsx` の仮ファイル名で `PROCESSING` の帳票作成履歴を登録する
+10. 採番された履歴IDを含む正式ファイル名を作成する
+11. 生成したExcelを `generated-reports/` 配下へ保存する
+12. 成功時は同じ履歴を `SUCCESS` と正式ファイル名へ更新する
+13. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
 
-一般ユーザーは、自分の部署・社員名の月次報告書のみ出力できます。管理者は部署・社員名を指定して出力できます。
+一般ユーザーは、自分の月次報告書のみ出力できます。管理者は一般ユーザーを選択して月次報告書を出力できます。集計条件には部署名・社員名ではなく `user_id` を使用します。
 
 Excel生成やファイル保存で失敗した場合は、同じ履歴を `ERROR` へ更新し、エラーメッセージを保存します。ファイル保存後に失敗した場合は生成済みファイルの削除を試み、削除に失敗した場合はログに警告を残します。
 
@@ -336,7 +337,7 @@ src/main/resources/templates/monthly-report-template.xlsx
 ブラウザからは、以下のようなファイル名でダウンロードされます。
 
 ```text
-月次報告書_202605_山田太郎.xlsx
+月次報告書_202605_山田太郎_履歴ID100.xlsx
 ```
 
 ## 帳票作成履歴

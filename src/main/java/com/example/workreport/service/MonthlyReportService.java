@@ -32,6 +32,8 @@ public class MonthlyReportService {
 
     private static final String ROLE_ADMIN = "ADMIN";
 
+    private static final String ROLE_USER = "USER";
+
     private final MonthlyReportDao monthlyReportDao;
 
     private final ExcelReportService excelReportService;
@@ -39,13 +41,6 @@ public class MonthlyReportService {
     private final ReportHistoryService reportHistoryService;
 
     private final UserService userService;
-
-    MonthlyReportService(
-            MonthlyReportDao monthlyReportDao,
-            ExcelReportService excelReportService,
-            ReportHistoryService reportHistoryService) {
-        this(monthlyReportDao, excelReportService, reportHistoryService, null);
-    }
 
     @Autowired
     public MonthlyReportService(
@@ -81,11 +76,10 @@ public class MonthlyReportService {
         }
 
         if (isAdmin(loginUser)) {
+            User targetUser = findValidReportTargetUser(form.getUserId());
             if (!StringUtils.hasText(form.getUserId())) {
                 errors.add("社員は必須です。");
-            } else if (parseUserId(form.getUserId()) == null) {
-                errors.add("社員の指定が正しくありません。");
-            } else if (userService != null && userService.findById(parseUserId(form.getUserId())) == null) {
+            } else if (targetUser == null) {
                 errors.add("指定された社員が存在しません。");
             }
         } else if (StringUtils.hasText(form.getUserId()) && !loginUser.getUserId().toString().equals(form.getUserId())) {
@@ -99,7 +93,7 @@ public class MonthlyReportService {
         requireLoginUser(loginUser);
         String targetYearMonth = buildTargetYearMonth(form);
         User targetUser = resolveTargetUser(form, loginUser);
-        String processingFileName = buildFileName(targetYearMonth, targetUser, null);
+        String processingFileName = buildProcessingFileName(targetYearMonth, targetUser);
         Path reportPath = null;
         Long reportOutputHistoryId = reportHistoryService.saveProcessingHistory(loginUser.getUserId(), targetYearMonth, processingFileName);
         String fileName = buildFileName(targetYearMonth, targetUser, reportOutputHistoryId);
@@ -198,10 +192,23 @@ public class MonthlyReportService {
             throw new IllegalArgumentException("target user is required.");
         }
         User targetUser = userService.findById(targetUserId);
-        if (targetUser == null) {
+        if (!isReportTargetUser(targetUser)) {
             throw new IllegalArgumentException("target user not found.");
         }
         return targetUser;
+    }
+
+    private User findValidReportTargetUser(String userId) {
+        Long targetUserId = parseUserId(userId);
+        if (targetUserId == null) {
+            return null;
+        }
+        User targetUser = userService.findById(targetUserId);
+        return isReportTargetUser(targetUser) ? targetUser : null;
+    }
+
+    private boolean isReportTargetUser(User user) {
+        return user != null && ROLE_USER.equals(user.getRoleCode());
     }
 
     private Long parseUserId(String value) {
@@ -225,6 +232,12 @@ public class MonthlyReportService {
         }
         fileName.append(".xlsx");
         return fileName.toString();
+    }
+
+    private String buildProcessingFileName(String targetYearMonth, User targetUser) {
+        String employeeName = targetUser.getEmployeeName() == null ? "" : targetUser.getEmployeeName().replaceAll("\\s", "");
+        return "月次報告書_" + targetYearMonth + "_"
+                + FileNameUtils.sanitizeNamePart(employeeName, "unknown") + "_PROCESSING.xlsx";
     }
 
     private String buildTargetYearMonth(MonthlyReportForm form) {

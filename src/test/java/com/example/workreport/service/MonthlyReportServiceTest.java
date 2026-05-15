@@ -27,7 +27,7 @@ public class MonthlyReportServiceTest {
 
     @Test
     public void validateDetectsRequiredFields() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
 
         List<String> errors = service.validate(new MonthlyReportForm(), user("USER"));
 
@@ -36,7 +36,7 @@ public class MonthlyReportServiceTest {
 
     @Test
     public void validateDetectsInvalidMonthRange() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
         MonthlyReportForm form = validForm();
         form.setTargetMonth("13");
 
@@ -47,7 +47,7 @@ public class MonthlyReportServiceTest {
 
     @Test
     public void validateRejectsOtherEmployeeForGeneralUser() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
         MonthlyReportForm form = validForm();
         form.setUserId("99");
 
@@ -58,7 +58,7 @@ public class MonthlyReportServiceTest {
 
     @Test
     public void validateAllowsTargetUserIdForAdmin() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
         MonthlyReportForm form = validForm();
         form.setUserId("99");
 
@@ -69,7 +69,7 @@ public class MonthlyReportServiceTest {
 
     @Test
     public void validateDetectsInvalidFormatsAndLengths() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
         MonthlyReportForm form = validForm();
         form.setTargetYear("20A6");
         form.setTargetMonth("AA");
@@ -79,12 +79,23 @@ public class MonthlyReportServiceTest {
 
         assertTrue(errors.contains("対象年は4桁の数値で入力してください。"));
         assertTrue(errors.contains("対象月は1から12の数値で入力してください。"));
-        assertTrue(errors.contains("社員の指定が正しくありません。"));
+        assertTrue(errors.contains("指定された社員が存在しません。"));
+    }
+
+    @Test
+    public void validateRejectsAdminUserAsReportTarget() {
+        MonthlyReportService service = service(null, null, null);
+        MonthlyReportForm form = validForm();
+        form.setUserId("1");
+
+        List<String> errors = service.validate(form, user("ADMIN"));
+
+        assertTrue(errors.contains("指定された社員が存在しません。"));
     }
 
     @Test
     public void validateDetectsUserIdMismatchForGeneralUser() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
         MonthlyReportForm form = validForm();
         form.setUserId("99");
 
@@ -95,7 +106,7 @@ public class MonthlyReportServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void validateRejectsMissingLoginUser() {
-        MonthlyReportService service = new MonthlyReportService(null, null, null);
+        MonthlyReportService service = service(null, null, null);
 
         service.validate(validForm(), null);
     }
@@ -103,7 +114,7 @@ public class MonthlyReportServiceTest {
     @Test
     public void createReportUpdatesProcessingHistoryToSuccess() throws Exception {
         CapturingReportHistoryService historyService = new CapturingReportHistoryService();
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 new StubMonthlyReportDao(),
                 new StubExcelReportService(new byte[] {1, 2, 3}),
                 historyService);
@@ -112,6 +123,7 @@ public class MonthlyReportServiceTest {
 
         assertEquals(Long.valueOf(100L), historyService.processingHistoryId);
         assertEquals(Long.valueOf(100L), historyService.successHistoryId);
+        assertEquals("月次報告書_202605_佐藤花子_PROCESSING.xlsx", historyService.processingFileName);
         assertEquals("月次報告書_202605_佐藤花子_履歴ID100.xlsx", file.getFileName());
         assertArrayEquals(new byte[] {1, 2, 3}, file.getContent());
     }
@@ -125,7 +137,7 @@ public class MonthlyReportServiceTest {
         categorySummary.setTotalHours(new java.math.BigDecimal("2.5"));
         dao.categorySummaries = Collections.singletonList(categorySummary);
         StubExcelReportService excelReportService = new StubExcelReportService(new byte[] {9});
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 dao,
                 excelReportService,
                 new CapturingReportHistoryService());
@@ -141,7 +153,7 @@ public class MonthlyReportServiceTest {
     public void createReportUsesConditionNamesWhenSummaryNamesAreBlank() throws Exception {
         BlankNameMonthlyReportDao dao = new BlankNameMonthlyReportDao();
         StubExcelReportService excelReportService = new StubExcelReportService(new byte[] {8});
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 dao,
                 excelReportService,
                 new CapturingReportHistoryService());
@@ -156,7 +168,7 @@ public class MonthlyReportServiceTest {
     public void createReportKeepsOriginalRuntimeExceptionWhenErrorHistoryUpdateFails() throws Exception {
         CapturingReportHistoryService historyService = new CapturingReportHistoryService();
         historyService.failErrorUpdate = true;
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 new FailingMonthlyReportDao(),
                 new StubExcelReportService(new byte[] {1}),
                 historyService);
@@ -174,7 +186,7 @@ public class MonthlyReportServiceTest {
     @Test
     public void createReportUpdatesErrorHistoryWhenExcelCreationFails() throws Exception {
         CapturingReportHistoryService historyService = new CapturingReportHistoryService();
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 new StubMonthlyReportDao(),
                 new StubExcelReportService(new IOException("excel failed")),
                 historyService);
@@ -193,7 +205,7 @@ public class MonthlyReportServiceTest {
     public void createReportKeepsOriginalIOExceptionWhenErrorHistoryUpdateFails() throws Exception {
         CapturingReportHistoryService historyService = new CapturingReportHistoryService();
         historyService.failErrorUpdate = true;
-        MonthlyReportService service = new MonthlyReportService(
+        MonthlyReportService service = service(
                 new StubMonthlyReportDao(),
                 new StubExcelReportService(new IOException("excel failed")),
                 historyService);
@@ -217,6 +229,16 @@ public class MonthlyReportServiceTest {
         return form;
     }
 
+    private MonthlyReportService service(MonthlyReportDao monthlyReportDao,
+            ExcelReportService excelReportService,
+            ReportHistoryService reportHistoryService) {
+        return new MonthlyReportService(
+                monthlyReportDao,
+                excelReportService,
+                reportHistoryService,
+                new StubUserService());
+    }
+
     private User user(String roleCode) {
         User user = new User();
         user.setUserId(10L);
@@ -232,6 +254,34 @@ public class MonthlyReportServiceTest {
             builder.append(value);
         }
         return builder.toString();
+    }
+
+    private static class StubUserService extends UserService {
+
+        StubUserService() {
+            super(new com.example.workreport.dao.UserDao(null));
+        }
+
+        @Override
+        public User findById(Long userId) {
+            if (Long.valueOf(99L).equals(userId)) {
+                User user = new User();
+                user.setUserId(userId);
+                user.setRoleCode("USER");
+                user.setDepartmentName("開発部");
+                user.setEmployeeName("田中 一郎");
+                return user;
+            }
+            if (Long.valueOf(1L).equals(userId)) {
+                User user = new User();
+                user.setUserId(userId);
+                user.setRoleCode("ADMIN");
+                user.setDepartmentName("管理部");
+                user.setEmployeeName("管理者");
+                return user;
+            }
+            return null;
+        }
     }
 
     private static class StubMonthlyReportDao extends MonthlyReportDao {
@@ -317,6 +367,8 @@ public class MonthlyReportServiceTest {
 
         private Long errorHistoryId;
 
+        private String processingFileName;
+
         private boolean failErrorUpdate;
 
         CapturingReportHistoryService() {
@@ -326,6 +378,7 @@ public class MonthlyReportServiceTest {
         @Override
         public Long saveProcessingHistory(Long createdBy, String targetYearMonth, String fileName) {
             this.processingHistoryId = 100L;
+            this.processingFileName = fileName;
             return processingHistoryId;
         }
 
