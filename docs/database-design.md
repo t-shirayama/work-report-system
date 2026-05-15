@@ -106,6 +106,7 @@ users       1 ---- * report_output_histories
 | `report_output_history_id` | `NUMBER(10)` | 不可 | 帳票出力履歴ID |
 | `target_year_month` | `VARCHAR2(6)` | 不可 | 対象年月。`YYYYMM`形式 |
 | `created_by` | `NUMBER(10)` | 不可 | 作成者ユーザーID |
+| `report_type` | `VARCHAR2(50)` | 不可 | 帳票種別 |
 | `file_name` | `VARCHAR2(255)` | 不可 | 作成ファイル名 |
 | `file_path` | `VARCHAR2(500)` | 不可 | 作成ファイルパス |
 | `status` | `VARCHAR2(20)` | 不可 | 出力ステータス |
@@ -118,7 +119,7 @@ users       1 ---- * report_output_histories
 | 値 | 意味 |
 |---|---|
 | `SUCCESS` | 作成成功 |
-| `FAILED` | 作成失敗 |
+| `ERROR` | 作成失敗 |
 | `PROCESSING` | 作成中 |
 
 ## 主キー・外部キー

@@ -541,7 +541,8 @@ a {
 .entry-card,
 .complete-card,
 .search-card,
-.result-card {
+.result-card,
+.report-card {
     background: #ffffff;
     border: 1px solid #d8e0ea;
     border-radius: 8px;
@@ -711,7 +712,8 @@ a {
 }
 
 .search-card h3,
-.result-card h3 {
+.result-card h3,
+.report-card h3 {
     font-size: 18px;
     margin: 0 0 18px;
 }
@@ -775,9 +777,66 @@ a {
     min-width: 980px;
 }
 
+.report-card {
+    max-width: 920px;
+}
+
+.report-note {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    color: #334155;
+    margin-top: 20px;
+    padding: 12px 14px;
+}
+
 .empty-cell {
     color: #64748b;
     text-align: center;
+}
+
+.history-table {
+    min-width: 1080px;
+}
+
+.status-badge,
+.download-button {
+    border-radius: 8px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    text-decoration: none;
+}
+
+.status-badge.SUCCESS {
+    background: #dcf5ea;
+    color: #119b57;
+}
+
+.status-badge.ERROR {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.status-badge.PROCESSING {
+    background: #eff6ff;
+    color: #1f6feb;
+}
+
+.download-button {
+    background: #246bd9;
+    color: #ffffff;
+}
+
+.history-error,
+.muted-text {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.history-error {
+    margin-top: 4px;
 }
 
 .note {

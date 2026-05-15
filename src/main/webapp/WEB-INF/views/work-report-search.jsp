@@ -32,8 +32,8 @@
                 <a class="sidebar-link" href="<c:url value='/dashboard' />">ホーム</a>
                 <a class="sidebar-link" href="<c:url value='/work-reports/new' />">作業日報登録</a>
                 <a class="sidebar-link active" href="<c:url value='/work-reports/search' />">作業実績検索</a>
-                <a class="sidebar-link" href="#">月次報告書出力</a>
-                <a class="sidebar-link" href="#">帳票作成履歴</a>
+                <a class="sidebar-link" href="<c:url value='/monthly-reports/new' />">月次報告書出力</a>
+                <a class="sidebar-link" href="<c:url value='/report-histories' />">帳票作成履歴</a>
             </nav>
         </aside>
 

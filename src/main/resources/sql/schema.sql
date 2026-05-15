@@ -56,6 +56,7 @@ CREATE TABLE report_output_histories (
     report_output_history_id NUMBER(10)     NOT NULL,
     target_year_month        VARCHAR2(6)    NOT NULL,
     created_by               NUMBER(10)     NOT NULL,
+    report_type              VARCHAR2(50)   NOT NULL,
     file_name                VARCHAR2(255)  NOT NULL,
     file_path                VARCHAR2(500)  NOT NULL,
     status                   VARCHAR2(20)   NOT NULL,
@@ -66,7 +67,9 @@ CREATE TABLE report_output_histories (
     CONSTRAINT fk_report_histories_user
         FOREIGN KEY (created_by) REFERENCES users (user_id),
     CONSTRAINT ck_report_histories_status
-        CHECK (status IN ('SUCCESS', 'FAILED', 'PROCESSING')),
+        CHECK (status IN ('SUCCESS', 'ERROR', 'PROCESSING')),
+    CONSTRAINT ck_report_histories_type
+        CHECK (report_type IN ('MONTHLY_WORK_REPORT')),
     CONSTRAINT ck_report_histories_ym
         CHECK (REGEXP_LIKE(target_year_month, '^[0-9]{6}$'))
 );

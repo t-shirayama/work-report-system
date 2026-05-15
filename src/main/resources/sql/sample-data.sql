@@ -243,33 +243,33 @@ INSERT INTO work_reports (
 );
 
 INSERT INTO report_output_histories (
-    report_output_history_id, target_year_month, created_by, file_name, file_path, status, error_message, created_at, updated_at
+    report_output_history_id, target_year_month, created_by, report_type, file_name, file_path, status, error_message, created_at, updated_at
 ) VALUES (
-    1, '202604', 2, 'monthly-report-202604-sato.xlsx', 'generated-reports/202604/monthly-report-202604-sato.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
+    1, '202604', 2, 'MONTHLY_WORK_REPORT', 'monthly-report-202604-sato.xlsx', 'generated-reports/202604/monthly-report-202604-sato.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
 );
 
 INSERT INTO report_output_histories (
-    report_output_history_id, target_year_month, created_by, file_name, file_path, status, error_message, created_at, updated_at
+    report_output_history_id, target_year_month, created_by, report_type, file_name, file_path, status, error_message, created_at, updated_at
 ) VALUES (
-    2, '202604', 3, 'monthly-report-202604-suzuki.xlsx', 'generated-reports/202604/monthly-report-202604-suzuki.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
+    2, '202604', 3, 'MONTHLY_WORK_REPORT', 'monthly-report-202604-suzuki.xlsx', 'generated-reports/202604/monthly-report-202604-suzuki.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
 );
 
 INSERT INTO report_output_histories (
-    report_output_history_id, target_year_month, created_by, file_name, file_path, status, error_message, created_at, updated_at
+    report_output_history_id, target_year_month, created_by, report_type, file_name, file_path, status, error_message, created_at, updated_at
 ) VALUES (
-    3, '202605', 2, 'monthly-report-202605-sato.xlsx', 'generated-reports/202605/monthly-report-202605-sato.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
+    3, '202605', 2, 'MONTHLY_WORK_REPORT', 'monthly-report-202605-sato.xlsx', 'generated-reports/202605/monthly-report-202605-sato.xlsx', 'SUCCESS', NULL, SYSDATE, SYSDATE
 );
 
 INSERT INTO report_output_histories (
-    report_output_history_id, target_year_month, created_by, file_name, file_path, status, error_message, created_at, updated_at
+    report_output_history_id, target_year_month, created_by, report_type, file_name, file_path, status, error_message, created_at, updated_at
 ) VALUES (
-    4, '202605', 3, 'monthly-report-202605-suzuki.xlsx', 'generated-reports/202605/monthly-report-202605-suzuki.xlsx', 'PROCESSING', NULL, SYSDATE, SYSDATE
+    4, '202605', 3, 'MONTHLY_WORK_REPORT', 'monthly-report-202605-suzuki.xlsx', 'generated-reports/202605/monthly-report-202605-suzuki.xlsx', 'PROCESSING', NULL, SYSDATE, SYSDATE
 );
 
 INSERT INTO report_output_histories (
-    report_output_history_id, target_year_month, created_by, file_name, file_path, status, error_message, created_at, updated_at
+    report_output_history_id, target_year_month, created_by, report_type, file_name, file_path, status, error_message, created_at, updated_at
 ) VALUES (
-    5, '202605', 4, 'monthly-report-202605-tanaka.xlsx', 'generated-reports/202605/monthly-report-202605-tanaka.xlsx', 'FAILED', 'テンプレートファイルが見つかりません。', SYSDATE, SYSDATE
+    5, '202605', 4, 'MONTHLY_WORK_REPORT', 'monthly-report-202605-tanaka.xlsx', 'generated-reports/202605/monthly-report-202605-tanaka.xlsx', 'ERROR', 'テンプレートファイルが見つかりません。', SYSDATE, SYSDATE
 );
 
 COMMIT;

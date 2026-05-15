@@ -251,6 +251,83 @@ AND wr.work_category = :workCategory
 
 検索条件はすべて `NamedParameterJdbcTemplate` のバインド変数として渡します。ユーザー入力をSQL文字列へ直接連結しません。
 
+## 月次報告書Excel出力
+
+ログイン後、以下のURLへアクセスします。
+
+```text
+http://localhost:8080/work-report-system/monthly-reports/new
+```
+
+`GET /monthly-reports/new` は `MonthlyReportController#showForm` が受け取り、月次報告書出力画面を表示します。
+
+入力条件は以下です。
+
+- 対象年
+- 対象月
+- 部署
+- 社員
+
+`POST /monthly-reports/export` では、Controllerが `MonthlyReportService#createReport` を呼び出します。
+
+処理の流れは以下です。
+
+1. `MonthlyReportService` が入力チェックを行う
+2. 対象年・対象月から月初日と月末日を計算する
+3. `MonthlyReportDao` が月次サマリー、作業分類別集計、日別作業実績を検索する
+4. Serviceが総作業時間、稼働日数、平均時間、割合を整理する
+5. `ExcelReportService` がテンプレートExcelを読み込む
+6. `Workbook`、`Sheet`、`Row`、`Cell` を使って値を差し込む
+7. 明細行はテンプレート行の `CellStyle` をコピーしながら動的に追加する
+8. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
+9. 生成したExcelを `generated-reports/` 配下へ保存する
+10. `report_output_histories` に帳票作成履歴を登録する
+
+Excelテンプレートは以下です。
+
+```text
+src/main/resources/templates/monthly-report-template.xlsx
+```
+
+ブラウザからは、以下のようなファイル名でダウンロードされます。
+
+```text
+月次報告書_202605_山田太郎.xlsx
+```
+
+## 帳票作成履歴
+
+帳票作成履歴一覧は以下のURLで表示します。
+
+```text
+http://localhost:8080/work-report-system/report-histories
+```
+
+`GET /report-histories` は `ReportHistoryController#list` が受け取り、`ReportHistoryService#findAll` を呼び出します。
+
+`ReportHistoryDao` は `report_output_histories` と `users` をJOINし、出力日時、対象年月、帳票種別、作成者、ステータス、ファイル名を取得します。
+
+一覧画面では、ステータスが `SUCCESS` の履歴だけにダウンロードボタンを表示します。
+
+## 帳票の再ダウンロード
+
+再ダウンロードは以下のURLで行います。
+
+```text
+GET /report-histories/{id}/download
+```
+
+処理の流れは以下です。
+
+1. `ReportHistoryController#download` が履歴IDを受け取る
+2. `ReportHistoryService#findById` で履歴を取得する
+3. ステータスが `SUCCESS` であることを確認する
+4. `file_path` のExcelファイルを `generated-reports/` から読み込む
+5. Excel用の `Content-Type` と `Content-Disposition` を設定する
+6. ブラウザへExcelファイルを返す
+
+ファイルが見つからない場合は、一覧画面にエラーメッセージを表示します。
+
 ## 現時点で実装していないこと
 
 - Spring Securityによる認証・認可
@@ -260,4 +337,5 @@ AND wr.work_category = :workCategory
 - 権限別メニュー制御
 - 作業日報の一覧、編集、削除
 - 作業実績検索のページング
-- 月次報告書出力
+- 帳票作成履歴の検索条件
+- 帳票ファイルの削除運用
