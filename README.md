@@ -197,9 +197,9 @@ work-report-system/
 7. Project Facets で Java 1.8 / Dynamic Web Module を確認する
 8. プロジェクトをTomcatへ追加する
 9. Tomcatを起動する
-10. ブラウザで `http://localhost:8080/work-report-system/` にアクセスする
+10. ブラウザで `http://localhost:8080/work-report-system/home` にアクセスする
 
-この土台作成時点ではControllerとJSPをまだ作成していないため、Tomcatへの配置確認が主目的です。画面表示は、次工程で最小ControllerとJSPを追加してから確認します。
+トップ画面が表示されれば、DispatcherServlet、Controller、ViewResolver、JSP、静的CSSの最小疎通は成功です。
 
 ## 14. Tomcat 8.5での実行方法
 
@@ -208,7 +208,7 @@ work-report-system/
 想定URLは以下です。
 
 ```text
-http://localhost:8080/work-report-system/
+http://localhost:8080/work-report-system/home
 ```
 
 アプリケーション本体はDocker化しません。アプリケーションはSTS + Tomcat 8.5 + Maven WARで起動します。
@@ -220,6 +220,8 @@ Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle
 - `src/main/webapp/WEB-INF/web.xml` で `DispatcherServlet` と `ContextLoaderListener` を定義
 - `src/main/webapp/WEB-INF/spring/dispatcher-servlet.xml` でControllerスキャン、`mvc:annotation-driven`、JSP ViewResolver、静的リソースマッピングを定義
 - `src/main/webapp/WEB-INF/spring/applicationContext.xml` は、将来のDB接続、トランザクション、Service/DAO共通設定の追加場所として用意
+- `GET /home` は `HomeController` が受け取り、`/WEB-INF/views/home.jsp` を表示
+- CSSは `/resources/css/common.css` として配信
 
 ## 15. 学習ポイント
 
