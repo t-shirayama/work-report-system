@@ -5,9 +5,9 @@
 
 ## プロジェクト目的
 
-`work-report-system` は、作業日報登録と月次報告書Excel出力を行う、ポートフォリオ用のSpring MVC業務システムです。
+`work-report-system` は、作業日報登録と月次報告書Excel出力を行うSpring MVC業務システムです。
 
-古めのJava業務アプリ構成を理解・説明できることを重視します。
+保守性、責務分離、Oracle Database前提のSQL、Tomcat 8.5上での安定稼働を重視します。
 
 ## 最重要制約
 

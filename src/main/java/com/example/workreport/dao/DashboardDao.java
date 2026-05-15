@@ -57,7 +57,7 @@ public class DashboardDao {
                     + "            'WORK_REPORT' AS activity_type, "
                     + "            '登録' AS activity_type_name, "
                     + "            'blue' AS badge_class, "
-                    + "            '作業日報を登録しました（' || TO_CHAR(wr.work_date, 'YYYY/MM/DD') || '分）' AS content, "
+                    + "            '作業日報を登録しました（' || TO_CHAR(wr.work_date, 'YYYY/MM/DD') || '）' AS content, "
                     + "            u.employee_name "
                     + "        FROM work_reports wr "
                     + "        INNER JOIN users u "

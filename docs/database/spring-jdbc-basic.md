@@ -1,6 +1,6 @@
 # Spring JDBC 基本
 
-このドキュメントでは、簡易ログイン機能を例にして、Spring JDBCの使い方を説明します。
+このドキュメントでは、ログイン機能を例にして、Spring JDBCの使い方を説明します。
 
 本プロジェクトでは、DBアクセスにSpring JDBCの `NamedParameterJdbcTemplate` を使用します。JPA / Hibernate / MyBatisは使用しません。
 
@@ -36,7 +36,7 @@ jdbc.password=work_report
 </bean>
 ```
 
-この段階では、シンプルさを優先して `DriverManagerDataSource` を使用しています。実案件ではコネクションプールの利用を検討します。
+この構成では `DriverManagerDataSource` を使用しています。継続運用する環境では、接続数や性能要件に応じてコネクションプールの利用を検討します。
 
 ## DAOでの利用
 
@@ -119,7 +119,7 @@ INNER JOIN departments d
 WHERE u.login_id = :loginId
 ```
 
-パスワード比較はService層で行っています。ポートフォリオ簡易版では平文比較ですが、本番ではハッシュ化したパスワードを照合します。
+パスワード比較はService層で行っています。現在のサンプルデータは動作確認用の平文パスワードですが、運用環境ではハッシュ化したパスワードを照合します。
 
 ## 動的検索条件
 

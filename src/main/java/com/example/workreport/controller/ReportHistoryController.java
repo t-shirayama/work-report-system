@@ -25,6 +25,8 @@ public class ReportHistoryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportHistoryController.class);
 
+    private static final String ROLE_ADMIN = "ADMIN";
+
     private final ReportHistoryService reportHistoryService;
 
     @Autowired
@@ -38,10 +40,13 @@ public class ReportHistoryController {
         if (loginUser == null) {
             return "redirect:/login";
         }
+        if (!isAdmin(loginUser)) {
+            searchForm.setCreatedByName(loginUser.getEmployeeName());
+        }
 
         model.addAttribute("loginUser", loginUser);
         model.addAttribute("reportHistorySearchForm", searchForm);
-        model.addAttribute("reportHistories", reportHistoryService.search(searchForm));
+        model.addAttribute("reportHistories", reportHistoryService.search(searchForm, loginUser));
         return "report-history-list";
     }
 
@@ -52,11 +57,11 @@ public class ReportHistoryController {
             return "redirect:/login";
         }
 
-        ReportHistoryDto history = reportHistoryService.findById(id);
+        ReportHistoryDto history = reportHistoryService.findById(id, loginUser);
         if (history == null) {
             model.addAttribute("loginUser", loginUser);
             model.addAttribute("reportHistorySearchForm", new ReportHistorySearchForm());
-            model.addAttribute("reportHistories", reportHistoryService.findAll());
+            model.addAttribute("reportHistories", reportHistoryService.findAll(loginUser));
             model.addAttribute("errorMessage", "指定された帳票作成履歴は見つかりません。");
             return "report-history-list";
         }
@@ -73,13 +78,13 @@ public class ReportHistoryController {
             return "redirect:/login";
         }
 
-        ReportHistoryDto history = reportHistoryService.findById(id);
+        ReportHistoryDto history = reportHistoryService.findById(id, loginUser);
         byte[] content = reportHistoryService.readReportFile(history);
         if (history == null || content == null) {
             LOGGER.warn("Report file was not found or unavailable. historyId={}, userId={}", id, loginUser.getUserId());
             model.addAttribute("loginUser", loginUser);
             model.addAttribute("reportHistorySearchForm", new ReportHistorySearchForm());
-            model.addAttribute("reportHistories", reportHistoryService.findAll());
+            model.addAttribute("reportHistories", reportHistoryService.findAll(loginUser));
             model.addAttribute("errorMessage", "ダウンロード対象のファイルが見つかりません。");
             return "report-history-list";
         }
@@ -90,5 +95,9 @@ public class ReportHistoryController {
 
     private User getLoginUser(HttpSession session) {
         return SessionUtils.getLoginUser(session);
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && ROLE_ADMIN.equals(user.getRoleCode());
     }
 }

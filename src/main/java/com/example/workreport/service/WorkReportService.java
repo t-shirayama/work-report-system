@@ -50,6 +50,8 @@ public class WorkReportService {
 
         if (!StringUtils.hasText(form.getProjectName())) {
             errors.add("プロジェクト名は必須です。");
+        } else if (form.getProjectName().length() > 100) {
+            errors.add("プロジェクト名は100文字以内で入力してください。");
         }
 
         if (!StringUtils.hasText(form.getWorkCategory())) {
@@ -71,6 +73,8 @@ public class WorkReportService {
 
         if (!StringUtils.hasText(form.getWorkContent())) {
             errors.add("作業内容は必須です。");
+        } else if (form.getWorkContent().length() > 1000) {
+            errors.add("作業内容は1000文字以内で入力してください。");
         }
 
         return errors;

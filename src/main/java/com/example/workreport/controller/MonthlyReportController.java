@@ -42,8 +42,12 @@ public class MonthlyReportController {
             return "redirect:/login";
         }
 
+        MonthlyReportForm form = new MonthlyReportForm();
+        form.setDepartmentName(loginUser.getDepartmentName());
+        form.setEmployeeName(loginUser.getEmployeeName());
+
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("monthlyReportForm", new MonthlyReportForm());
+        model.addAttribute("monthlyReportForm", form);
         return "monthly-report-form";
     }
 
@@ -59,7 +63,7 @@ public class MonthlyReportController {
             return "redirect:/login";
         }
 
-        List<String> errors = monthlyReportService.validate(monthlyReportForm);
+        List<String> errors = monthlyReportService.validate(monthlyReportForm, loginUser);
         if (!errors.isEmpty()) {
             model.addAttribute("loginUser", loginUser);
             model.addAttribute("monthlyReportForm", monthlyReportForm);

@@ -58,7 +58,15 @@
                         </div>
                         <div class="search-field">
                             <label for="createdByName">作成者</label>
-                            <form:input path="createdByName" id="createdByName" cssClass="entry-input" placeholder="社員名を入力" />
+                            <c:choose>
+                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
+                                    <form:input path="createdByName" id="createdByName" cssClass="entry-input" placeholder="社員名を入力" />
+                                </c:when>
+                                <c:otherwise>
+                                    <form:hidden path="createdByName" />
+                                    <div class="readonly-field"><c:out value="${reportHistorySearchForm.createdByName}" /></div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                         <div class="search-field">
                             <label for="status">ステータス</label>

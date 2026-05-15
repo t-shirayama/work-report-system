@@ -4,7 +4,7 @@
 
 **work-report-system** は、日々の作業実績を登録し、月次報告書をExcel形式で自動作成するWebアプリケーションです。
 
-既存業務で手作業作成されているExcel帳票を、古めのSpring MVC業務システム構成でシステム化することを想定したポートフォリオ用プロジェクトです。
+既存業務で手作業作成されているExcel帳票を、Spring MVCベースの業務システムとしてシステム化することを想定したプロジェクトです。
 
 ## 2. システム概要
 
@@ -16,9 +16,9 @@
 
 業務システムでは、現在でもSpring Bootではなく、Spring Framework、Spring MVC、JSP、Servlet、Tomcat、Spring JDBCで構成された既存システムが運用されているケースがあります。
 
-このプロジェクトでは、参画予定案件の技術構成に近い形で、以下を学習・提示できることを目的とします。
+このプロジェクトでは、既存のJava業務システムで採用される構成を前提に、以下を実現することを目的とします。
 
-- Spring MVCによる古典的なWebアプリケーション構成
+- Spring MVCによるWebアプリケーション構成
 - Controller、Service、DAOに分けた業務アプリケーション設計
 - Spring JDBCによる明示的なSQL実装
 - JSP / JSTLによるサーバーサイド画面描画
@@ -40,7 +40,7 @@
 
 | 機能 | 概要 |
 |---|---|
-| ログイン | 利用者IDとパスワードによる簡易認証を行う |
+| ログイン | 利用者IDとパスワードによる認証を行う |
 | ダッシュボード | DB上の作業日報・帳票履歴を集計し、本日の登録件数、今月の総作業時間、未出力件数、最近の活動を表示する |
 | 作業日報登録 | 作業日、プロジェクト名、作業分類、作業時間、作業内容を登録する |
 | 作業実績検索 | 対象期間、社員、部署、作業分類、プロジェクト名で実績を検索する |
@@ -103,7 +103,7 @@
 
 ## 10. ディレクトリ構成
 
-現在は、Spring MVCの基本構成、簡易ログイン、DB連動ダッシュボード、作業日報登録、作業実績検索、月次報告書Excel出力、帳票作成履歴検索・詳細、開発用Oracle DB環境を含む構成になっています。
+現在は、Spring MVCの基本構成、ログイン、DB連動ダッシュボード、作業日報登録、作業実績検索、月次報告書Excel出力、帳票作成履歴検索・詳細、開発用Oracle DB環境を含む構成になっています。
 
 ```text
 work-report-system/
@@ -168,7 +168,7 @@ work-report-system/
     designs/
 ```
 
-`docs/` 配下の各Markdownファイルは、実装済み機能を教材として読み返せるように整理しています。索引は `docs/README.md` です。
+`docs/` 配下の各Markdownファイルは、設計、実装方針、運用手順を機能別に整理しています。索引は `docs/README.md` です。
 
 ## 11. DB設計概要
 
@@ -186,7 +186,7 @@ work-report-system/
 - 本番・案件想定のDBはOracle Databaseとする
 - JDBCドライバはOracle JDBC Driver 19.17.0.0を使用し、Maven依存関係は `ojdbc8:19.17.0.0` とする
 - SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない
-- ポートフォリオ開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
+- 開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
 - 本リポジトリでは、開発用DBとして `docker-compose.yml` でOracle Database Freeを起動する
 - 開発用DBの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` とする
 - 主キーは `NUMBER(10)` の数値IDを基本とし、Oracleシーケンスで採番する
@@ -205,6 +205,8 @@ work-report-system/
 - `ExcelReportService` でApache POIによるセル操作を行う
 - 出力ファイルは `generated-reports/` 配下に保存する想定とする
 - 作成履歴をDBに登録し、後から再ダウンロードできるようにする
+- ファイル名は保存前に安全な文字へ変換し、再ダウンロード時も `generated-reports/` 配下のファイルだけを読み込む
+- 一般ユーザーは自分の月次報告書と帳票作成履歴のみ扱い、管理者は全ユーザー分を確認できる
 - セル位置や帳票レイアウトの変更に備え、定数化や設定化を検討する
 
 ## 13. 導入手順
@@ -420,16 +422,17 @@ docker compose up -d oracle-db
 - `src/main/webapp/WEB-INF/spring/applicationContext.xml` は、将来のDB接続、トランザクション、Service/DAO共通設定の追加場所として用意
 - `GET /home` は `HomeController` が受け取り、`/WEB-INF/views/home.jsp` を表示
 - CSSは `/resources/css/common.css` として配信
-- `GET /login`、`POST /login`、`GET /dashboard`、`GET/POST /logout` による簡易ログイン機能を実装
+- `GET /login`、`POST /login`、`GET /dashboard`、`GET/POST /logout` によるログイン機能を実装
 - ログイン成功時はHTTPセッションにログインユーザーを保存し、ログアウト時にセッションを破棄
 - `GET /dashboard` では `DashboardController` がDB集計結果を取得し、ログイン時刻はセッション値を表示
 - 帳票作成履歴は `GET /report-histories` で検索、`GET /report-histories/{id}` で詳細確認、`GET /report-histories/{id}/download` で再ダウンロード
+- 月次報告書出力では、帳票履歴登録をトランザクション管理し、履歴登録失敗時は生成済みファイルを削除する
 
-現在のログイン機能はポートフォリオ用の簡易実装です。サンプルデータでは平文パスワードを使用していますが、本番では必ずパスワードをハッシュ化して保存・照合する必要があります。
+現在のサンプルデータでは動作確認しやすいように平文パスワードを使用しています。実運用では必ずパスワードをハッシュ化して保存・照合する必要があります。
 
-## 15. 学習ポイント
+## 15. 設計・実装ポイント
 
-このプロジェクトで学習・説明できる内容は以下です。
+このプロジェクトで重視する設計・実装上のポイントは以下です。
 
 - Spring Bootを使わないSpring MVCの基本構成
 - `web.xml` を使用したDispatcherServlet設定
@@ -471,9 +474,9 @@ docker compose up -d oracle-db
 - 帳票ファイル保存先の正式なパス
 - テスト用DBをどのように用意するか
 
-## docs配下の学習用ドキュメント
+## docs配下のドキュメント
 
-`docs/` 配下には、このプロジェクトを教材として読み進めるための学習用ドキュメントを用意しています。索引として `docs/README.md` を用意しているため、基本的にはここから読み始めてください。
+`docs/` 配下には、このプロジェクトの設計、実装方針、運用手順を確認するためのドキュメントを用意しています。索引として `docs/README.md` を用意しているため、基本的にはここから参照してください。
 
 | ドキュメント | 内容 |
 |---|---|
@@ -500,4 +503,4 @@ docker compose up -d oracle-db
 8. `docs/reporting/excel-report-generation.md`
 9. `docs/walkthrough/code-walkthrough.md`
 
-最初に開発ガイドラインでプロジェクト全体の前提を把握し、その後Spring MVCとレイヤ構成、DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。
+最初に開発ガイドラインでプロジェクト全体の前提を把握し、その後Spring MVCとレイヤ構成、DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、設計と実装の関係を追いやすくなります。

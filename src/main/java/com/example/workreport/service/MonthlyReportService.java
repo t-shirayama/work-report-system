@@ -21,9 +21,12 @@ import com.example.workreport.dto.MonthlyReportFileDto;
 import com.example.workreport.dto.MonthlyReportSummaryDto;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.MonthlyReportForm;
+import com.example.workreport.util.FileNameUtils;
 
 @Service
 public class MonthlyReportService {
+
+    private static final String ROLE_ADMIN = "ADMIN";
 
     private final MonthlyReportDao monthlyReportDao;
 
@@ -41,7 +44,7 @@ public class MonthlyReportService {
         this.reportHistoryService = reportHistoryService;
     }
 
-    public List<String> validate(MonthlyReportForm form) {
+    public List<String> validate(MonthlyReportForm form, User loginUser) {
         List<String> errors = new ArrayList<String>();
 
         if (!StringUtils.hasText(form.getTargetYear())) {
@@ -63,10 +66,25 @@ public class MonthlyReportService {
 
         if (!StringUtils.hasText(form.getDepartmentName())) {
             errors.add("部署は必須です。");
+        } else if (form.getDepartmentName().length() > 100) {
+            errors.add("部署は100文字以内で入力してください。");
         }
 
         if (!StringUtils.hasText(form.getEmployeeName())) {
             errors.add("社員は必須です。");
+        } else if (form.getEmployeeName().length() > 100) {
+            errors.add("社員は100文字以内で入力してください。");
+        }
+
+        if (!isAdmin(loginUser)) {
+            if (StringUtils.hasText(form.getDepartmentName())
+                    && !loginUser.getDepartmentName().equals(form.getDepartmentName())) {
+                errors.add("一般ユーザーは自分の部署の月次報告書のみ出力できます。");
+            }
+            if (StringUtils.hasText(form.getEmployeeName())
+                    && !loginUser.getEmployeeName().equals(form.getEmployeeName())) {
+                errors.add("一般ユーザーは自分の月次報告書のみ出力できます。");
+            }
         }
 
         return errors;
@@ -75,16 +93,19 @@ public class MonthlyReportService {
     public MonthlyReportFileDto createReport(MonthlyReportForm form, User loginUser) throws IOException {
         String targetYearMonth = buildTargetYearMonth(form);
         String fileName = buildFileName(form);
+        Path reportPath = null;
 
         try {
             MonthlyReportFileDto file = createReportFile(form, fileName);
-            Path reportPath = reportHistoryService.saveReportFile(targetYearMonth, file);
+            reportPath = reportHistoryService.saveReportFile(targetYearMonth, file);
             reportHistoryService.saveSuccessHistory(loginUser.getUserId(), targetYearMonth, file, reportPath);
             return file;
         } catch (IOException e) {
+            reportHistoryService.deleteReportFile(reportPath);
             reportHistoryService.saveErrorHistory(loginUser.getUserId(), targetYearMonth, fileName, e.getMessage());
             throw e;
         } catch (RuntimeException e) {
+            reportHistoryService.deleteReportFile(reportPath);
             reportHistoryService.saveErrorHistory(loginUser.getUserId(), targetYearMonth, fileName, e.getMessage());
             throw e;
         }
@@ -151,10 +172,16 @@ public class MonthlyReportService {
 
     private String buildFileName(MonthlyReportForm form) {
         String targetYearMonth = buildTargetYearMonth(form);
-        return "月次報告書_" + targetYearMonth + "_" + form.getEmployeeName().replaceAll("\\s", "") + ".xlsx";
+        String employeeName = form.getEmployeeName() == null ? "" : form.getEmployeeName().replaceAll("\\s", "");
+        return "月次報告書_" + targetYearMonth + "_"
+                + FileNameUtils.sanitizeNamePart(employeeName, "unknown") + ".xlsx";
     }
 
     private String buildTargetYearMonth(MonthlyReportForm form) {
         return String.format("%s%02d", form.getTargetYear(), Integer.parseInt(form.getTargetMonth()));
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && ROLE_ADMIN.equals(user.getRoleCode());
     }
 }

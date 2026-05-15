@@ -30,7 +30,7 @@
             <div class="action-row">
                 <a class="primary-link" href="<c:url value='/login' />">ログイン画面へ</a>
             </div>
-            <p class="note">ログイン認証は今後の実装予定です。</p>
+            <p class="note">サンプルユーザーでログインし、作業日報登録や帳票出力を確認できます。</p>
         </section>
 
         <section class="section">

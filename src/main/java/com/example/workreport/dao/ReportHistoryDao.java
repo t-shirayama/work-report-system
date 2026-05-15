@@ -55,6 +55,7 @@ public class ReportHistoryDao {
                     + "        WHEN 'MONTHLY_WORK_REPORT' THEN '月次作業報告書' "
                     + "        ELSE roh.report_type "
                     + "    END AS report_type_name, "
+                    + "    roh.created_by, "
                     + "    u.employee_name AS created_by_name, "
                     + "    roh.status, "
                     + "    CASE roh.status "
@@ -92,11 +93,24 @@ public class ReportHistoryDao {
         return search(new ReportHistorySearchForm());
     }
 
+    public List<ReportHistoryDto> findAllByCreatedBy(Long createdBy) {
+        return search(new ReportHistorySearchForm(), createdBy);
+    }
+
     public List<ReportHistoryDto> search(ReportHistorySearchForm form) {
+        return search(form, null);
+    }
+
+    public List<ReportHistoryDto> search(ReportHistorySearchForm form, Long createdBy) {
         StringBuilder sql = new StringBuilder(SELECT_HISTORY_LIST);
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         sql.append("WHERE 1 = 1 ");
+
+        if (createdBy != null) {
+            sql.append("  AND roh.created_by = :createdBy ");
+            params.addValue("createdBy", createdBy);
+        }
 
         if (StringUtils.hasText(form.getTargetYearMonth())) {
             sql.append("  AND roh.target_year_month = :targetYearMonth ");
@@ -142,6 +156,7 @@ public class ReportHistoryDao {
             dto.setTargetYearMonth(rs.getString("target_year_month"));
             dto.setReportType(rs.getString("report_type"));
             dto.setReportTypeName(rs.getString("report_type_name"));
+            dto.setCreatedBy(rs.getLong("created_by"));
             dto.setCreatedByName(rs.getString("created_by_name"));
             dto.setStatus(rs.getString("status"));
             dto.setStatusName(rs.getString("status_name"));

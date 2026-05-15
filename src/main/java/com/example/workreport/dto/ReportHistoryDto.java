@@ -12,6 +12,8 @@ public class ReportHistoryDto {
 
     private String reportTypeName;
 
+    private Long createdBy;
+
     private String createdByName;
 
     private String status;
@@ -62,6 +64,14 @@ public class ReportHistoryDto {
 
     public void setReportTypeName(String reportTypeName) {
         this.reportTypeName = reportTypeName;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getCreatedByName() {

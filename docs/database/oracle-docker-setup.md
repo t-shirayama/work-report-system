@@ -23,7 +23,7 @@ Oracle Database FreeのPDBサービス名は `FREEPDB1` を使用します。
 | App Password | `work_report` |
 | JDBC URL | `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` |
 
-管理ユーザー用のパスワードは、開発用として `oracle_admin` を設定しています。実案件や外部公開環境では、リポジトリに固定パスワードを置かない運用にしてください。
+管理ユーザー用のパスワードは、開発用として `oracle_admin` を設定しています。共有環境や外部公開環境では、リポジトリに固定パスワードを置かない運用にしてください。
 
 ## 起動手順
 

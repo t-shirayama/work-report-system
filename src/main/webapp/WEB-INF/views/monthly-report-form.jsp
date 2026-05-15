@@ -79,16 +79,33 @@
                         </div>
                         <div class="search-field">
                             <label for="departmentName">部署 <span class="required">*</span></label>
-                            <form:input path="departmentName" id="departmentName" cssClass="entry-input" placeholder="開発部" />
+                            <c:choose>
+                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
+                                    <form:input path="departmentName" id="departmentName" cssClass="entry-input" placeholder="開発部" />
+                                </c:when>
+                                <c:otherwise>
+                                    <form:hidden path="departmentName" />
+                                    <div class="readonly-field"><c:out value="${monthlyReportForm.departmentName}" /></div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                         <div class="search-field">
                             <label for="employeeName">社員 <span class="required">*</span></label>
-                            <form:input path="employeeName" id="employeeName" cssClass="entry-input" placeholder="佐藤 花子" />
+                            <c:choose>
+                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
+                                    <form:input path="employeeName" id="employeeName" cssClass="entry-input" placeholder="佐藤 花子" />
+                                </c:when>
+                                <c:otherwise>
+                                    <form:hidden path="employeeName" />
+                                    <div class="readonly-field"><c:out value="${monthlyReportForm.employeeName}" /></div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
 
                     <div class="report-note">
                         入力条件に一致する作業実績を集計し、Excelテンプレートへ差し込んでダウンロードします。
+                        一般ユーザーは自分の月次報告書のみ出力できます。
                     </div>
 
                     <div class="search-actions">

@@ -1,8 +1,8 @@
 # コード walkthrough
 
-このドキュメントでは、実装済み機能のコードを画面操作の流れに沿って説明します。
+このドキュメントでは、実装済み機能のコードを画面操作の流れに沿って整理します。
 
-面談前の復習では、最初にREADMEで全体像を確認し、最後にこのドキュメントで実装の流れを通し読みすると理解しやすくなります。
+機能ごとの処理経路を確認するときは、最初にREADMEで全体像を確認し、次にこのドキュメントでController、Service、DAO、JSPの流れを追ってください。
 
 ## 読み方
 
@@ -74,7 +74,7 @@ session.setAttribute("loginUser", user);
 
 ## UserService
 
-`UserService#authenticate` は、ログインIDとパスワードの簡易認証を行います。
+`UserService#authenticate` は、ログインIDとパスワードの認証を行います。
 
 処理は以下です。
 
@@ -83,7 +83,7 @@ session.setAttribute("loginUser", user);
 3. 入力パスワードとDB上のパスワードを比較する
 4. 成功時は `User` を返し、失敗時は `null` を返す
 
-現在はポートフォリオ簡易版のため平文比較です。本番ではパスワードハッシュ化が必須です。
+現在のサンプルデータは動作確認用の平文パスワードです。運用環境ではパスワードハッシュ化が必須です。
 
 ## UserDao
 
@@ -321,9 +321,14 @@ http://localhost:8080/work-report-system/monthly-reports/new
 5. `ExcelReportService` がテンプレートExcelを読み込む
 6. `Workbook`、`Sheet`、`Row`、`Cell` を使って値を差し込む
 7. 明細行はテンプレート行の `CellStyle` をコピーしながら動的に追加する
-8. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
+8. ファイル名に使う社員名を安全な文字へ変換する
 9. 生成したExcelを `generated-reports/` 配下へ保存する
 10. `report_output_histories` に帳票作成履歴を登録する
+11. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
+
+一般ユーザーは、自分の部署・社員名の月次報告書のみ出力できます。管理者は部署・社員名を指定して出力できます。
+
+ファイル保存後に履歴登録で失敗した場合は、生成済みファイルを削除し、エラー履歴を保存します。
 
 Excelテンプレートは以下です。
 
@@ -349,6 +354,8 @@ http://localhost:8080/work-report-system/report-histories
 
 `ReportHistoryDao` は `report_output_histories` と `users` をJOINし、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句に追加します。
 
+`ADMIN` は全ユーザー分を検索できます。`USER` は自分が作成した履歴だけを検索できます。
+
 一覧画面では、ステータスが `SUCCESS` の履歴だけにダウンロードボタンを表示します。
 
 履歴詳細は以下のURLで表示します。
@@ -372,26 +379,28 @@ GET /report-histories/{id}/download
 1. `ReportHistoryController#download` が履歴IDを受け取る
 2. `ReportHistoryService#findById` で履歴を取得する
 3. ステータスが `SUCCESS` であることを確認する
-4. `file_path` のExcelファイルを `generated-reports/` から読み込む
-5. Excel用の `Content-Type` と `Content-Disposition` を設定する
-6. ブラウザへExcelファイルを返す
+4. `file_path` が `generated-reports/` 配下であることを確認する
+5. Excelファイルを読み込む
+6. Excel用の `Content-Type` と `Content-Disposition` を設定する
+7. ブラウザへExcelファイルを返す
 
 ファイルが見つからない場合は、一覧画面にエラーメッセージを表示します。
 
-## 現時点で実装していないこと
+## 今後の拡張候補
 
-- Spring Securityによる認証・認可
+主要機能は実装済みです。以下は、継続運用に向けた拡張候補です。
+
+- Spring Securityによる本格的な認証・認可
 - パスワードハッシュ化
-- 入力チェックのさらなる詳細化
 - DB接続エラー時の専用エラー画面
-- 権限別メニュー制御
-- 作業日報の一覧、編集、削除
-- 作業実績検索のページング
-- 帳票ファイルの削除運用
+- 管理者向けメニューと権限別表示制御
+- 作業日報の一覧、詳細、編集、削除
+- 作業実績検索と帳票作成履歴のページング
+- 古い帳票ファイルの削除運用
 
-## 面談前の説明ポイント
+## 設計上の説明ポイント
 
-このプロジェクトを説明するときは、以下の順番で話すと伝わりやすくなります。
+このプロジェクトの設計を確認するときは、以下の観点で整理すると全体像を把握しやすくなります。
 
 1. Spring Bootではなく、Spring MVC、JSP、Tomcat、Maven WARで構成している
 2. Controller / Service / DAOを分け、SQLはDAOに明示的に書いている
@@ -399,7 +408,7 @@ GET /report-histories/{id}/download
 4. JSPはModelに入ったデータを表示し、業務ロジックは持たせていない
 5. 月次報告書はApache POI 3.17でExcelテンプレートに値を差し込む方式にしている
 6. 帳票出力履歴を保存し、作成済みファイルを再ダウンロードできるようにしている
-7. 現在のログインはポートフォリオ簡易版であり、本番ではパスワードハッシュ化や権限制御が必要である
+7. 現在のログインは基本的な認証実装であり、運用環境ではSpring Securityやパスワードハッシュ化を適用する
 
 ## 用語の補足
 

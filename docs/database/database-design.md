@@ -6,11 +6,11 @@
 
 本番・案件想定のDBはOracle Databaseとし、JDBCドライバはOracle JDBC Driver 19.17.0.0、Maven依存関係は `ojdbc8:19.17.0.0` を使用します。
 
-ポートフォリオの開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよいものとします。ただし、アプリケーション本体はDocker化せず、STS + Tomcat 8.5 + Maven WARで起動します。
+開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよいものとします。ただし、アプリケーション本体はDocker化せず、STS + Tomcat 8.5 + Maven WARで起動します。
 
 SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せません。
 
-このDB設計は、Spring JDBCで明示的にSQLを書く学習にも使えるようにしています。テーブル同士の関係、主キー、外部キー、検索条件に使う列を確認しながらDAO実装を読むと、SQLと画面機能のつながりを理解しやすくなります。
+このDB設計は、Spring JDBCで明示的にSQLを書く方針に合わせています。テーブル同士の関係、主キー、外部キー、検索条件に使う列を確認しながらDAO実装を読むと、SQLと画面機能のつながりを把握できます。
 
 開発用DBの起動手順は `docs/database/oracle-docker-setup.md` にまとめています。Docker Composeで起動するOracle Database Freeの接続先は `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` です。
 
@@ -89,7 +89,7 @@ users       1 ---- * report_output_histories
 
 `role_code` は当面 `ADMIN` または `USER` を想定します。
 
-サンプルデータでは分かりやすさを優先してダミーパスワード文字列を登録しています。実装時はハッシュ化したパスワードを保存する方針に変更します。
+サンプルデータでは動作確認用のダミーパスワード文字列を登録しています。運用環境ではハッシュ化したパスワードを保存する方針に変更します。
 
 ### work_reports
 
