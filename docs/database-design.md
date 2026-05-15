@@ -4,6 +4,12 @@
 
 想定DBは **Oracle Database 11g / 12c / 19c** です。DDLとサンプルデータはOracle向けSQLとして作成しています。JPA / Hibernate / MyBatisなどのORMやSQLマッパーは前提にせず、今後Spring JDBCから明示的なSQLでアクセスする想定です。
 
+本番・案件想定のDBはOracle Databaseとし、JDBCドライバはOracle JDBC Driver 19.17.0.0、Maven依存関係は `ojdbc8:19.17.0.0` を使用します。
+
+ポートフォリオの開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよいものとします。ただし、アプリケーション本体はDocker化せず、STS + Tomcat 8.5 + Maven WARで起動します。
+
+SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せません。
+
 ## テーブル一覧
 
 | テーブル名 | 概要 |
@@ -180,6 +186,7 @@ DDLは `src/main/resources/sql/schema.sql` に定義しています。
 主な方針は以下です。
 
 - Oracle向けSQLとして作成する
+- H2 / PostgreSQL / MySQL向けではなく、Oracle Database前提で作成する
 - IDは `NUMBER(10)` を基本にする
 - 日付は `DATE` を基本にする
 - 作業時間は `NUMBER(4,2)` とする

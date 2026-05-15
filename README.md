@@ -164,7 +164,10 @@ work-report-system/
 
 主な設計方針は以下です。
 
-- Oracle Databaseでの利用を前提にする
+- 本番・案件想定のDBはOracle Databaseとする
+- JDBCドライバはOracle JDBC Driver 19.17.0.0を使用し、Maven依存関係は `ojdbc8:19.17.0.0` とする
+- SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない
+- ポートフォリオ開発用DBは、ローカル環境構築を簡単にするためDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
 - 主キーは業務要件に応じて数値IDまたは複合キーを検討する
 - 日付、年月、作業時間を検索しやすい形で保持する
 - 帳票ファイルはファイルシステム保存を基本案とし、DBには保存先パスや作成日時を保持する
@@ -208,7 +211,9 @@ work-report-system/
 http://localhost:8080/work-report-system/
 ```
 
-アプリケーション本体はDocker前提にしません。Dockerを使用する場合は、Oracle互換DBや検証用DBの起動補助など、必要な範囲に限定します。
+アプリケーション本体はDocker化しません。アプリケーションはSTS + Tomcat 8.5 + Maven WARで起動します。
+
+Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle Database XEを起動する補助用途に限定します。
 
 現在のSpring MVC設定は以下です。
 
@@ -239,7 +244,7 @@ http://localhost:8080/work-report-system/
 - 帳票テンプレート差し替え機能
 - 作業実績のCSV出力
 - 作業時間の集計グラフ表示
-- Oracle以外の検証用DBプロファイル追加
+- Docker ComposeによるOracle Database Free / XEの開発用起動補助
 - 単体テストと結合テストの拡充
 
 ## 17. 未決事項
@@ -248,6 +253,7 @@ http://localhost:8080/work-report-system/
 
 - ログイン認証方式とパスワード管理方式
 - Oracle接続情報の管理方法
+- 開発用Oracle Database Free / XEのDocker Compose構成
 - 帳票テンプレートの具体的なレイアウト
 - 作業実績として管理する入力項目の詳細
 - 休日、休暇、欠勤などの扱い

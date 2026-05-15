@@ -41,6 +41,11 @@
 - SQLはDAO層に明示的に記述する
 - SQLの可読性を重視する
 - `PreparedStatement` / バインド変数によるSQLインジェクション対策を意識する
+- 本番・案件想定のDBはOracle Databaseとする
+- JDBCドライバはOracle JDBC Driver 19.17.0.0、Maven依存関係は `ojdbc8:19.17.0.0` を使用する
+- SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない
+- 開発用DBはDocker ComposeでOracle Database FreeまたはOracle Database XEを起動する構成にしてよい
+- アプリケーション本体はDocker化せず、STS + Tomcat 8.5 + Maven WARで起動する
 - Excel帳票はApache POI 3.17で、テンプレートExcelに値を差し込む方式を前提にする
 - JSPは `src/main/webapp/WEB-INF/views/` 配下に配置する
 - IDE固有ファイルは原則コミットしない
@@ -136,6 +141,9 @@ com.example.workreport
 - 文字列連結でユーザー入力をSQLへ直接埋め込まない
 - Oracleで動作するSQLを前提にする
 - 日付、年月、ページングの扱いはOracleの仕様を意識する
+- H2 / PostgreSQL / MySQL互換のためにOracle向けDDLやSQLを薄めない
+- 開発用DBをDocker Composeで用意する場合も、Oracle Database FreeまたはOracle Database XEを使用する
+- Oracle 11gも考慮する箇所では、Identity列ではなくシーケンス利用を検討する
 
 ## 8. Spring JDBCの使用ルール
 
@@ -221,6 +229,8 @@ com.example.workreport
 - MyBatisを使用しない
 - React / Vue / Angularを使用しない
 - Docker前提のアプリ構成にしない
+- アプリケーション本体をDocker化しない
+- H2 / PostgreSQL / MySQL向けのDDL、SQL、DAO実装にしない
 - Java 9以降のAPIを使用しない
 - 最新Springへ勝手に更新しない
 - Apache POIを3.17以外へ勝手に更新しない
