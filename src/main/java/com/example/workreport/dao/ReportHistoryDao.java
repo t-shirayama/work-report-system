@@ -11,9 +11,11 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import com.example.workreport.dto.ReportHistoryDto;
 import com.example.workreport.entity.ReportOutputHistory;
+import com.example.workreport.form.ReportHistorySearchForm;
 
 @Repository
 public class ReportHistoryDao {
@@ -56,9 +58,9 @@ public class ReportHistoryDao {
                     + "    u.employee_name AS created_by_name, "
                     + "    roh.status, "
                     + "    CASE roh.status "
-                    + "        WHEN 'SUCCESS' THEN '成功' "
+                    + "        WHEN 'SUCCESS' THEN '完了' "
                     + "        WHEN 'ERROR' THEN 'エラー' "
-                    + "        WHEN 'PROCESSING' THEN '作成中' "
+                    + "        WHEN 'PROCESSING' THEN '処理中' "
                     + "        ELSE roh.status "
                     + "    END AS status_name, "
                     + "    roh.file_name, "
@@ -66,13 +68,14 @@ public class ReportHistoryDao {
                     + "    roh.error_message "
                     + "FROM report_output_histories roh "
                     + "INNER JOIN users u "
-                    + "    ON roh.created_by = u.user_id "
-                    + "ORDER BY roh.created_at DESC, roh.report_output_history_id DESC";
+                    + "    ON roh.created_by = u.user_id ";
 
     private static final String SELECT_HISTORY_BY_ID =
-            SELECT_HISTORY_LIST.replace(
-                    "ORDER BY roh.created_at DESC, roh.report_output_history_id DESC",
-                    "WHERE roh.report_output_history_id = :reportOutputHistoryId");
+            SELECT_HISTORY_LIST
+                    + "WHERE roh.report_output_history_id = :reportOutputHistoryId";
+
+    private static final String ORDER_BY_HISTORY =
+            "ORDER BY roh.created_at DESC, roh.report_output_history_id DESC";
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -86,7 +89,37 @@ public class ReportHistoryDao {
     }
 
     public List<ReportHistoryDto> findAll() {
-        return namedParameterJdbcTemplate.query(SELECT_HISTORY_LIST, new MapSqlParameterSource(), new ReportHistoryRowMapper());
+        return search(new ReportHistorySearchForm());
+    }
+
+    public List<ReportHistoryDto> search(ReportHistorySearchForm form) {
+        StringBuilder sql = new StringBuilder(SELECT_HISTORY_LIST);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        sql.append("WHERE 1 = 1 ");
+
+        if (StringUtils.hasText(form.getTargetYearMonth())) {
+            sql.append("  AND roh.target_year_month = :targetYearMonth ");
+            params.addValue("targetYearMonth", form.getTargetYearMonth());
+        }
+
+        if (StringUtils.hasText(form.getReportType())) {
+            sql.append("  AND roh.report_type = :reportType ");
+            params.addValue("reportType", form.getReportType());
+        }
+
+        if (StringUtils.hasText(form.getCreatedByName())) {
+            sql.append("  AND u.employee_name LIKE :createdByName ");
+            params.addValue("createdByName", "%" + form.getCreatedByName() + "%");
+        }
+
+        if (StringUtils.hasText(form.getStatus())) {
+            sql.append("  AND roh.status = :status ");
+            params.addValue("status", form.getStatus());
+        }
+
+        sql.append(ORDER_BY_HISTORY);
+        return namedParameterJdbcTemplate.query(sql.toString(), params, new ReportHistoryRowMapper());
     }
 
     public ReportHistoryDto findById(Long reportOutputHistoryId) {

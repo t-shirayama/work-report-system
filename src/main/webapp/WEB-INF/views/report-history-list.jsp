@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -40,9 +41,46 @@
             <div class="breadcrumb">ホーム &gt; 帳票作成履歴</div>
             <h2 class="page-title">帳票作成履歴</h2>
 
+            <section class="search-card">
+                <h3>検索条件</h3>
+                <form:form method="get" action="${pageContext.request.contextPath}/report-histories" modelAttribute="reportHistorySearchForm">
+                    <div class="search-grid">
+                        <div class="search-field">
+                            <label for="targetYearMonth">対象年月</label>
+                            <form:input path="targetYearMonth" id="targetYearMonth" cssClass="entry-input" placeholder="202605" maxlength="6" />
+                        </div>
+                        <div class="search-field">
+                            <label for="reportType">帳票種別</label>
+                            <form:select path="reportType" id="reportType" cssClass="entry-input">
+                                <form:option value="" label="すべて" />
+                                <form:option value="MONTHLY_WORK_REPORT" label="月次作業報告書" />
+                            </form:select>
+                        </div>
+                        <div class="search-field">
+                            <label for="createdByName">作成者</label>
+                            <form:input path="createdByName" id="createdByName" cssClass="entry-input" placeholder="社員名を入力" />
+                        </div>
+                        <div class="search-field">
+                            <label for="status">ステータス</label>
+                            <form:select path="status" id="status" cssClass="entry-input">
+                                <form:option value="" label="すべて" />
+                                <form:option value="SUCCESS" label="完了" />
+                                <form:option value="ERROR" label="エラー" />
+                                <form:option value="PROCESSING" label="処理中" />
+                            </form:select>
+                        </div>
+                    </div>
+                    <div class="search-actions">
+                        <button class="primary-action" type="submit">検索</button>
+                        <a class="secondary-action" href="<c:url value='/report-histories' />">条件クリア</a>
+                    </div>
+                </form:form>
+            </section>
+
             <section class="result-card">
                 <div class="result-header">
                     <h3>履歴一覧 <span><c:out value="${fn:length(reportHistories)}" /> 件</span></h3>
+                    <a class="secondary-action compact-action" href="<c:url value='/report-histories' />">更新</a>
                 </div>
 
                 <c:if test="${not empty errorMessage}">
@@ -93,9 +131,10 @@
                                             <c:choose>
                                                 <c:when test="${history.status == 'SUCCESS'}">
                                                     <a class="download-button" href="<c:url value='/report-histories/${history.reportOutputHistoryId}/download' />">ダウンロード</a>
+                                                    <a class="detail-button" href="<c:url value='/report-histories/${history.reportOutputHistoryId}' />">詳細</a>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <span class="muted-text">不可</span>
+                                                    <a class="detail-button" href="<c:url value='/report-histories/${history.reportOutputHistoryId}' />">詳細</a>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>

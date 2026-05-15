@@ -117,9 +117,9 @@ response.setHeader("Content-Disposition", buildContentDisposition(fileName));
 
 | ステータス | 意味 |
 |---|---|
-| `SUCCESS` | Excel作成・保存に成功 |
+| `SUCCESS` | Excel作成・保存に成功。画面では「完了」と表示 |
 | `ERROR` | Excel作成または保存に失敗 |
-| `PROCESSING` | 作成中 |
+| `PROCESSING` | 作成中。画面では「処理中」と表示 |
 
 成功時はExcelファイルを `generated-reports/` 配下へ保存し、保存先パスを履歴テーブルへ登録します。
 
@@ -136,6 +136,16 @@ http://localhost:8080/work-report-system/report-histories
 ```
 
 成功済みの履歴にはダウンロードボタンを表示します。
+
+履歴一覧では、対象年月、帳票種別、作成者、ステータスで検索できます。条件が指定された場合のみWHERE句に追加し、`NamedParameterJdbcTemplate` のバインド変数として値を渡します。
+
+履歴詳細は以下のURLで表示します。
+
+```text
+GET /report-histories/{id}
+```
+
+詳細画面では、ファイルパスやエラーメッセージを確認できます。`SUCCESS` は「完了」、`ERROR` は「エラー」、`PROCESSING` は「処理中」として表示します。
 
 ```text
 GET /report-histories/{id}/download

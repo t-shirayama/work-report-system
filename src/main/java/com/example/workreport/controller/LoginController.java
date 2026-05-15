@@ -1,5 +1,8 @@
 package com.example.workreport.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import com.example.workreport.service.UserService;
 public class LoginController {
 
     private static final String LOGIN_USER_SESSION_KEY = "loginUser";
+
+    private static final String LOGIN_AT_SESSION_KEY = "loginAt";
 
     private final UserService userService;
 
@@ -44,19 +49,8 @@ public class LoginController {
         }
 
         session.setAttribute(LOGIN_USER_SESSION_KEY, user);
+        session.setAttribute(LOGIN_AT_SESSION_KEY, new SimpleDateFormat("yyyy/MM/dd HH:mm").format(new Date()));
         return "redirect:/dashboard";
-    }
-
-    @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
-        User loginUser = (User) session.getAttribute(LOGIN_USER_SESSION_KEY);
-
-        if (loginUser == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("loginUser", loginUser);
-        return "dashboard";
     }
 
     @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})

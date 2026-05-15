@@ -101,9 +101,18 @@ return namedParameterJdbcTemplate.queryForObject(SELECT_BY_LOGIN_ID, params, new
 
 `GET /dashboard` では、セッションに `loginUser` があるか確認します。
 
-ログイン済みの場合は `dashboard.jsp` にユーザー情報を表示します。
+ログイン済みの場合は `DashboardController` が `DashboardService` を呼び出し、DB集計結果を `dashboard.jsp` に表示します。
 
 未ログインの場合は `/login` にリダイレクトします。
+
+ダッシュボードでは、`work_reports` と `report_output_histories` から以下を取得します。
+
+- 本日の作業日報登録件数
+- 今月の総作業時間
+- 未出力の月次報告件数
+- 最近の活動一覧
+
+最近の活動は、作業日報登録と帳票出力履歴を時系列でまとめた表示です。
 
 ## logout
 
@@ -327,11 +336,19 @@ src/main/resources/templates/monthly-report-template.xlsx
 http://localhost:8080/work-report-system/report-histories
 ```
 
-`GET /report-histories` は `ReportHistoryController#list` が受け取り、`ReportHistoryService#findAll` を呼び出します。
+`GET /report-histories` は `ReportHistoryController#list` が受け取り、検索条件を `ReportHistorySearchForm` として受け取ります。
 
-`ReportHistoryDao` は `report_output_histories` と `users` をJOINし、出力日時、対象年月、帳票種別、作成者、ステータス、ファイル名を取得します。
+`ReportHistoryDao` は `report_output_histories` と `users` をJOINし、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句に追加します。
 
 一覧画面では、ステータスが `SUCCESS` の履歴だけにダウンロードボタンを表示します。
+
+履歴詳細は以下のURLで表示します。
+
+```text
+GET /report-histories/{id}
+```
+
+詳細画面では、出力日時、対象年月、帳票種別、作成者、ステータス、ファイル名、ファイルパス、エラーメッセージを確認できます。`SUCCESS` の場合は詳細画面にもダウンロードボタンを表示します。
 
 ## 帳票の再ダウンロード
 

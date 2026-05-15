@@ -13,6 +13,7 @@ import com.example.workreport.dao.ReportHistoryDao;
 import com.example.workreport.dto.MonthlyReportFileDto;
 import com.example.workreport.dto.ReportHistoryDto;
 import com.example.workreport.entity.ReportOutputHistory;
+import com.example.workreport.form.ReportHistorySearchForm;
 
 @Service
 public class ReportHistoryService {
@@ -34,6 +35,10 @@ public class ReportHistoryService {
 
     public List<ReportHistoryDto> findAll() {
         return reportHistoryDao.findAll();
+    }
+
+    public List<ReportHistoryDto> search(ReportHistorySearchForm form) {
+        return reportHistoryDao.search(form);
     }
 
     public ReportHistoryDto findById(Long reportOutputHistoryId) {

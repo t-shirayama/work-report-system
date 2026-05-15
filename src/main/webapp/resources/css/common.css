@@ -516,6 +516,11 @@ a {
     color: #6b4fc2;
 }
 
+.badge.red {
+    background: #fff1f2;
+    color: #be123c;
+}
+
 .info-banner {
     align-items: center;
     background: #eff6ff;
@@ -713,7 +718,8 @@ a {
 
 .search-card h3,
 .result-card h3,
-.report-card h3 {
+.report-card h3,
+.detail-card h3 {
     font-size: 18px;
     margin: 0 0 18px;
 }
@@ -800,11 +806,13 @@ a {
 }
 
 .status-badge,
-.download-button {
+.download-button,
+.detail-button {
     border-radius: 8px;
     display: inline-block;
     font-size: 13px;
     font-weight: 700;
+    margin: 2px;
     padding: 4px 10px;
     text-decoration: none;
 }
@@ -827,6 +835,70 @@ a {
 .download-button {
     background: #246bd9;
     color: #ffffff;
+}
+
+.detail-button {
+    background: #eef4ff;
+    color: #1f6feb;
+}
+
+.compact-action {
+    font-size: 13px;
+    padding: 8px 14px;
+}
+
+.detail-card {
+    background: #ffffff;
+    border: 1px solid #d8e0ea;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    padding: 24px;
+}
+
+.detail-header {
+    align-items: center;
+    border-bottom: 1px solid #d8e0ea;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+}
+
+.detail-header h3 {
+    margin: 0;
+}
+
+.detail-table {
+    border-collapse: collapse;
+    color: #344054;
+    margin-bottom: 22px;
+    width: 100%;
+}
+
+.detail-table th,
+.detail-table td {
+    border: 1px solid #d8e0ea;
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.detail-table th {
+    background: #f8fafc;
+    color: #334155;
+    width: 190px;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+}
+
+.button-link {
+    box-sizing: border-box;
+    display: inline-block;
+    text-decoration: none;
 }
 
 .history-error,

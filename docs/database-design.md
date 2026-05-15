@@ -140,9 +140,9 @@ users       1 ---- * report_output_histories
 
 | 値 | 意味 |
 |---|---|
-| `SUCCESS` | 作成成功 |
+| `SUCCESS` | 作成成功。画面表示は「完了」 |
 | `ERROR` | 作成失敗 |
-| `PROCESSING` | 作成中 |
+| `PROCESSING` | 作成中。画面表示は「処理中」 |
 
 ## 主キー・外部キー
 

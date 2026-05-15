@@ -102,7 +102,7 @@
 
 ## 10. ディレクトリ構成
 
-現在は、業務機能を実装する前のMaven WARプロジェクトの土台として、以下の構成を作成しています。
+現在は、Spring MVCの基本構成、簡易ログイン、作業日報登録、作業実績検索、月次報告書Excel出力、帳票作成履歴、開発用Oracle DB環境を含む構成になっています。
 
 ```text
 work-report-system/
@@ -153,9 +153,7 @@ work-report-system/
     code-walkthrough.md
 ```
 
-`docs/` 配下の各Markdownファイルは、今後の機能実装や学習メモ作成に合わせて追加します。
-
-現時点では、Javaコード、JSP画面、DB接続処理、業務機能はまだ作成していません。
+`docs/` 配下の各Markdownファイルは、実装済み機能を教材として読み返せるように整理しています。
 
 ## 11. DB設計概要
 
@@ -163,10 +161,10 @@ work-report-system/
 
 | テーブル名 | 概要 |
 |---|---|
-| USERS | ログイン利用者を管理する |
-| WORK_RECORDS | 日々の作業実績を管理する |
-| REPORT_FILES | 作成済み帳票ファイルの履歴を管理する |
-| CODE_VALUES | 区分値や表示用コードを管理する |
+| departments | 部署マスタを管理する |
+| users | ログイン利用者を管理する |
+| work_reports | 日々の作業実績を管理する |
+| report_output_histories | 作成済み帳票ファイルの履歴を管理する |
 
 主な設計方針は以下です。
 
@@ -194,22 +192,145 @@ work-report-system/
 - 作成履歴をDBに登録し、後から再ダウンロードできるようにする
 - セル位置や帳票レイアウトの変更に備え、定数化や設定化を検討する
 
-## 13. STSでのセットアップ手順
+## 13. 導入手順
+
+初めてこのリポジトリを動かす場合は、以下の順番で確認してください。
+
+最短の流れは、開発用DBを起動し、Mavenでビルド確認を行い、STSへインポートしてTomcat 8.5で起動する、という順番です。
+
+```text
+1. 前提ソフトウェア確認
+2. docker compose up -d oracle-db
+3. DB接続・サンプルデータ確認
+4. mvn test / mvn package
+5. STSへExisting Maven Projectsとしてインポート
+6. Tomcat 8.5へ追加して起動
+7. /home と /login をブラウザで確認
+```
+
+### 13.1 前提ソフトウェア
+
+| ソフトウェア | 用途 | 確認コマンド |
+|---|---|---|
+| JDK 8 | Javaコンパイル、Tomcat実行 | `java -version` |
+| Maven 3.x | 依存関係解決、WAR作成 | `mvn -version` |
+| Docker Desktop | 開発用Oracle DB起動 | `docker version` |
+| STS / Eclipse | 開発IDE | 画面上で確認 |
+| Apache Tomcat 8.5.x | ローカルアプリ実行 | STSのServersビューで確認 |
+
+`java -version` ではJava 1.8系が使われていることを確認してください。Java 9以降を前提にした実装にはしません。
+
+### 13.2 リポジトリ取得
+
+任意の作業ディレクトリでリポジトリを取得し、プロジェクトルートへ移動します。
+
+```powershell
+git clone <repository-url>
+cd work-report-system
+```
+
+すでに取得済みの場合は、`work-report-system` のルートディレクトリで以降のコマンドを実行してください。
+
+### 13.3 開発用Oracle DBの起動
+
+アプリケーション本体はDocker化しません。Docker Composeは開発用Oracle Database Freeを起動するためだけに使用します。
+
+```powershell
+docker compose up -d oracle-db
+```
+
+起動状態を確認します。
+
+```powershell
+docker compose ps
+```
+
+`oracle-db` の `STATUS` に `healthy` が表示されれば、DB起動と初期化が完了しています。初回はOracleイメージの取得とDB作成のため、数分かかる場合があります。
+
+### 13.4 DB接続確認
+
+SQL*Plusで `work_report` ユーザーに接続します。
+
+```powershell
+docker compose exec oracle-db sqlplus -L work_report/work_report@//localhost:1521/FREEPDB1
+```
+
+接続できたら、以下のSQLでサンプルデータが投入されていることを確認します。
+
+```sql
+SELECT COUNT(*) FROM users;
+SELECT COUNT(*) FROM work_reports;
+SELECT COUNT(*) FROM report_output_histories;
+EXIT;
+```
+
+目安として、初期データは以下の件数です。
+
+| テーブル | 件数 |
+|---|---:|
+| `departments` | 3 |
+| `users` | 5 |
+| `work_reports` | 32 |
+| `report_output_histories` | 5 |
+
+PowerShellから一度に確認する場合は、以下でも確認できます。
+
+```powershell
+"SELECT COUNT(*) AS USER_COUNT FROM users;`nSELECT COUNT(*) AS WORK_REPORT_COUNT FROM work_reports;`nSELECT COUNT(*) AS HISTORY_COUNT FROM report_output_histories;`nEXIT;" | docker compose exec -T oracle-db sqlplus -L work_report/work_report@//localhost:1521/FREEPDB1
+```
+
+### 13.5 Mavenでビルド確認
+
+STSへインポートする前に、Mavenで依存関係解決とビルドを確認します。
+
+```powershell
+mvn test
+mvn package
+```
+
+`mvn package` が成功すると、以下のWARファイルが作成されます。
+
+```text
+target/work-report-system.war
+```
+
+この時点でMavenが見つからない場合は、MavenのインストールまたはSTS同梱Mavenの利用設定を確認してください。
+
+### 13.6 STSへのインポート
 
 1. STSを起動する
 2. `File > Import > Maven > Existing Maven Projects` を選択する
 3. 本プロジェクトのルートディレクトリを選択する
-4. Maven Dependencies が解決されることを確認する
-5. `pom.xml` の packaging が `war` になっていることを確認する
-6. Serversビューで Tomcat 8.5 Server を追加する
-7. Project Facets で Java 1.8 / Dynamic Web Module を確認する
-8. プロジェクトをTomcatへ追加する
-9. Tomcatを起動する
-10. ブラウザで `http://localhost:8080/work-report-system/home` にアクセスする
+4. `pom.xml` が認識されていることを確認する
+5. `Finish` を押してインポートする
+6. Maven Dependencies が解決されることを確認する
+7. `pom.xml` の packaging が `war` になっていることを確認する
+8. Project Facets で Java 1.8 / Dynamic Web Module を確認する
+
+Eclipse / STS固有ファイルである `.project`、`.classpath`、`.settings/` は原則コミットしません。
+
+### 13.7 Tomcat 8.5の設定
+
+1. STSのServersビューを開く
+2. `No servers are available. Click this link to create a new server...` を選択する
+3. `Apache > Tomcat v8.5 Server` を選択する
+4. Tomcat 8.5のインストールディレクトリを指定する
+5. 作成したServerに `work-report-system` を追加する
+6. Serverを起動する
+
+コンテキストパスは通常 `work-report-system` になります。異なる場合は、STSのServer設定でModulesタブを確認してください。
+
+## 14. 起動確認方法
+
+Tomcat起動後、ブラウザで以下にアクセスします。
+
+```text
+http://localhost:8080/work-report-system/home
+```
 
 トップ画面が表示されれば、DispatcherServlet、Controller、ViewResolver、JSP、静的CSSの最小疎通は成功です。
 
-簡易ログイン機能の確認は、サンプルデータ投入後に以下へアクセスします。
+ログイン機能は以下で確認します。
 
 ```text
 http://localhost:8080/work-report-system/login
@@ -222,35 +343,60 @@ http://localhost:8080/work-report-system/login
 | `admin` | `password` |
 | `sato` | `password` |
 
-## 14. Tomcat 8.5での実行方法
+ログイン後、以下の画面を確認できます。
 
-実装後は、STS上でTomcat 8.5 Server Runtimeを設定し、Maven WARプロジェクトとしてTomcatへ追加して起動します。
+| URL | 確認内容 |
+|---|---|
+| `/dashboard` | ダッシュボード表示 |
+| `/work-reports/new` | 作業日報登録 |
+| `/work-reports/search` | 作業実績検索 |
+| `/monthly-reports/new` | 月次報告書Excel出力 |
+| `/report-histories` | 帳票作成履歴、再ダウンロード |
 
-想定URLは以下です。
+月次報告書を出力すると、開発用として `generated-reports/` 配下にExcelファイルが保存されます。このディレクトリは `.gitignore` 対象です。
+
+### 14.1 接続設定
+
+アプリケーションのDB接続設定は以下です。
 
 ```text
-http://localhost:8080/work-report-system/home
+src/main/resources/application.properties
 ```
 
-アプリケーション本体はDocker化しません。アプリケーションはSTS + Tomcat 8.5 + Maven WARで起動します。
+Docker Composeで起動したOracle Database Freeへ接続する設定になっています。
 
-Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle Database XEを起動する補助用途に限定します。
+```properties
+jdbc.driverClassName=oracle.jdbc.OracleDriver
+jdbc.url=jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+jdbc.username=work_report
+jdbc.password=work_report
+```
 
-開発用Oracle Database Freeを起動する場合は、リポジトリルートで以下を実行します。
+### 14.2 よくある確認ポイント
+
+| 症状 | 確認ポイント |
+|---|---|
+| `docker compose ps` で `healthy` にならない | 初回起動中の可能性があります。数分待ってから再確認します |
+| DB接続に失敗する | `docker compose ps`、ポート `1521`、`application.properties` のURLを確認します |
+| `mvn` が認識されない | MavenがPATHに設定されているか、STS同梱Mavenを使う設定か確認します |
+| Tomcat起動時にServlet API関連で失敗する | `javax.servlet-api` と `javax.servlet.jsp-api` が `provided` スコープになっているか確認します |
+| 404になる | URLのコンテキストパスが `work-report-system` になっているか、STSのModules設定を確認します |
+| ログインできない | サンプルデータ投入済みか、`users` テーブルに `admin` / `sato` が存在するか確認します |
+
+### 14.3 DBを初期化し直す場合
+
+開発用DBを作り直す場合は、以下を実行します。
 
 ```powershell
+docker compose down -v
 docker compose up -d oracle-db
 ```
 
-初回起動時に、`src/main/resources/sql/schema.sql` と `src/main/resources/sql/sample-data.sql` が `work_report` スキーマへ投入されます。
+`down -v` はDocker volumeを削除するため、登録済みデータも消えます。必要なデータがないことを確認してから実行してください。
 
-接続確認は以下で行えます。
+詳細手順は `docs/oracle-docker-setup.md` も参照してください。
 
-```powershell
-docker compose exec oracle-db sqlplus -L work_report/work_report@//localhost:1521/FREEPDB1
-```
-
-詳細手順は `docs/oracle-docker-setup.md` を参照してください。
+### 14.4 現在のSpring MVC設定
 
 現在のSpring MVC設定は以下です。
 
@@ -283,6 +429,10 @@ docker compose exec oracle-db sqlplus -L work_report/work_report@//localhost:152
 - 入力チェックとエラーメッセージ表示の充実
 - パスワードハッシュ化
 - ロール別権限制御
+- 承認一覧
+- 作業日報の申請・承認・差戻し
+- 部署マスタ、社員マスタ、作業分類マスタ
+- 管理者向けメニュー
 - 月次報告書の複数フォーマット対応
 - 帳票テンプレート差し替え機能
 - 作業実績のCSV出力
@@ -296,12 +446,10 @@ docker compose exec oracle-db sqlplus -L work_report/work_report@//localhost:152
 
 - ログイン認証方式とパスワード管理方式
 - Oracle接続情報の管理方法
-- 開発用Oracle Database Free / XEのDocker Compose構成
 - 帳票テンプレートの具体的なレイアウト
 - 作業実績として管理する入力項目の詳細
 - 休日、休暇、欠勤などの扱い
 - 帳票ファイル保存先の正式なパス
-- サンプルデータの内容
 - テスト用DBをどのように用意するか
 
 ## docs配下の学習用ドキュメント

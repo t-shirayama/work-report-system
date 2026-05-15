@@ -27,7 +27,8 @@
         <aside class="sidebar">
             <p class="sidebar-title">メニュー</p>
             <nav>
-                <a class="sidebar-link active" href="<c:url value='/work-reports/new' />">作業日報登録</a>
+                <a class="sidebar-link active" href="<c:url value='/dashboard' />">ホーム</a>
+                <a class="sidebar-link" href="<c:url value='/work-reports/new' />">作業日報登録</a>
                 <a class="sidebar-link" href="<c:url value='/work-reports/search' />">作業実績検索</a>
                 <a class="sidebar-link" href="<c:url value='/monthly-reports/new' />">月次報告書出力</a>
                 <a class="sidebar-link" href="<c:url value='/report-histories' />">帳票作成履歴</a>
@@ -41,33 +42,33 @@
                 <div class="summary-card">
                     <div class="summary-icon blue">□</div>
                     <p class="summary-label">本日の登録件数</p>
-                    <p class="summary-value blue-text">12 <span>件</span></p>
-                    <p class="summary-sub">前日比 +3件 ↑</p>
+                    <p class="summary-value blue-text"><c:out value="${dashboard.todayWorkReportCount}" /> <span>件</span></p>
+                    <p class="summary-sub">本日登録された作業日報</p>
                 </div>
                 <div class="summary-card">
                     <div class="summary-icon green">○</div>
                     <p class="summary-label">今月の総作業時間</p>
-                    <p class="summary-value green-text">128:45</p>
-                    <p class="summary-sub">前月比 +12:30 ↑</p>
+                    <p class="summary-value green-text"><c:out value="${dashboard.currentMonthTotalHours}" /> <span>時間</span></p>
+                    <p class="summary-sub">当月の作業実績合計</p>
                 </div>
                 <div class="summary-card">
                     <div class="summary-icon orange">□</div>
                     <p class="summary-label">未出力の月次報告</p>
-                    <p class="summary-value orange-text">3 <span>件</span></p>
-                    <p class="summary-sub">対象月: 2026年5月 ほか</p>
+                    <p class="summary-value orange-text"><c:out value="${dashboard.notOutputMonthlyReportCount}" /> <span>件</span></p>
+                    <p class="summary-sub">当月の未出力ユーザー数</p>
                 </div>
                 <div class="summary-card">
                     <div class="summary-icon purple">□</div>
                     <p class="summary-label">最終ログイン</p>
-                    <p class="summary-value purple-text">本日 08:45</p>
-                    <p class="summary-sub">2026/05/15 08:45</p>
+                    <p class="summary-value purple-text">ログイン中</p>
+                    <p class="summary-sub"><c:out value="${loginAt}" /></p>
                 </div>
             </section>
 
             <section class="activity-card">
                 <div class="activity-header">
                     <h3>最近の活動</h3>
-                    <a href="#">すべてを見る</a>
+                    <a href="<c:url value='/report-histories' />">帳票履歴を見る</a>
                 </div>
                 <table class="activity-table">
                     <thead>
@@ -79,36 +80,23 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>2026/05/15 10:15</td>
-                        <td><span class="badge blue">登録</span></td>
-                        <td>作業日報を登録しました（2026/05/15分）</td>
-                        <td><c:out value="${loginUser.employeeName}" /></td>
-                    </tr>
-                    <tr>
-                        <td>2026/05/15 09:47</td>
-                        <td><span class="badge blue">登録</span></td>
-                        <td>作業日報を登録しました（2026/05/15分）</td>
-                        <td>佐藤 花子</td>
-                    </tr>
-                    <tr>
-                        <td>2026/05/14 16:30</td>
-                        <td><span class="badge green">出力</span></td>
-                        <td>月次報告書を出力しました（2026年5月分）</td>
-                        <td>鈴木 一郎</td>
-                    </tr>
-                    <tr>
-                        <td>2026/05/14 15:10</td>
-                        <td><span class="badge blue">登録</span></td>
-                        <td>作業日報を登録しました（2026/05/14分）</td>
-                        <td><c:out value="${loginUser.employeeName}" /></td>
-                    </tr>
-                    <tr>
-                        <td>2026/05/14 11:05</td>
-                        <td><span class="badge purple">検索</span></td>
-                        <td>作業実績を検索しました（期間: 2026/05/01 ～ 2026/05/31）</td>
-                        <td>佐藤 花子</td>
-                    </tr>
+                    <c:choose>
+                        <c:when test="${empty dashboard.recentActivities}">
+                            <tr>
+                                <td colspan="4" class="empty-cell">最近の活動はありません。</td>
+                            </tr>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="activity" items="${dashboard.recentActivities}">
+                                <tr>
+                                    <td><c:out value="${activity.activityAt}" /></td>
+                                    <td><span class="badge ${activity.badgeClass}"><c:out value="${activity.activityTypeName}" /></span></td>
+                                    <td><c:out value="${activity.content}" /></td>
+                                    <td><c:out value="${activity.employeeName}" /></td>
+                                </tr>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                     </tbody>
                 </table>
             </section>

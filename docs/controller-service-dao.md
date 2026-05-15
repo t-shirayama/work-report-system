@@ -105,7 +105,7 @@ DAOが担当するのはDBに近い処理です。SQL文、バインド変数、
 6. Serviceがパスワードを比較する
 7. Controllerが認証済みユーザーをHTTPセッションに保存する
 8. `/dashboard` へリダイレクトする
-9. `dashboard.jsp` にログインユーザー情報を表示する
+9. `DashboardController` がDB集計結果を取得し、`dashboard.jsp` にログインユーザー情報とダッシュボード情報を表示する
 
 ログイン失敗時は、`login.jsp` に戻り、エラーメッセージを表示します。
 

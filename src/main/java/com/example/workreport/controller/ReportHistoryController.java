@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.example.workreport.dto.ReportHistoryDto;
 import com.example.workreport.entity.User;
+import com.example.workreport.form.ReportHistorySearchForm;
 import com.example.workreport.service.ReportHistoryService;
 
 @Controller
@@ -29,15 +30,37 @@ public class ReportHistoryController {
     }
 
     @GetMapping("/report-histories")
-    public String list(Model model, HttpSession session) {
+    public String list(ReportHistorySearchForm searchForm, Model model, HttpSession session) {
         User loginUser = getLoginUser(session);
         if (loginUser == null) {
             return "redirect:/login";
         }
 
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("reportHistories", reportHistoryService.findAll());
+        model.addAttribute("reportHistorySearchForm", searchForm);
+        model.addAttribute("reportHistories", reportHistoryService.search(searchForm));
         return "report-history-list";
+    }
+
+    @GetMapping("/report-histories/{id}")
+    public String detail(@PathVariable("id") Long id, Model model, HttpSession session) {
+        User loginUser = getLoginUser(session);
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        ReportHistoryDto history = reportHistoryService.findById(id);
+        if (history == null) {
+            model.addAttribute("loginUser", loginUser);
+            model.addAttribute("reportHistorySearchForm", new ReportHistorySearchForm());
+            model.addAttribute("reportHistories", reportHistoryService.findAll());
+            model.addAttribute("errorMessage", "指定された帳票作成履歴は見つかりません。");
+            return "report-history-list";
+        }
+
+        model.addAttribute("loginUser", loginUser);
+        model.addAttribute("history", history);
+        return "report-history-detail";
     }
 
     @GetMapping("/report-histories/{id}/download")
@@ -51,6 +74,7 @@ public class ReportHistoryController {
         byte[] content = reportHistoryService.readReportFile(history);
         if (history == null || content == null) {
             model.addAttribute("loginUser", loginUser);
+            model.addAttribute("reportHistorySearchForm", new ReportHistorySearchForm());
             model.addAttribute("reportHistories", reportHistoryService.findAll());
             model.addAttribute("errorMessage", "ダウンロード対象のファイルが見つかりません。");
             return "report-history-list";
