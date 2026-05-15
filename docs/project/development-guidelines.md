@@ -115,6 +115,8 @@ DAOはDBアクセスを担当します。
 ## SQL / Spring JDBC
 
 - SQLはDAO層に置く。
+- 複雑なSELECTは `src/main/resources/sql/dao/` 配下のSQLファイルへ外出しし、`SqlFileLoader` で読み込む。
+- 短いINSERT / UPDATE、シーケンス取得SQLは、処理との対応が分かりやすい場合にDAO内へ残してよい。
 - Oracle Databaseで動作するSQLを前提にする。
 - H2 / PostgreSQL / MySQL互換のためにOracle向けDDLやSQLを薄めない。
 - 動的検索条件は、指定された条件だけWHERE句へ追加する。
@@ -185,7 +187,7 @@ DAOはDBアクセスを担当します。
 
 - `ADMIN` は全ユーザーの帳票作成履歴を検索・詳細表示・再ダウンロードできる。
 - `USER` は自分の月次報告書のみ出力できる。
-- `USER` は自分が作成した帳票作成履歴のみ検索・詳細表示・再ダウンロードできる。
+- `USER` は自分が帳票対象者になっている帳票作成履歴のみ検索・詳細表示・再ダウンロードできる。
 - ControllerだけでなくService層でも権限判断を行い、URL直接指定による参照を防ぐ。
 - ログインユーザーを前提にするServiceメソッドは、`loginUser` 未指定時に例外を投げて安全側に倒す。
 

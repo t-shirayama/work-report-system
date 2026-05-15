@@ -42,7 +42,8 @@
 - ControllerにSQLや重い業務ロジックを書かない。
 - Serviceに業務判断、入力チェック、トランザクション境界を置く。
 - DAOにSQL、バインド変数、RowMapper、DB例外に近い処理を置く。
-- SQLはDAO層に明示し、ユーザー入力を文字列連結で埋め込まない。
+- SQLはDAO層で扱う。複雑なSELECTは `src/main/resources/sql/dao/` のSQLファイルへ外出しし、短いINSERT/UPDATEやシーケンス取得はDAO内に残してよい。
+- ユーザー入力をSQL文字列へ直接連結せず、必ずバインド変数を使う。
 - JSPは `src/main/webapp/WEB-INF/views/` 配下に置き、Controller経由で表示する。
 - JSPではJSTLを使い、Javaスクリプトレットを増やさない。
 - POSTフォームにはSpring SecurityのCSRFトークンを含める。

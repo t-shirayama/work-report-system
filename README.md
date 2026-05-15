@@ -169,6 +169,11 @@ work-report-system/
         sql/
           schema.sql
           sample-data.sql
+          dao/
+            dashboard/
+            monthly-report/
+            report-history/
+            work-report/
         templates/
           monthly-report-template.xlsx
       webapp/
@@ -492,13 +497,14 @@ DB接続情報は環境変数で上書きできる開発用デフォルト値を
 - JSP / JSTLによる画面作成
 - Controller、Service、DAOの責務分離
 - Spring JDBCとNamedParameterJdbcTemplateによるDBアクセス
+- 複雑なSELECT SQLの外部ファイル化とDAOでの動的WHERE句組み立て
 - Spring SecurityとBCryptによるログイン認証
 - Oracle向けSQLの作成
 - Apache POIによるExcel帳票作成
 - Maven WARプロジェクトの構成
 - STS / Eclipse / Tomcatによる業務システム開発の流れ
 
-設計上は、Spring Bootへ寄せずに `web.xml` とXML設定を使うこと、DAOにSQLを明示すること、Oracle Database前提のDDL/SQLを維持すること、既存ExcelテンプレートにApache POIで差し込むことを重視しています。
+設計上は、Spring Bootへ寄せずに `web.xml` とXML設定を使うこと、DAOにSQL責務を集約すること、長いSELECTはSQLファイルへ外出しすること、Oracle Database前提のDDL/SQLを維持すること、既存ExcelテンプレートにApache POIで差し込むことを重視しています。
 
 ## 16. 今後の拡張案
 

@@ -157,7 +157,7 @@ WHERE u.login_id = :loginId
 
 作業実績検索では、対象期間、社員名、部署名、作業分類、プロジェクト名を任意条件として指定できます。
 
-検索SQLは `WorkReportDao` に記述し、`users`、`departments`、`work_reports` をJOINします。
+検索SQLは `src/main/resources/sql/dao/work-report/search-base.sql` にSELECT本体を配置し、`WorkReportDao` が読み込みます。SQLでは `users`、`departments`、`work_reports` をJOINします。
 
 ```sql
 FROM work_reports wr
@@ -205,7 +205,7 @@ if (StringUtils.hasText(workCategory)) {
 
 検索結果は `RowMapper` で `WorkReportSearchResultDto` に変換します。画面表示用に、作業日は `TO_CHAR(wr.work_date, 'YYYY/MM/DD')`、作業分類名は `CASE` 式で変換しています。
 
-帳票作成履歴検索でも同じ考え方を使います。`ReportHistoryDao#search` では `report_output_histories` と `users` をJOINし、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句を追加します。
+帳票作成履歴検索でも同じ考え方を使います。`ReportHistoryDao#search` では `src/main/resources/sql/dao/report-history/select-history-list-base.sql` からSELECT本体を読み込み、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句を追加します。
 
 ```java
 if (StringUtils.hasText(form.getStatus())) {
@@ -215,6 +215,33 @@ if (StringUtils.hasText(form.getStatus())) {
 ```
 
 作成者名は部分一致検索、対象年月・帳票種別・ステータスは完全一致検索です。ステータス名や帳票種別名は、画面表示しやすいようにSQLの `CASE` 式で変換して `ReportHistoryDto` に詰めています。
+
+## SQLファイル外出し方針
+
+長いSELECT文は、DAO内の文字列連結だけで管理すると見通しが悪くなります。そのため、本プロジェクトでは複雑なSELECT SQLを `src/main/resources/sql/dao/` 配下へ外出しし、DAOから `SqlFileLoader` で読み込みます。
+
+```text
+src/main/resources/sql/dao/
+  dashboard/
+  monthly-report/
+  report-history/
+  work-report/
+```
+
+DAOは、外部SQLファイルからSELECT本体を読み込み、画面の検索条件に応じたWHERE句とバインド変数を追加します。
+
+```java
+StringBuilder sql = new StringBuilder(SEARCH_BASE);
+
+if (dateFrom != null) {
+    sql.append("  AND wr.work_date >= :dateFrom ");
+    params.addValue("dateFrom", dateFrom);
+}
+```
+
+この分担により、SQLのSELECT句、JOIN、CASE式はSQLファイルで読みやすく管理し、検索条件の有無に応じた制御はDAOで明示できます。
+
+短いINSERT / UPDATEや、`SELECT seq_xxx.NEXTVAL FROM dual` のような処理と密接なSQLはDAO内に残します。すべてのSQLを機械的に外出しするのではなく、読みやすさと保守性のバランスで判断します。
 
 ## ダッシュボード集計SQL
 

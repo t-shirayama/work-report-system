@@ -267,7 +267,7 @@ Controllerはセッションから `loginUser` を取得し、未ログインの
 
 ## 検索SQL
 
-検索SQLは `work_reports`、`users`、`departments` をJOINします。
+検索SQLは `src/main/resources/sql/dao/work-report/search-base.sql` にSELECT本体を置き、`work_reports`、`users`、`departments` をJOINします。
 
 ```sql
 FROM work_reports wr
@@ -350,9 +350,9 @@ http://localhost:8080/work-report-system/report-histories
 
 `GET /report-histories` は `ReportHistoryController#list` が受け取り、検索条件を `ReportHistorySearchForm` として受け取ります。
 
-`ReportHistoryDao` は `report_output_histories` と `users` をJOINし、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句に追加します。
+`ReportHistoryDao` はSQLファイルから `report_output_histories` と `users` のJOINを含むSELECT本体を読み込み、対象年月、帳票種別、作成者、ステータスが指定された場合だけWHERE句に追加します。一般ユーザーの場合、作成者名ではなく `target_user_id` で必ず絞り込むため、管理者が代理出力した本人向け帳票も一覧に表示できます。
 
-`ADMIN` は全ユーザー分を検索できます。`USER` は自分が作成した履歴だけを検索できます。
+`ADMIN` は全ユーザー分を検索できます。`USER` は自分が帳票対象者になっている履歴だけを検索できます。
 
 一覧画面では、ステータスが `SUCCESS` の履歴だけにダウンロードボタンを表示します。
 
@@ -362,7 +362,7 @@ http://localhost:8080/work-report-system/report-histories
 GET /report-histories/{id}
 ```
 
-詳細画面では、出力日時、対象年月、帳票種別、作成者、ステータス、ファイル名、ファイルパス、エラーメッセージを確認できます。`SUCCESS` の場合は詳細画面にもダウンロードボタンを表示します。
+詳細画面では、出力日時、対象年月、帳票種別、作成者、対象者、ステータス、ファイル名、エラーメッセージを確認できます。サーバー内部のファイルパスは管理者だけに表示します。`SUCCESS` の場合は詳細画面にもダウンロードボタンを表示します。
 
 ## 帳票の再ダウンロード
 

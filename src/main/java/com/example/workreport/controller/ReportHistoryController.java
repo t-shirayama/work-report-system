@@ -40,9 +40,6 @@ public class ReportHistoryController {
         if (loginUser == null) {
             return "redirect:/login";
         }
-        if (!isAdmin(loginUser)) {
-            searchForm.setCreatedByName(loginUser.getEmployeeName());
-        }
 
         model.addAttribute("loginUser", loginUser);
         model.addAttribute("reportHistorySearchForm", searchForm);

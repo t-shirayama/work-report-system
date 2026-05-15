@@ -12,6 +12,7 @@ public class UtilityConstructorTest {
     public void instantiateUtilityConstructorsForCoverage() throws Exception {
         assertNotNull(newInstance(DownloadResponseUtil.class));
         assertNotNull(newInstance(FileNameUtils.class));
+        assertNotNull(newInstance(SqlFileLoader.class));
         assertNotNull(newInstance(SessionUtils.class));
     }
 

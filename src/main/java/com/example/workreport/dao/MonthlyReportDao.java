@@ -16,19 +16,19 @@ import com.example.workreport.dto.MonthlyReportCategorySummaryDto;
 import com.example.workreport.dto.MonthlyReportConditionDto;
 import com.example.workreport.dto.MonthlyReportDailyDetailDto;
 import com.example.workreport.dto.MonthlyReportSummaryDto;
+import com.example.workreport.util.SqlFileLoader;
 
 @Repository
 public class MonthlyReportDao {
 
-    private static final String CATEGORY_NAME_CASE =
-            "CASE wr.work_category "
-                    + "WHEN 'DESIGN' THEN '設計' "
-                    + "WHEN 'DEVELOPMENT' THEN '開発' "
-                    + "WHEN 'TEST' THEN 'テスト' "
-                    + "WHEN 'MEETING' THEN '会議' "
-                    + "WHEN 'DOCUMENT' THEN '資料作成' "
-                    + "WHEN 'OTHER' THEN 'その他' "
-                    + "ELSE wr.work_category END";
+    private static final String FIND_SUMMARY =
+            SqlFileLoader.load("sql/dao/monthly-report/find-summary.sql");
+
+    private static final String FIND_CATEGORY_SUMMARIES =
+            SqlFileLoader.load("sql/dao/monthly-report/find-category-summaries.sql");
+
+    private static final String FIND_DAILY_DETAILS =
+            SqlFileLoader.load("sql/dao/monthly-report/find-daily-details.sql");
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -38,60 +38,15 @@ public class MonthlyReportDao {
     }
 
     public MonthlyReportSummaryDto findSummary(MonthlyReportConditionDto condition) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ");
-        sql.append("    :targetYearMonth AS target_year_month, ");
-        sql.append("    MAX(u.employee_name) AS employee_name, ");
-        sql.append("    MAX(d.department_name) AS department_name, ");
-        sql.append("    NVL(SUM(wr.work_hours), 0) AS total_work_hours, ");
-        sql.append("    COUNT(DISTINCT wr.work_date) AS work_days ");
-        sql.append("FROM work_reports wr ");
-        sql.append("INNER JOIN users u ON wr.user_id = u.user_id ");
-        sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
-        sql.append("WHERE wr.work_date >= :dateFrom ");
-        sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND wr.user_id = :userId ");
-
-        return namedParameterJdbcTemplate.queryForObject(sql.toString(), createParams(condition), new SummaryRowMapper());
+        return namedParameterJdbcTemplate.queryForObject(FIND_SUMMARY, createParams(condition), new SummaryRowMapper());
     }
 
     public List<MonthlyReportCategorySummaryDto> findCategorySummaries(MonthlyReportConditionDto condition) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ");
-        sql.append("    wr.work_category, ");
-        sql.append("    ").append(CATEGORY_NAME_CASE).append(" AS work_category_name, ");
-        sql.append("    SUM(wr.work_hours) AS total_hours ");
-        sql.append("FROM work_reports wr ");
-        sql.append("INNER JOIN users u ON wr.user_id = u.user_id ");
-        sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
-        sql.append("WHERE wr.work_date >= :dateFrom ");
-        sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND wr.user_id = :userId ");
-        sql.append("GROUP BY wr.work_category ");
-        sql.append("ORDER BY wr.work_category ");
-
-        return namedParameterJdbcTemplate.query(sql.toString(), createParams(condition), new CategorySummaryRowMapper());
+        return namedParameterJdbcTemplate.query(FIND_CATEGORY_SUMMARIES, createParams(condition), new CategorySummaryRowMapper());
     }
 
     public List<MonthlyReportDailyDetailDto> findDailyDetails(MonthlyReportConditionDto condition) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ");
-        sql.append("    TO_CHAR(wr.work_date, 'YYYY/MM/DD') AS work_date, ");
-        sql.append("    TO_CHAR(wr.work_date, 'DY', 'NLS_DATE_LANGUAGE=JAPANESE') AS day_of_week, ");
-        sql.append("    wr.project_name, ");
-        sql.append("    wr.work_category, ");
-        sql.append("    ").append(CATEGORY_NAME_CASE).append(" AS work_category_name, ");
-        sql.append("    wr.work_hours, ");
-        sql.append("    wr.work_content ");
-        sql.append("FROM work_reports wr ");
-        sql.append("INNER JOIN users u ON wr.user_id = u.user_id ");
-        sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
-        sql.append("WHERE wr.work_date >= :dateFrom ");
-        sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND wr.user_id = :userId ");
-        sql.append("ORDER BY wr.work_date, wr.work_report_id ");
-
-        return namedParameterJdbcTemplate.query(sql.toString(), createParams(condition), new DailyDetailRowMapper());
+        return namedParameterJdbcTemplate.query(FIND_DAILY_DETAILS, createParams(condition), new DailyDetailRowMapper());
     }
 
     private MapSqlParameterSource createParams(MonthlyReportConditionDto condition) {

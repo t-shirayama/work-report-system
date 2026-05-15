@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.example.workreport.dto.WorkReportSearchResultDto;
 import com.example.workreport.entity.WorkReport;
+import com.example.workreport.util.SqlFileLoader;
 
 @Repository
 public class WorkReportDao {
@@ -44,6 +45,9 @@ public class WorkReportDao {
                     + "    SYSDATE "
                     + ")";
 
+    private static final String SEARCH_BASE =
+            SqlFileLoader.load("sql/dao/work-report/search-base.sql");
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
@@ -66,30 +70,7 @@ public class WorkReportDao {
             String projectName,
             Long userId) {
 
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ");
-        sql.append("    TO_CHAR(wr.work_date, 'YYYY/MM/DD') AS work_date, ");
-        sql.append("    u.employee_name, ");
-        sql.append("    d.department_name, ");
-        sql.append("    wr.project_name, ");
-        sql.append("    wr.work_category, ");
-        sql.append("    CASE wr.work_category ");
-        sql.append("        WHEN 'DESIGN' THEN '設計' ");
-        sql.append("        WHEN 'DEVELOPMENT' THEN '開発' ");
-        sql.append("        WHEN 'TEST' THEN 'テスト' ");
-        sql.append("        WHEN 'MEETING' THEN '会議' ");
-        sql.append("        WHEN 'DOCUMENT' THEN '資料作成' ");
-        sql.append("        WHEN 'OTHER' THEN 'その他' ");
-        sql.append("        ELSE wr.work_category ");
-        sql.append("    END AS work_category_name, ");
-        sql.append("    wr.work_hours, ");
-        sql.append("    wr.work_content ");
-        sql.append("FROM work_reports wr ");
-        sql.append("INNER JOIN users u ");
-        sql.append("    ON wr.user_id = u.user_id ");
-        sql.append("INNER JOIN departments d ");
-        sql.append("    ON wr.department_id = d.department_id ");
-        sql.append("WHERE 1 = 1 ");
+        StringBuilder sql = new StringBuilder(SEARCH_BASE);
 
         MapSqlParameterSource params = new MapSqlParameterSource();
 

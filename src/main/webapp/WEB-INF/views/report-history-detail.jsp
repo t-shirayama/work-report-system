@@ -74,10 +74,12 @@
                         <th>ファイル名</th>
                         <td><c:out value="${history.fileName}" /></td>
                     </tr>
-                    <tr>
-                        <th>ファイルパス</th>
-                        <td><c:out value="${history.filePath}" /></td>
-                    </tr>
+                    <c:if test="${loginUser.roleCode == 'ADMIN'}">
+                        <tr>
+                            <th>ファイルパス</th>
+                            <td><c:out value="${history.filePath}" /></td>
+                        </tr>
+                    </c:if>
                     <tr>
                         <th>エラーメッセージ</th>
                         <td>
