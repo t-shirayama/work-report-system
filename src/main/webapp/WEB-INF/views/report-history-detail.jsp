@@ -67,6 +67,10 @@
                         <td><c:out value="${history.createdByName}" /></td>
                     </tr>
                     <tr>
+                        <th>対象者</th>
+                        <td><c:out value="${history.targetUserName}" /></td>
+                    </tr>
+                    <tr>
                         <th>ファイル名</th>
                         <td><c:out value="${history.fileName}" /></td>
                     </tr>

@@ -49,13 +49,14 @@ CREATE TABLE work_reports (
     CONSTRAINT ck_work_reports_category
         CHECK (work_category IN ('DESIGN', 'DEVELOPMENT', 'TEST', 'MEETING', 'DOCUMENT', 'OTHER')),
     CONSTRAINT ck_work_reports_hours
-        CHECK (work_hours >= 0 AND work_hours <= 24)
+        CHECK (work_hours > 0 AND work_hours <= 24)
 );
 
 CREATE TABLE report_output_histories (
     report_output_history_id NUMBER(10)     NOT NULL,
     target_year_month        VARCHAR2(6)    NOT NULL,
     created_by               NUMBER(10)     NOT NULL,
+    target_user_id           NUMBER(10)     NOT NULL,
     report_type              VARCHAR2(50)   NOT NULL,
     file_name                VARCHAR2(255)  NOT NULL,
     file_path                VARCHAR2(500)  NOT NULL,
@@ -64,8 +65,10 @@ CREATE TABLE report_output_histories (
     created_at               DATE           DEFAULT SYSDATE NOT NULL,
     updated_at               DATE           DEFAULT SYSDATE NOT NULL,
     CONSTRAINT pk_report_output_histories PRIMARY KEY (report_output_history_id),
-    CONSTRAINT fk_report_histories_user
+    CONSTRAINT fk_report_histories_created_by
         FOREIGN KEY (created_by) REFERENCES users (user_id),
+    CONSTRAINT fk_report_histories_target_user
+        FOREIGN KEY (target_user_id) REFERENCES users (user_id),
     CONSTRAINT ck_report_histories_status
         CHECK (status IN ('SUCCESS', 'ERROR', 'PROCESSING')),
     CONSTRAINT ck_report_histories_type
@@ -115,3 +118,6 @@ CREATE INDEX idx_report_histories_ym
 
 CREATE INDEX idx_report_histories_created_by
     ON report_output_histories (created_by);
+
+CREATE INDEX idx_report_histories_target_user
+    ON report_output_histories (target_user_id);

@@ -122,7 +122,7 @@ public class ReportHistoryServiceTest {
 
         assertSame(dao.allRows, service.findAll(user(1L, "ADMIN")));
         assertSame(dao.ownRows, service.findAll(user(10L, "USER")));
-        assertEquals(Long.valueOf(10L), dao.createdBy);
+        assertEquals(Long.valueOf(10L), dao.targetUserId);
     }
 
     @Test
@@ -142,6 +142,7 @@ public class ReportHistoryServiceTest {
         ReportHistoryService service = new ReportHistoryService(dao);
         dao.detail = history("SUCCESS", "generated-reports/test/report.xlsx");
         dao.detail.setCreatedBy(10L);
+        dao.detail.setTargetUserId(10L);
 
         assertSame(dao.detail, service.findById(100L, user(1L, "ADMIN")));
         assertSame(dao.detail, service.findById(100L, user(10L, "USER")));
@@ -156,10 +157,12 @@ public class ReportHistoryServiceTest {
         CapturingReportHistoryDao dao = new CapturingReportHistoryDao();
         ReportHistoryService service = new ReportHistoryService(dao);
 
-        Long historyId = service.saveProcessingHistory(10L, "202605", "monthly-report.xlsx");
+        Long historyId = service.saveProcessingHistory(10L, 20L, "202605", "monthly-report.xlsx");
 
         assertEquals(Long.valueOf(100L), historyId);
         assertEquals("PROCESSING", dao.inserted.getStatus());
+        assertEquals(Long.valueOf(10L), dao.inserted.getCreatedBy());
+        assertEquals(Long.valueOf(20L), dao.inserted.getTargetUserId());
         assertEquals("monthly-report.xlsx", dao.inserted.getFileName());
         assertEquals(Paths.get("generated-reports", "202605", "monthly-report.xlsx").toString(), dao.inserted.getFilePath());
     }
@@ -259,7 +262,7 @@ public class ReportHistoryServiceTest {
 
         private ReportHistoryDto detail;
 
-        private Long createdBy;
+        private Long targetUserId;
 
         private final List<ReportHistoryDto> allRows = Arrays.asList(new ReportHistoryDto());
 
@@ -291,8 +294,8 @@ public class ReportHistoryServiceTest {
         }
 
         @Override
-        public List<ReportHistoryDto> findAllByCreatedBy(Long createdBy) {
-            this.createdBy = createdBy;
+        public List<ReportHistoryDto> findAllByTargetUserId(Long targetUserId) {
+            this.targetUserId = targetUserId;
             return ownRows;
         }
 
@@ -302,8 +305,8 @@ public class ReportHistoryServiceTest {
         }
 
         @Override
-        public List<ReportHistoryDto> search(ReportHistorySearchForm form, Long createdBy) {
-            this.createdBy = createdBy;
+        public List<ReportHistoryDto> search(ReportHistorySearchForm form, Long targetUserId) {
+            this.targetUserId = targetUserId;
             return searchOwnRows;
         }
 

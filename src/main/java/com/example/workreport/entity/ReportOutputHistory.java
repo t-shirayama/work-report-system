@@ -6,6 +6,8 @@ public class ReportOutputHistory {
 
     private Long createdBy;
 
+    private Long targetUserId;
+
     private String targetYearMonth;
 
     private String reportType;
@@ -32,6 +34,14 @@ public class ReportOutputHistory {
 
     public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Long getTargetUserId() {
+        return targetUserId;
+    }
+
+    public void setTargetUserId(Long targetUserId) {
+        this.targetUserId = targetUserId;
     }
 
     public String getTargetYearMonth() {

@@ -106,6 +106,7 @@
                             <th>対象年月</th>
                             <th>帳票種別</th>
                             <th>作成者</th>
+                            <th>対象者</th>
                             <th>ステータス</th>
                             <th>ファイル名</th>
                             <th>操作</th>
@@ -115,7 +116,7 @@
                         <c:choose>
                             <c:when test="${empty reportHistories}">
                                 <tr>
-                                    <td colspan="7" class="empty-cell">帳票作成履歴はありません。</td>
+                                    <td colspan="8" class="empty-cell">帳票作成履歴はありません。</td>
                                 </tr>
                             </c:when>
                             <c:otherwise>
@@ -125,6 +126,7 @@
                                         <td><c:out value="${history.targetYearMonth}" /></td>
                                         <td><c:out value="${history.reportTypeName}" /></td>
                                         <td><c:out value="${history.createdByName}" /></td>
+                                        <td><c:out value="${history.targetUserName}" /></td>
                                         <td>
                                             <span class="status-badge ${history.status}">
                                                 <c:out value="${history.statusName}" />

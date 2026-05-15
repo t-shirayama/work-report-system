@@ -67,6 +67,7 @@
 - 帳票ファイルの正式な保存先と保管期間
 - 長時間 `PROCESSING` のまま残った帳票履歴の確認・異常終了扱い
 - アカウントロック、パスワード変更、有効期限などの運用ルール
+- `users.enabled`、`users.account_locked`、`users.failed_login_count`、`users.password_changed_at`、`users.last_login_at` などのアカウント状態管理
 - 本番データ量に合わせたインデックス、監視、バックアップ
 
 ## 5.2 画面イメージ
@@ -243,6 +244,8 @@ work-report-system/
 - ファイル保存時は既存ファイルを上書きせず、再ダウンロード時も `generated-reports/` 配下のファイルだけを読み込む
 - 月次報告書の集計条件は内部的に `user_id` を使用し、部署名・社員名は表示用として扱う
 - 月次報告書の出力対象は一般ユーザーとし、管理者は対象社員を選択して出力する
+- 対象期間に作業実績が0件の場合も、0件の月次報告書としてExcelを出力する
+- 帳票履歴は作成操作を行ったユーザーと帳票対象ユーザーを分けて管理する
 - 一般ユーザーは自分の月次報告書と帳票作成履歴のみ扱い、管理者は帳票作成履歴を全件確認できる
 - セル位置や帳票レイアウトの変更に備え、定数化や設定化を検討する
 
@@ -478,7 +481,7 @@ docker compose up -d oracle-db
 - 帳票作成履歴は `GET /report-histories` で検索、`GET /report-histories/{id}` で詳細確認、`GET /report-histories/{id}/download` で再ダウンロード
 - 月次報告書出力では、開始時に帳票履歴を `PROCESSING` で登録し、成功時は `SUCCESS`、失敗時は `ERROR` へ更新する
 
-DB接続情報は環境変数で上書きできる開発用デフォルト値を持ちます。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点のローカル起動設定では `DriverManagerDataSource` を使用していますが、Tomcat運用向けのJNDI DataSource例を `src/main/webapp/WEB-INF/spring/datasource-jndi-example.xml` に用意しています。
+DB接続情報は環境変数で上書きできる開発用デフォルト値を持ちます。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。ローカル起動用に `applicationContext-local-datasource.xml`、Tomcat運用向けに `applicationContext-jndi-datasource.xml` を分けています。
 
 ## 15. 設計・実装ポイント
 

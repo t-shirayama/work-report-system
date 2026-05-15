@@ -95,7 +95,8 @@ public class MonthlyReportService {
         User targetUser = resolveTargetUser(form, loginUser);
         String processingFileName = buildProcessingFileName(targetYearMonth, targetUser);
         Path reportPath = null;
-        Long reportOutputHistoryId = reportHistoryService.saveProcessingHistory(loginUser.getUserId(), targetYearMonth, processingFileName);
+        Long reportOutputHistoryId = reportHistoryService.saveProcessingHistory(
+                loginUser.getUserId(), targetUser.getUserId(), targetYearMonth, processingFileName);
         String fileName = buildFileName(targetYearMonth, targetUser, reportOutputHistoryId);
 
         try {

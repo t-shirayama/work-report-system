@@ -376,7 +376,7 @@ public class MonthlyReportServiceTest {
         }
 
         @Override
-        public Long saveProcessingHistory(Long createdBy, String targetYearMonth, String fileName) {
+        public Long saveProcessingHistory(Long createdBy, Long targetUserId, String targetYearMonth, String fileName) {
             this.processingHistoryId = 100L;
             this.processingFileName = fileName;
             return processingHistoryId;

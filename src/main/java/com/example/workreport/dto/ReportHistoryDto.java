@@ -16,6 +16,10 @@ public class ReportHistoryDto {
 
     private String createdByName;
 
+    private Long targetUserId;
+
+    private String targetUserName;
+
     private String status;
 
     private String statusName;
@@ -80,6 +84,22 @@ public class ReportHistoryDto {
 
     public void setCreatedByName(String createdByName) {
         this.createdByName = createdByName;
+    }
+
+    public Long getTargetUserId() {
+        return targetUserId;
+    }
+
+    public void setTargetUserId(Long targetUserId) {
+        this.targetUserId = targetUserId;
+    }
+
+    public String getTargetUserName() {
+        return targetUserName;
+    }
+
+    public void setTargetUserName(String targetUserName) {
+        this.targetUserName = targetUserName;
     }
 
     public String getStatus() {

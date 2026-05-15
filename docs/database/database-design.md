@@ -45,7 +45,8 @@ SQL、DDL、DAO実装はOracle Database前提で作成し、H2 / PostgreSQL / My
 departments 1 ---- * users
 departments 1 ---- * work_reports
 users       1 ---- * work_reports
-users       1 ---- * report_output_histories
+users       1 ---- * report_output_histories : created_by
+users       1 ---- * report_output_histories : target_user_id
 ```
 
 関係は以下です。
@@ -119,15 +120,18 @@ users       1 ---- * report_output_histories
 | `DOCUMENT` | 資料作成 |
 | `OTHER` | その他 |
 
+作業時間はアプリケーションの入力チェックとDB制約を揃え、`0 < work_hours <= 24` とします。これにより、画面経由では登録できない `0` 時間のデータがSQLから直接登録されることも防ぎます。
+
 ### report_output_histories
 
-月次報告書の出力履歴です。対象年月、作成者、ファイル名、ファイルパス、ステータス、エラーメッセージを保持します。
+月次報告書の出力履歴です。対象年月、作成者、対象者、ファイル名、ファイルパス、ステータス、エラーメッセージを保持します。
 
 | カラム名 | 型 | NULL | 説明 |
 |---|---|---|---|
 | `report_output_history_id` | `NUMBER(10)` | 不可 | 帳票出力履歴ID |
 | `target_year_month` | `VARCHAR2(6)` | 不可 | 対象年月。`YYYYMM`形式 |
-| `created_by` | `NUMBER(10)` | 不可 | 作成者ユーザーID |
+| `created_by` | `NUMBER(10)` | 不可 | 作成操作を行ったユーザーID |
+| `target_user_id` | `NUMBER(10)` | 不可 | 帳票対象ユーザーID |
 | `report_type` | `VARCHAR2(50)` | 不可 | 帳票種別 |
 | `file_name` | `VARCHAR2(255)` | 不可 | 作成ファイル名 |
 | `file_path` | `VARCHAR2(500)` | 不可 | 作成ファイルパス |
@@ -164,7 +168,8 @@ users       1 ---- * report_output_histories
 | `fk_users_department` | `users.department_id` | `departments.department_id` |
 | `fk_work_reports_user` | `work_reports.user_id` | `users.user_id` |
 | `fk_work_reports_department` | `work_reports.department_id` | `departments.department_id` |
-| `fk_report_histories_user` | `report_output_histories.created_by` | `users.user_id` |
+| `fk_report_histories_created_by` | `report_output_histories.created_by` | `users.user_id` |
+| `fk_report_histories_target_user` | `report_output_histories.target_user_id` | `users.user_id` |
 
 ## インデックス方針
 
@@ -180,6 +185,7 @@ users       1 ---- * report_output_histories
 | `idx_work_reports_project_name` | `work_reports.project_name` | プロジェクト名検索 |
 | `idx_report_histories_ym` | `report_output_histories.target_year_month` | 対象年月別の履歴検索 |
 | `idx_report_histories_created_by` | `report_output_histories.created_by` | 作成者別の履歴検索 |
+| `idx_report_histories_target_user` | `report_output_histories.target_user_id` | 帳票対象者別の履歴検索 |
 
 作業実績検索では、対象年月、ユーザー、部署、プロジェクト名を条件にする想定です。実装後の検索条件や実行計画に応じて、複合インデックスは見直します。
 
@@ -232,7 +238,7 @@ DDLは `src/main/resources/sql/schema.sql` に定義しています。
 | `work_reports` | `DashboardDao`, `WorkReportDao`, `MonthlyReportDao` | ダッシュボード集計、日報登録、作業実績検索、月次集計 |
 | `report_output_histories` | `DashboardDao`, `ReportHistoryDao` | ダッシュボード集計、帳票作成履歴登録、検索、詳細表示、再ダウンロード |
 
-DAOでは、これらのテーブルを機能に合わせてJOINし、EntityまたはDTOへ変換します。たとえば `ReportHistoryDao` は履歴テーブルとユーザーテーブルをJOINし、一覧表示に必要な作成者名を含む `ReportHistoryDto` を作成します。
+DAOでは、これらのテーブルを機能に合わせてJOINし、EntityまたはDTOへ変換します。たとえば `ReportHistoryDao` は履歴テーブルとユーザーテーブルをJOINし、一覧表示に必要な作成者名と帳票対象者名を含む `ReportHistoryDto` を作成します。一般ユーザーの帳票履歴参照は `created_by` ではなく `target_user_id` で制限し、管理者が代理出力した帳票も対象ユーザー本人が参照できる設計にしています。
 
 ## 例外とデータ整合性
 

@@ -318,13 +318,13 @@ http://localhost:8080/work-report-system/monthly-reports/new
 6. `Workbook`、`Sheet`、`Row`、`Cell` を使って値を差し込む
 7. 明細行はテンプレート行の `CellStyle` をコピーしながら動的に追加する
 8. ファイル名に使う社員名を安全な文字へ変換する
-9. `report_output_histories` に `_PROCESSING.xlsx` の仮ファイル名で `PROCESSING` の帳票作成履歴を登録する
+9. `report_output_histories` に作成者 `created_by` と帳票対象者 `target_user_id`、`_PROCESSING.xlsx` の仮ファイル名で `PROCESSING` の帳票作成履歴を登録する
 10. 採番された履歴IDを含む正式ファイル名を作成する
 11. 生成したExcelを `generated-reports/` 配下へ保存する
 12. 成功時は同じ履歴を `SUCCESS` と正式ファイル名へ更新する
 13. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
 
-一般ユーザーは、自分の月次報告書のみ出力できます。管理者は一般ユーザーを選択して月次報告書を出力できます。集計条件には部署名・社員名ではなく `user_id` を使用します。
+一般ユーザーは、自分の月次報告書のみ出力できます。管理者は一般ユーザーを選択して月次報告書を出力できます。集計条件には部署名・社員名ではなく `user_id` を使用します。履歴参照では、一般ユーザーは `target_user_id` が自分の履歴を確認できます。
 
 Excel生成やファイル保存で失敗した場合は、同じ履歴を `ERROR` へ更新し、エラーメッセージを保存します。ファイル保存後に失敗した場合は生成済みファイルの削除を試み、削除に失敗した場合はログに警告を残します。
 

@@ -25,6 +25,7 @@ public class ReportHistoryDao {
                     + "    report_output_history_id, "
                     + "    target_year_month, "
                     + "    created_by, "
+                    + "    target_user_id, "
                     + "    report_type, "
                     + "    file_name, "
                     + "    file_path, "
@@ -36,6 +37,7 @@ public class ReportHistoryDao {
                     + "    :reportOutputHistoryId, "
                     + "    :targetYearMonth, "
                     + "    :createdBy, "
+                    + "    :targetUserId, "
                     + "    :reportType, "
                     + "    :fileName, "
                     + "    :filePath, "
@@ -69,6 +71,8 @@ public class ReportHistoryDao {
                     + "    END AS report_type_name, "
                     + "    roh.created_by, "
                     + "    u.employee_name AS created_by_name, "
+                    + "    roh.target_user_id, "
+                    + "    target_user.employee_name AS target_user_name, "
                     + "    roh.status, "
                     + "    CASE roh.status "
                     + "        WHEN 'SUCCESS' THEN '完了' "
@@ -81,7 +85,9 @@ public class ReportHistoryDao {
                     + "    roh.error_message "
                     + "FROM report_output_histories roh "
                     + "INNER JOIN users u "
-                    + "    ON roh.created_by = u.user_id ";
+                    + "    ON roh.created_by = u.user_id "
+                    + "INNER JOIN users target_user "
+                    + "    ON roh.target_user_id = target_user.user_id ";
 
     private static final String SELECT_HISTORY_BY_ID =
             SELECT_HISTORY_LIST
@@ -123,23 +129,23 @@ public class ReportHistoryDao {
         return search(new ReportHistorySearchForm());
     }
 
-    public List<ReportHistoryDto> findAllByCreatedBy(Long createdBy) {
-        return search(new ReportHistorySearchForm(), createdBy);
+    public List<ReportHistoryDto> findAllByTargetUserId(Long targetUserId) {
+        return search(new ReportHistorySearchForm(), targetUserId);
     }
 
     public List<ReportHistoryDto> search(ReportHistorySearchForm form) {
         return search(form, null);
     }
 
-    public List<ReportHistoryDto> search(ReportHistorySearchForm form, Long createdBy) {
+    public List<ReportHistoryDto> search(ReportHistorySearchForm form, Long targetUserId) {
         StringBuilder sql = new StringBuilder(SELECT_HISTORY_LIST);
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         sql.append("WHERE 1 = 1 ");
 
-        if (createdBy != null) {
-            sql.append("  AND roh.created_by = :createdBy ");
-            params.addValue("createdBy", createdBy);
+        if (targetUserId != null) {
+            sql.append("  AND roh.target_user_id = :targetUserId ");
+            params.addValue("targetUserId", targetUserId);
         }
 
         if (StringUtils.hasText(form.getTargetYearMonth())) {
@@ -188,6 +194,8 @@ public class ReportHistoryDao {
             dto.setReportTypeName(rs.getString("report_type_name"));
             dto.setCreatedBy(rs.getLong("created_by"));
             dto.setCreatedByName(rs.getString("created_by_name"));
+            dto.setTargetUserId(rs.getLong("target_user_id"));
+            dto.setTargetUserName(rs.getString("target_user_name"));
             dto.setStatus(rs.getString("status"));
             dto.setStatusName(rs.getString("status_name"));
             dto.setFileName(rs.getString("file_name"));

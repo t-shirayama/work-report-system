@@ -50,7 +50,7 @@ public class ReportHistoryService {
         if (isAdmin(loginUser)) {
             return reportHistoryDao.findAll();
         }
-        return reportHistoryDao.findAllByCreatedBy(loginUser.getUserId());
+        return reportHistoryDao.findAllByTargetUserId(loginUser.getUserId());
     }
 
     public List<ReportHistoryDto> search(ReportHistorySearchForm form, User loginUser) {
@@ -70,7 +70,7 @@ public class ReportHistoryService {
         if (history == null) {
             return null;
         }
-        if (!isAdmin(loginUser) && !loginUser.getUserId().equals(history.getCreatedBy())) {
+        if (!isAdmin(loginUser) && !loginUser.getUserId().equals(history.getTargetUserId())) {
             return null;
         }
         return history;
@@ -100,10 +100,10 @@ public class ReportHistoryService {
     }
 
     @Transactional
-    public Long saveProcessingHistory(Long createdBy, String targetYearMonth, String fileName) {
+    public Long saveProcessingHistory(Long createdBy, Long targetUserId, String targetYearMonth, String fileName) {
         String safeFileName = safeFileName(fileName);
         String filePath = buildReportFilePath(targetYearMonth, safeFileName);
-        ReportOutputHistory history = createHistory(createdBy, targetYearMonth, safeFileName, filePath, STATUS_PROCESSING, null);
+        ReportOutputHistory history = createHistory(createdBy, targetUserId, targetYearMonth, safeFileName, filePath, STATUS_PROCESSING, null);
         return reportHistoryDao.insertProcessing(history);
     }
 
@@ -145,17 +145,24 @@ public class ReportHistoryService {
             return null;
         }
 
-        Path baseDir = Paths.get(GENERATED_REPORTS_DIR).toAbsolutePath().normalize();
+        Path basePath = Paths.get(GENERATED_REPORTS_DIR).toAbsolutePath().normalize();
         Path reportPath = Paths.get(history.getFilePath()).toAbsolutePath().normalize();
-        if (!reportPath.startsWith(baseDir) || !Files.exists(reportPath) || !Files.isRegularFile(reportPath)) {
+        if (!Files.exists(basePath) || !Files.exists(reportPath)) {
             return null;
         }
 
-        return Files.readAllBytes(reportPath);
+        Path baseRealPath = basePath.toRealPath();
+        Path reportRealPath = reportPath.toRealPath();
+        if (!reportRealPath.startsWith(baseRealPath) || !Files.isRegularFile(reportRealPath)) {
+            return null;
+        }
+
+        return Files.readAllBytes(reportRealPath);
     }
 
     private ReportOutputHistory createHistory(
             Long createdBy,
+            Long targetUserId,
             String targetYearMonth,
             String fileName,
             String filePath,
@@ -164,6 +171,7 @@ public class ReportHistoryService {
 
         ReportOutputHistory history = new ReportOutputHistory();
         history.setCreatedBy(createdBy);
+        history.setTargetUserId(targetUserId);
         history.setTargetYearMonth(targetYearMonth);
         history.setReportType(REPORT_TYPE_MONTHLY_WORK_REPORT);
         history.setFileName(fileName);
