@@ -25,6 +25,8 @@
                 logout-success-url="/login?logout=true"
                 invalidate-session="true"
                 delete-cookies="JSESSIONID"/>
+
+        <security:session-management session-fixation-protection="migrateSession"/>
     </security:http>
 
     <security:authentication-manager>

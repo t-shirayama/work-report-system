@@ -15,16 +15,16 @@ public final class SessionUtils {
     }
 
     public static User getLoginUser(HttpSession session) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof WorkReportUserDetails) {
+            return ((WorkReportUserDetails) authentication.getPrincipal()).getUser();
+        }
+
         if (session != null) {
             Object loginUser = session.getAttribute(SessionKeys.LOGIN_USER);
             if (loginUser instanceof User) {
                 return (User) loginUser;
             }
-        }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof WorkReportUserDetails) {
-            return ((WorkReportUserDetails) authentication.getPrincipal()).getUser();
         }
         return null;
     }

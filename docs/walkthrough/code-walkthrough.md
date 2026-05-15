@@ -62,10 +62,12 @@ http://localhost:8080/work-report-system/login
 ## Spring Security
 
 `security-context.xml` では、ログイン画面、静的リソース、認証が必要なURL、ログアウト、パスワード照合方式を定義しています。
+CSRF対策は有効にし、ログアウトや登録系POSTフォームにはCSRFトークンを含めます。セッション固定攻撃対策として、ログイン成功時にセッションを移行する設定も明示しています。remember-meは現時点では使用しません。
+同時ログイン数の制御は現時点では強制していません。運用環境で端末制限や二重ログイン制限が必要になった場合は、Spring Securityのセッション管理設定と `HttpSessionEventPublisher` の追加を検討します。
 
 認証時は `WorkReportUserDetailsService#loadUserByUsername` が呼び出され、`UserDao#findByLoginId` で `users` と `departments` を検索します。取得した `users.password` はBCryptハッシュであり、Spring Securityの `BCryptPasswordEncoder` が入力パスワードと照合します。
 
-認証に成功すると `LoginSuccessHandler` が呼び出されます。ここで画面表示用のログインユーザーとログイン時刻をセッションに保存し、`/dashboard` へリダイレクトします。
+認証に成功すると `LoginSuccessHandler` が呼び出されます。ここで画面表示補助用のログインユーザーとログイン時刻をセッションに保存し、`/dashboard` へリダイレクトします。認証状態の正はSpring SecurityのSecurityContextであり、セッション上のUserはJSP表示や既存Controllerとの受け渡しを補助するための情報です。
 
 処理は以下です。
 
@@ -316,13 +318,14 @@ http://localhost:8080/work-report-system/monthly-reports/new
 6. `Workbook`、`Sheet`、`Row`、`Cell` を使って値を差し込む
 7. 明細行はテンプレート行の `CellStyle` をコピーしながら動的に追加する
 8. ファイル名に使う社員名を安全な文字へ変換する
-9. 生成したExcelを `generated-reports/` 配下へ保存する
-10. `report_output_histories` に帳票作成履歴を登録する
-11. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
+9. `report_output_histories` に `PROCESSING` の帳票作成履歴を登録する
+10. 生成したExcelを `generated-reports/` 配下へ保存する
+11. 成功時は同じ履歴を `SUCCESS` へ更新する
+12. ControllerがExcel用のレスポンスヘッダーを設定し、ブラウザへ返す
 
 一般ユーザーは、自分の部署・社員名の月次報告書のみ出力できます。管理者は部署・社員名を指定して出力できます。
 
-ファイル保存後に履歴登録で失敗した場合は、生成済みファイルを削除し、エラー履歴を保存します。
+Excel生成やファイル保存で失敗した場合は、同じ履歴を `ERROR` へ更新し、エラーメッセージを保存します。ファイル保存後に失敗した場合は生成済みファイルの削除を試み、削除に失敗した場合はログに警告を残します。
 
 Excelテンプレートは以下です。
 

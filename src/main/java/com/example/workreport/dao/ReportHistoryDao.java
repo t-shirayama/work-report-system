@@ -33,7 +33,7 @@ public class ReportHistoryDao {
                     + "    created_at, "
                     + "    updated_at "
                     + ") VALUES ("
-                    + "    seq_report_output_histories.NEXTVAL, "
+                    + "    :reportOutputHistoryId, "
                     + "    :targetYearMonth, "
                     + "    :createdBy, "
                     + "    :reportType, "
@@ -44,6 +44,18 @@ public class ReportHistoryDao {
                     + "    SYSDATE, "
                     + "    SYSDATE "
                     + ")";
+
+    private static final String SELECT_NEXT_HISTORY_ID =
+            "SELECT seq_report_output_histories.NEXTVAL FROM dual";
+
+    private static final String UPDATE_HISTORY_STATUS =
+            "UPDATE report_output_histories "
+                    + "SET file_name = :fileName, "
+                    + "    file_path = :filePath, "
+                    + "    status = :status, "
+                    + "    error_message = :errorMessage, "
+                    + "    updated_at = SYSDATE "
+                    + "WHERE report_output_history_id = :reportOutputHistoryId";
 
     private static final String SELECT_HISTORY_LIST =
             "SELECT "
@@ -86,7 +98,25 @@ public class ReportHistoryDao {
     }
 
     public void insert(ReportOutputHistory history) {
+        if (history.getReportOutputHistoryId() == null) {
+            history.setReportOutputHistoryId(nextHistoryId());
+        }
         namedParameterJdbcTemplate.update(INSERT_HISTORY, new BeanPropertySqlParameterSource(history));
+    }
+
+    public Long insertProcessing(ReportOutputHistory history) {
+        Long reportOutputHistoryId = nextHistoryId();
+        history.setReportOutputHistoryId(reportOutputHistoryId);
+        namedParameterJdbcTemplate.update(INSERT_HISTORY, new BeanPropertySqlParameterSource(history));
+        return reportOutputHistoryId;
+    }
+
+    public int updateStatus(ReportOutputHistory history) {
+        return namedParameterJdbcTemplate.update(UPDATE_HISTORY_STATUS, new BeanPropertySqlParameterSource(history));
+    }
+
+    private Long nextHistoryId() {
+        return namedParameterJdbcTemplate.queryForObject(SELECT_NEXT_HISTORY_ID, new MapSqlParameterSource(), Long.class);
     }
 
     public List<ReportHistoryDto> findAll() {

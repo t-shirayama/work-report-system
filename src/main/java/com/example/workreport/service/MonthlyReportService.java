@@ -94,19 +94,20 @@ public class MonthlyReportService {
         String targetYearMonth = buildTargetYearMonth(form);
         String fileName = buildFileName(form);
         Path reportPath = null;
+        Long reportOutputHistoryId = reportHistoryService.saveProcessingHistory(loginUser.getUserId(), targetYearMonth, fileName);
 
         try {
             MonthlyReportFileDto file = createReportFile(form, fileName);
             reportPath = reportHistoryService.saveReportFile(targetYearMonth, file);
-            reportHistoryService.saveSuccessHistory(loginUser.getUserId(), targetYearMonth, file, reportPath);
+            reportHistoryService.updateSuccessHistory(reportOutputHistoryId, file, reportPath);
             return file;
         } catch (IOException e) {
             reportHistoryService.deleteReportFile(reportPath);
-            reportHistoryService.saveErrorHistory(loginUser.getUserId(), targetYearMonth, fileName, e.getMessage());
+            reportHistoryService.updateErrorHistory(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
             throw e;
         } catch (RuntimeException e) {
             reportHistoryService.deleteReportFile(reportPath);
-            reportHistoryService.saveErrorHistory(loginUser.getUserId(), targetYearMonth, fileName, e.getMessage());
+            reportHistoryService.updateErrorHistory(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
             throw e;
         }
     }

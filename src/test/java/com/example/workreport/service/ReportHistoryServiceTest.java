@@ -1,6 +1,7 @@
 package com.example.workreport.service;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.nio.file.Files;
@@ -10,7 +11,9 @@ import java.nio.file.Paths;
 import org.junit.Test;
 
 import com.example.workreport.dao.ReportHistoryDao;
+import com.example.workreport.dto.MonthlyReportFileDto;
 import com.example.workreport.dto.ReportHistoryDto;
+import com.example.workreport.entity.ReportOutputHistory;
 
 public class ReportHistoryServiceTest {
 
@@ -40,10 +43,73 @@ public class ReportHistoryServiceTest {
         Files.deleteIfExists(reportDir);
     }
 
+    @Test
+    public void saveProcessingHistoryCreatesProcessingRow() {
+        CapturingReportHistoryDao dao = new CapturingReportHistoryDao();
+        ReportHistoryService service = new ReportHistoryService(dao);
+
+        Long historyId = service.saveProcessingHistory(10L, "202605", "monthly-report.xlsx");
+
+        assertEquals(Long.valueOf(100L), historyId);
+        assertEquals("PROCESSING", dao.inserted.getStatus());
+        assertEquals("monthly-report.xlsx", dao.inserted.getFileName());
+        assertEquals(Paths.get("generated-reports", "202605", "monthly-report.xlsx").toString(), dao.inserted.getFilePath());
+    }
+
+    @Test
+    public void updateSuccessHistoryUpdatesSameRow() {
+        CapturingReportHistoryDao dao = new CapturingReportHistoryDao();
+        ReportHistoryService service = new ReportHistoryService(dao);
+        MonthlyReportFileDto file = new MonthlyReportFileDto();
+        file.setFileName("monthly-report.xlsx");
+
+        service.updateSuccessHistory(100L, file, Paths.get("generated-reports", "202605", "monthly-report.xlsx"));
+
+        assertEquals(Long.valueOf(100L), dao.updated.getReportOutputHistoryId());
+        assertEquals("SUCCESS", dao.updated.getStatus());
+        assertNull(dao.updated.getErrorMessage());
+    }
+
+    @Test
+    public void updateErrorHistoryUpdatesSameRow() {
+        CapturingReportHistoryDao dao = new CapturingReportHistoryDao();
+        ReportHistoryService service = new ReportHistoryService(dao);
+
+        service.updateErrorHistory(100L, "202605", "../bad.xlsx", "failed");
+
+        assertEquals(Long.valueOf(100L), dao.updated.getReportOutputHistoryId());
+        assertEquals("ERROR", dao.updated.getStatus());
+        assertEquals("_bad.xlsx", dao.updated.getFileName());
+        assertEquals("failed", dao.updated.getErrorMessage());
+    }
+
     private ReportHistoryDto history(String status, String filePath) {
         ReportHistoryDto history = new ReportHistoryDto();
         history.setStatus(status);
         history.setFilePath(filePath);
         return history;
+    }
+
+    private static class CapturingReportHistoryDao extends ReportHistoryDao {
+
+        private ReportOutputHistory inserted;
+
+        private ReportOutputHistory updated;
+
+        CapturingReportHistoryDao() {
+            super(null);
+        }
+
+        @Override
+        public Long insertProcessing(ReportOutputHistory history) {
+            this.inserted = history;
+            return 100L;
+        }
+
+        @Override
+        public int updateStatus(ReportOutputHistory history) {
+            this.updated = history;
+            return 1;
+        }
     }
 }

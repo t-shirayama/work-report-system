@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +23,15 @@ import com.example.workreport.util.FileNameUtils;
 @Service
 public class ReportHistoryService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportHistoryService.class);
+
     public static final String REPORT_TYPE_MONTHLY_WORK_REPORT = "MONTHLY_WORK_REPORT";
 
     public static final String STATUS_SUCCESS = "SUCCESS";
 
     public static final String STATUS_ERROR = "ERROR";
+
+    public static final String STATUS_PROCESSING = "PROCESSING";
 
     private static final String GENERATED_REPORTS_DIR = "generated-reports";
 
@@ -90,19 +96,34 @@ public class ReportHistoryService {
     }
 
     @Transactional
-    public void saveSuccessHistory(Long createdBy, String targetYearMonth, MonthlyReportFileDto reportFile, Path reportPath) {
-        ReportOutputHistory history = createHistory(createdBy, targetYearMonth, reportFile.getFileName(), reportPath.toString(), STATUS_SUCCESS, null);
-        reportHistoryDao.insert(history);
+    public Long saveProcessingHistory(Long createdBy, String targetYearMonth, String fileName) {
+        String safeFileName = safeFileName(fileName);
+        String filePath = buildReportFilePath(targetYearMonth, safeFileName);
+        ReportOutputHistory history = createHistory(createdBy, targetYearMonth, safeFileName, filePath, STATUS_PROCESSING, null);
+        return reportHistoryDao.insertProcessing(history);
     }
 
     @Transactional
-    public void saveErrorHistory(Long createdBy, String targetYearMonth, String fileName, String errorMessage) {
-        String safeFileName = FileNameUtils.isSafeFileName(fileName)
-                ? fileName
-                : FileNameUtils.sanitizeNamePart(fileName, "monthly-report") + ".xlsx";
-        String filePath = Paths.get(GENERATED_REPORTS_DIR, targetYearMonth, safeFileName).toString();
-        ReportOutputHistory history = createHistory(createdBy, targetYearMonth, safeFileName, filePath, STATUS_ERROR, truncate(errorMessage));
-        reportHistoryDao.insert(history);
+    public void updateSuccessHistory(Long reportOutputHistoryId, MonthlyReportFileDto reportFile, Path reportPath) {
+        ReportOutputHistory history = new ReportOutputHistory();
+        history.setReportOutputHistoryId(reportOutputHistoryId);
+        history.setFileName(reportFile.getFileName());
+        history.setFilePath(reportPath.toString());
+        history.setStatus(STATUS_SUCCESS);
+        history.setErrorMessage(null);
+        reportHistoryDao.updateStatus(history);
+    }
+
+    @Transactional
+    public void updateErrorHistory(Long reportOutputHistoryId, String targetYearMonth, String fileName, String errorMessage) {
+        String safeFileName = safeFileName(fileName);
+        ReportOutputHistory history = new ReportOutputHistory();
+        history.setReportOutputHistoryId(reportOutputHistoryId);
+        history.setFileName(safeFileName);
+        history.setFilePath(buildReportFilePath(targetYearMonth, safeFileName));
+        history.setStatus(STATUS_ERROR);
+        history.setErrorMessage(truncate(errorMessage));
+        reportHistoryDao.updateStatus(history);
     }
 
     public void deleteReportFile(Path reportPath) {
@@ -111,7 +132,7 @@ public class ReportHistoryService {
                 Files.delete(reportPath);
             }
         } catch (IOException e) {
-            // 帳票出力失敗時の後片付けなので、元の例外を優先する。
+            LOGGER.warn("Failed to delete report file. path={}", reportPath, e);
         }
     }
 
@@ -153,6 +174,16 @@ public class ReportHistoryService {
             return value;
         }
         return value.substring(0, 1000);
+    }
+
+    private String safeFileName(String fileName) {
+        return FileNameUtils.isSafeFileName(fileName)
+                ? fileName
+                : FileNameUtils.sanitizeNamePart(fileName, "monthly-report") + ".xlsx";
+    }
+
+    private String buildReportFilePath(String targetYearMonth, String safeFileName) {
+        return Paths.get(GENERATED_REPORTS_DIR, targetYearMonth, safeFileName).toString();
     }
 
     private boolean isAdmin(User user) {

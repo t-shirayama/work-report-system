@@ -48,11 +48,6 @@
                     </div>
                 </div>
 
-                <div class="checkbox-row">
-                    <input type="checkbox" id="rememberLogin" name="rememberLogin">
-                    <label for="rememberLogin">ログイン状態を保持</label>
-                </div>
-
                 <div class="button-row">
                     <button class="primary-button" type="submit">ログイン</button>
                 </div>

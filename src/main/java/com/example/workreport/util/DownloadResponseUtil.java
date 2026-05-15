@@ -21,7 +21,7 @@ public final class DownloadResponseUtil {
         response.getOutputStream().flush();
     }
 
-    private static String buildContentDisposition(String fileName) throws IOException {
+    static String buildContentDisposition(String fileName) throws IOException {
         String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
         return "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName;
     }

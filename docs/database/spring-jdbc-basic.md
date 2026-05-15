@@ -41,10 +41,32 @@ jdbc.password=${JDBC_PASSWORD:work_report}
 TomcatでJNDI DataSourceを使う場合の構成例は以下です。
 
 ```xml
+<beans xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
 <jee:jndi-lookup id="dataSource" jndi-name="java:comp/env/jdbc/workReportDataSource"/>
+</beans>
+```
+
+Tomcat側では、たとえば `context.xml` に以下のようなResourceを定義します。
+
+```xml
+<Resource name="jdbc/workReportDataSource"
+          auth="Container"
+          type="javax.sql.DataSource"
+          driverClassName="oracle.jdbc.OracleDriver"
+          url="${JDBC_URL}"
+          username="${JDBC_USERNAME}"
+          password="${JDBC_PASSWORD}"
+          maxTotal="20"
+          maxIdle="5"
+          maxWaitMillis="10000"/>
 ```
 
 この場合、Tomcat側の `context.xml` などで `jdbc/workReportDataSource` を定義し、アプリケーション側には接続先やパスワードを直接持たせない方針にします。
+
+切り替える場合は、`applicationContext.xml` の `DriverManagerDataSource` BeanをJNDI参照に置き換え、`namedParameterJdbcTemplate` と `transactionManager` は同じ `dataSource` Beanを参照し続けます。開発環境では現在の設定を使い、運用環境ではTomcat側で接続プールを管理する構成にします。
 
 ## DAOでの利用
 

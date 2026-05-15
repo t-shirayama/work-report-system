@@ -2,6 +2,8 @@ package com.example.workreport.entity;
 
 public class ReportOutputHistory {
 
+    private Long reportOutputHistoryId;
+
     private Long createdBy;
 
     private String targetYearMonth;
@@ -15,6 +17,14 @@ public class ReportOutputHistory {
     private String status;
 
     private String errorMessage;
+
+    public Long getReportOutputHistoryId() {
+        return reportOutputHistoryId;
+    }
+
+    public void setReportOutputHistoryId(Long reportOutputHistoryId) {
+        this.reportOutputHistoryId = reportOutputHistoryId;
+    }
 
     public Long getCreatedBy() {
         return createdBy;
