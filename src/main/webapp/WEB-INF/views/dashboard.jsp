@@ -27,8 +27,8 @@
         <aside class="sidebar">
             <p class="sidebar-title">メニュー</p>
             <nav>
-                <a class="sidebar-link active" href="#">作業日報登録</a>
-                <a class="sidebar-link" href="#">作業実績検索</a>
+                <a class="sidebar-link active" href="<c:url value='/work-reports/new' />">作業日報登録</a>
+                <a class="sidebar-link" href="<c:url value='/work-reports/search' />">作業実績検索</a>
                 <a class="sidebar-link" href="#">月次報告書出力</a>
                 <a class="sidebar-link" href="#">帳票作成履歴</a>
             </nav>

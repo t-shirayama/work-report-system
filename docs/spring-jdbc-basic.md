@@ -101,6 +101,52 @@ WHERE u.login_id = :loginId
 
 パスワード比較はService層で行っています。ポートフォリオ簡易版では平文比較ですが、本番ではハッシュ化したパスワードを照合します。
 
+## 動的検索条件
+
+作業実績検索では、対象期間、社員名、部署名、作業分類、プロジェクト名を任意条件として指定できます。
+
+検索SQLは `WorkReportDao` に記述し、`users`、`departments`、`work_reports` をJOINします。
+
+```sql
+FROM work_reports wr
+INNER JOIN users u
+    ON wr.user_id = u.user_id
+INNER JOIN departments d
+    ON wr.department_id = d.department_id
+WHERE 1 = 1
+```
+
+条件が指定された場合だけ、DAOでWHERE句を追加します。
+
+```java
+if (dateFrom != null) {
+    sql.append("  AND wr.work_date >= :dateFrom ");
+    params.addValue("dateFrom", dateFrom);
+}
+```
+
+社員名、部署名、プロジェクト名は部分一致検索にしています。
+
+```java
+if (StringUtils.hasText(employeeName)) {
+    sql.append("  AND u.employee_name LIKE :employeeName ");
+    params.addValue("employeeName", "%" + employeeName + "%");
+}
+```
+
+SQL文字列にユーザー入力を直接連結せず、検索条件はすべて `MapSqlParameterSource` に設定します。これにより、動的な検索条件でもバインド変数を使用できます。
+
+作業分類はコード値で完全一致検索します。
+
+```java
+if (StringUtils.hasText(workCategory)) {
+    sql.append("  AND wr.work_category = :workCategory ");
+    params.addValue("workCategory", workCategory);
+}
+```
+
+検索結果は `RowMapper` で `WorkReportSearchResultDto` に変換します。画面表示用に、作業日は `TO_CHAR(wr.work_date, 'YYYY/MM/DD')`、作業分類名は `CASE` 式で変換しています。
+
 ## 今後の改善
 
 - コネクションプールの導入

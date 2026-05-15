@@ -85,3 +85,54 @@ loginUser
 `/dashboard` ではセッションに `loginUser` が存在するか確認し、存在しない場合は `/login` へリダイレクトします。
 
 ログアウト時は `session.invalidate()` によりセッションを破棄します。
+
+## 作業日報登録機能の責務分担
+
+作業日報登録では、以下のファイルを追加しています。
+
+| ファイル | 役割 |
+|---|---|
+| `WorkReportController.java` | 登録画面表示、登録実行、完了画面表示 |
+| `WorkReportForm.java` | 作業日、プロジェクト名、作業分類、作業時間、作業内容の入力値を保持 |
+| `WorkReportService.java` | 入力チェック、FormからEntityへの変換、登録処理の制御 |
+| `WorkReportDao.java` | `work_reports` テーブルへのINSERT |
+| `WorkReport.java` | 登録する作業日報データ |
+| `work-report-form.jsp` | 作業日報登録画面 |
+| `work-report-complete.jsp` | 登録完了画面 |
+
+### Controller
+
+`WorkReportController` は、ログイン中ユーザーをセッションから取得します。
+
+未ログインの場合は `/login` へリダイレクトします。ログイン済みの場合のみ、登録画面表示、登録処理、完了画面表示を行います。
+
+| URL | メソッド | 処理 |
+|---|---|---|
+| `/work-reports/new` | GET | 作業日報登録画面を表示 |
+| `/work-reports` | POST | 入力チェック後、作業日報を登録 |
+| `/work-reports/complete` | GET | 登録完了画面を表示 |
+
+Controllerは入力値を受け取り、入力チェックと登録処理を `WorkReportService` に委譲します。
+
+### Service
+
+`WorkReportService` は、入力チェックと登録データの組み立てを担当します。
+
+主な入力チェックは以下です。
+
+- 作業日は必須
+- プロジェクト名は必須
+- 作業分類は必須
+- 作業時間は必須
+- 作業時間は0より大きい数値
+- 作業内容は必須
+
+登録時は、ログイン中ユーザーの `userId` と `departmentId` を使用し、`WorkReport` を作成してDAOへ渡します。
+
+### DAO
+
+`WorkReportDao` は、Spring JDBCの `NamedParameterJdbcTemplate` を使用して `work_reports` にINSERTします。
+
+主キーはOracle向けDDLで定義した `seq_work_reports.NEXTVAL` を使用します。
+
+SQLはDAOに明示的に記述し、入力値は `BeanPropertySqlParameterSource` によりバインド変数として渡します。

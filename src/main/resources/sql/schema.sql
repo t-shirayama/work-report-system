@@ -72,25 +72,25 @@ CREATE TABLE report_output_histories (
 );
 
 CREATE SEQUENCE seq_departments
-    START WITH 1
+    START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
 CREATE SEQUENCE seq_users
-    START WITH 1
+    START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
 CREATE SEQUENCE seq_work_reports
-    START WITH 1
+    START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
 CREATE SEQUENCE seq_report_output_histories
-    START WITH 1
+    START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
