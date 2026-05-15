@@ -12,7 +12,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        List<String> plannedFeatures = Arrays.asList(
+        List<String> features = Arrays.asList(
                 "ログイン",
                 "ダッシュボード",
                 "作業日報登録",
@@ -21,7 +21,7 @@ public class HomeController {
                 "帳票作成履歴",
                 "作成済み帳票の再ダウンロード");
 
-        model.addAttribute("plannedFeatures", plannedFeatures);
+        model.addAttribute("features", features);
         return "home";
     }
 }

@@ -1,6 +1,6 @@
 -- Oracle Database sample data for work-report-system.
 -- Execute after schema.sql.
--- Password values are dummy text for portfolio sample data.
+-- User passwords are BCrypt hashes. The initial password for sample users is 'password'.
 
 INSERT INTO departments (
     department_id, department_code, department_name, display_order, created_at, updated_at
@@ -23,31 +23,31 @@ INSERT INTO departments (
 INSERT INTO users (
     user_id, department_id, login_id, password, employee_name, role_code, created_at, updated_at
 ) VALUES (
-    1, 1, 'admin', 'password', '管理 太郎', 'ADMIN', SYSDATE, SYSDATE
+    1, 1, 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '管理 太郎', 'ADMIN', SYSDATE, SYSDATE
 );
 
 INSERT INTO users (
     user_id, department_id, login_id, password, employee_name, role_code, created_at, updated_at
 ) VALUES (
-    2, 1, 'sato', 'password', '佐藤 花子', 'USER', SYSDATE, SYSDATE
+    2, 1, 'sato', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '佐藤 花子', 'USER', SYSDATE, SYSDATE
 );
 
 INSERT INTO users (
     user_id, department_id, login_id, password, employee_name, role_code, created_at, updated_at
 ) VALUES (
-    3, 1, 'suzuki', 'password', '鈴木 一郎', 'USER', SYSDATE, SYSDATE
+    3, 1, 'suzuki', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '鈴木 一郎', 'USER', SYSDATE, SYSDATE
 );
 
 INSERT INTO users (
     user_id, department_id, login_id, password, employee_name, role_code, created_at, updated_at
 ) VALUES (
-    4, 2, 'tanaka', 'password', '田中 美咲', 'USER', SYSDATE, SYSDATE
+    4, 2, 'tanaka', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '田中 美咲', 'USER', SYSDATE, SYSDATE
 );
 
 INSERT INTO users (
     user_id, department_id, login_id, password, employee_name, role_code, created_at, updated_at
 ) VALUES (
-    5, 3, 'yamada', 'password', '山田 健', 'USER', SYSDATE, SYSDATE
+    5, 3, 'yamada', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '山田 健', 'USER', SYSDATE, SYSDATE
 );
 
 INSERT INTO work_reports (

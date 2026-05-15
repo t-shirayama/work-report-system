@@ -24,8 +24,14 @@
                     <c:out value="${errorMessage}" />
                 </div>
             </c:if>
+            <c:if test="${not empty logoutMessage}">
+                <div class="success-message">
+                    <c:out value="${logoutMessage}" />
+                </div>
+            </c:if>
 
             <form class="form" method="post" action="<c:url value='/login' />">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                 <div class="form-row">
                     <label for="loginId">ログインID</label>
                     <div class="input-wrap">

@@ -19,6 +19,7 @@
             <span class="user-avatar" aria-hidden="true">人</span>
             <span><c:out value="${loginUser.employeeName}" /> 様</span>
             <form method="post" action="<c:url value='/logout' />">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                 <button class="logout-button" type="submit">ログアウト</button>
             </form>
         </div>
@@ -54,6 +55,7 @@
                 </c:if>
 
                 <form:form method="post" action="${pageContext.request.contextPath}/monthly-reports/export" modelAttribute="monthlyReportForm">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                     <div class="search-grid">
                         <div class="search-field">
                             <label for="targetYear">対象年 <span class="required">*</span></label>

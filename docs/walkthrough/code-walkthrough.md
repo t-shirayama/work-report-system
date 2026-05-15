@@ -11,7 +11,7 @@
 ```text
 JSPのフォーム
   ↓
-Controller
+Spring Security / Controller
   ↓
 Service
   ↓
@@ -44,46 +44,36 @@ http://localhost:8080/work-report-system/login
 <link rel="stylesheet" href="<c:url value='/resources/css/common.css' />">
 ```
 
-ログインフォームは `POST /login` に送信されます。
+ログインフォームは `POST /login` に送信されます。CSRF対策として、Spring Securityが生成したトークンをhidden項目として送信します。
 
 ```jsp
 <form class="form" method="post" action="<c:url value='/login' />">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 ```
 
 エラーがある場合は `errorMessage` を表示します。
 
 ## LoginController
 
-`POST /login` は `LoginController#login` が受け取ります。
+`LoginController` は `GET /login` の画面表示を担当します。
 
-Controllerは入力値を `LoginForm` として受け取り、認証処理を `UserService` に依頼します。
+`POST /login` は `web.xml` に登録された `springSecurityFilterChain` が処理します。認証に失敗した場合は `/login?error=true` に戻り、`LoginController` がエラーメッセージをModelへ設定します。
 
-```java
-User user = userService.authenticate(loginForm.getLoginId(), loginForm.getPassword());
-```
+## Spring Security
 
-認証に失敗した場合は、エラーメッセージを設定して `login.jsp` を再表示します。
+`security-context.xml` では、ログイン画面、静的リソース、認証が必要なURL、ログアウト、パスワード照合方式を定義しています。
 
-認証に成功した場合は、ログインユーザーをセッションに保存します。
+認証時は `WorkReportUserDetailsService#loadUserByUsername` が呼び出され、`UserDao#findByLoginId` で `users` と `departments` を検索します。取得した `users.password` はBCryptハッシュであり、Spring Securityの `BCryptPasswordEncoder` が入力パスワードと照合します。
 
-```java
-session.setAttribute("loginUser", user);
-```
-
-その後、`/dashboard` へリダイレクトします。
-
-## UserService
-
-`UserService#authenticate` は、ログインIDとパスワードの認証を行います。
+認証に成功すると `LoginSuccessHandler` が呼び出されます。ここで画面表示用のログインユーザーとログイン時刻をセッションに保存し、`/dashboard` へリダイレクトします。
 
 処理は以下です。
 
-1. ログインIDとパスワードが入力されているか確認する
-2. `UserDao#findByLoginId` でユーザーを検索する
-3. 入力パスワードとDB上のパスワードを比較する
-4. 成功時は `User` を返し、失敗時は `null` を返す
-
-現在のサンプルデータは動作確認用の平文パスワードです。運用環境ではパスワードハッシュ化が必須です。
+1. `POST /login` をSpring Securityが受け取る
+2. `WorkReportUserDetailsService` がログインIDでユーザーを検索する
+3. `BCryptPasswordEncoder` が入力パスワードを検証する
+4. `LoginSuccessHandler` がセッションへログインユーザー情報を保存する
+5. `/dashboard` へリダイレクトする
 
 ## UserDao
 
@@ -99,7 +89,7 @@ return namedParameterJdbcTemplate.queryForObject(SELECT_BY_LOGIN_ID, params, new
 
 ## dashboard.jsp
 
-`GET /dashboard` では、セッションに `loginUser` があるか確認します。
+`GET /dashboard` では、Spring Securityにより未認証アクセスがログイン画面へ誘導されます。Controller側では `SessionUtils` からログインユーザーを取得します。
 
 ログイン済みの場合は `DashboardController` が `DashboardService` を呼び出し、DB集計結果を `dashboard.jsp` に表示します。
 
@@ -125,12 +115,14 @@ return namedParameterJdbcTemplate.queryForObject(SELECT_BY_LOGIN_ID, params, new
 
 ## logout
 
-`GET /logout` または `POST /logout` でログアウトできます。
+`POST /logout` でログアウトできます。ログアウトフォームにはCSRFトークンを含めます。
 
-ログアウト時はHTTPセッションを破棄します。
+ログアウト時はSpring SecurityがHTTPセッションを破棄します。
 
-```java
-session.invalidate();
+```jsp
+<form method="post" action="<c:url value='/logout' />">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+</form>
 ```
 
 その後、`/login` にリダイレクトします。
@@ -390,13 +382,12 @@ GET /report-histories/{id}/download
 
 主要機能は実装済みです。以下は、継続運用に向けた拡張候補です。
 
-- Spring Securityによる本格的な認証・認可
-- パスワードハッシュ化
 - DB接続エラー時の専用エラー画面
 - 管理者向けメニューと権限別表示制御
 - 作業日報の一覧、詳細、編集、削除
 - 作業実績検索と帳票作成履歴のページング
 - 古い帳票ファイルの削除運用
+- アカウントロック、パスワード変更、パスワード有効期限管理
 
 ## 設計上の説明ポイント
 
@@ -408,7 +399,7 @@ GET /report-histories/{id}/download
 4. JSPはModelに入ったデータを表示し、業務ロジックは持たせていない
 5. 月次報告書はApache POI 3.17でExcelテンプレートに値を差し込む方式にしている
 6. 帳票出力履歴を保存し、作成済みファイルを再ダウンロードできるようにしている
-7. 現在のログインは基本的な認証実装であり、運用環境ではSpring Securityやパスワードハッシュ化を適用する
+7. ログイン認証はSpring Securityで行い、パスワードはBCryptハッシュとして保存している
 
 ## 用語の補足
 

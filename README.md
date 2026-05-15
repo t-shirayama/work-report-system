@@ -74,6 +74,7 @@
 | Java | Java | 1.8 |
 | Framework | Spring Framework | 4.3.17.RELEASE |
 | Web | Spring MVC | 4.3.17.RELEASE |
+| Security | Spring Security | 4.2.20.RELEASE |
 | View | JSP / JSTL | JSP 2.3 / JSTL 1.2 |
 | Servlet Container | Apache Tomcat | 8.5.x |
 | Excel | Apache POI | 3.17 |
@@ -128,6 +129,7 @@ work-report-system/
           entity/
           form/
           exception/
+          security/
           service/
           util/
       resources/
@@ -146,6 +148,7 @@ work-report-system/
           spring/
             applicationContext.xml
             dispatcher-servlet.xml
+            security-context.xml
           views/
     test/
       java/
@@ -360,6 +363,8 @@ http://localhost:8080/work-report-system/login
 | `admin` | `password` |
 | `sato` | `password` |
 
+`sample-data.sql` では、上記の初期パスワードをBCryptハッシュとして `users.password` に保存しています。
+
 ログイン後、以下の画面を確認できます。
 
 | URL | 確認内容 |
@@ -380,7 +385,7 @@ http://localhost:8080/work-report-system/login
 src/main/resources/application.properties
 ```
 
-Docker Composeで起動したOracle Database Freeへ接続する設定になっています。
+Docker Composeで起動したOracle Database Freeへ接続する開発用設定になっています。
 
 ```properties
 jdbc.driverClassName=oracle.jdbc.OracleDriver
@@ -399,6 +404,7 @@ jdbc.password=work_report
 | Tomcat起動時にServlet API関連で失敗する | `javax.servlet-api` と `javax.servlet.jsp-api` が `provided` スコープになっているか確認します |
 | 404になる | URLのコンテキストパスが `work-report-system` になっているか、STSのModules設定を確認します |
 | ログインできない | サンプルデータ投入済みか、`users` テーブルに `admin` / `sato` が存在するか確認します |
+| POST送信で403になる | Spring SecurityのCSRFトークンがフォームに出力されているか確認します |
 
 ### 14.3 DBを初期化し直す場合
 
@@ -418,17 +424,19 @@ docker compose up -d oracle-db
 現在のSpring MVC設定は以下です。
 
 - `src/main/webapp/WEB-INF/web.xml` で `DispatcherServlet` と `ContextLoaderListener` を定義
+- `web.xml` で `springSecurityFilterChain` を定義し、認証必須URLをSpring Securityで保護
 - `src/main/webapp/WEB-INF/spring/dispatcher-servlet.xml` でControllerスキャン、`mvc:annotation-driven`、JSP ViewResolver、静的リソースマッピングを定義
-- `src/main/webapp/WEB-INF/spring/applicationContext.xml` は、将来のDB接続、トランザクション、Service/DAO共通設定の追加場所として用意
+- `src/main/webapp/WEB-INF/spring/applicationContext.xml` でDB接続、トランザクション、Service/DAO共通設定を定義
+- `src/main/webapp/WEB-INF/spring/security-context.xml` でログイン、ログアウト、CSRF、認証必須URL、BCrypt照合を定義
 - `GET /home` は `HomeController` が受け取り、`/WEB-INF/views/home.jsp` を表示
 - CSSは `/resources/css/common.css` として配信
-- `GET /login`、`POST /login`、`GET /dashboard`、`GET/POST /logout` によるログイン機能を実装
-- ログイン成功時はHTTPセッションにログインユーザーを保存し、ログアウト時にセッションを破棄
+- `GET /login` は `LoginController` がログイン画面を表示し、`POST /login` の認証処理はSpring Securityが実行
+- ログイン成功時はHTTPセッションにログインユーザーとログイン時刻を保存し、ログアウト時にセッションを破棄
 - `GET /dashboard` では `DashboardController` がDB集計結果を取得し、ログイン時刻はセッション値を表示
 - 帳票作成履歴は `GET /report-histories` で検索、`GET /report-histories/{id}` で詳細確認、`GET /report-histories/{id}/download` で再ダウンロード
 - 月次報告書出力では、帳票履歴登録をトランザクション管理し、履歴登録失敗時は生成済みファイルを削除する
 
-現在のサンプルデータでは動作確認しやすいように平文パスワードを使用しています。実運用では必ずパスワードをハッシュ化して保存・照合する必要があります。
+DB接続情報は開発用の固定値です。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点では `DriverManagerDataSource` を使用していますが、運用環境ではアプリケーションサーバーまたは接続プール設定でコネクション管理を行う想定です。
 
 ## 15. 設計・実装ポイント
 
@@ -439,6 +447,7 @@ docker compose up -d oracle-db
 - JSP / JSTLによる画面作成
 - Controller、Service、DAOの責務分離
 - Spring JDBCとNamedParameterJdbcTemplateによるDBアクセス
+- Spring SecurityとBCryptによるログイン認証
 - Oracle向けSQLの作成
 - Apache POIによるExcel帳票作成
 - Maven WARプロジェクトの構成
@@ -447,7 +456,7 @@ docker compose up -d oracle-db
 ## 16. 今後の拡張案
 
 - 入力チェックとエラーメッセージ表示の充実
-- パスワードハッシュ化
+- アカウントロック、パスワード変更、パスワード有効期限管理
 - ロール別権限制御
 - 承認一覧
 - 作業日報の申請・承認・差戻し
@@ -459,20 +468,19 @@ docker compose up -d oracle-db
 - 帳票テンプレート差し替え機能
 - 作業実績のCSV出力
 - 作業時間の集計グラフ表示
-- Docker ComposeによるOracle Database Free / XEの開発用起動補助
 - 単体テストと結合テストの拡充
 
 ## 17. 未決事項
 
-現時点で未決の事項は以下です。実装時に要件を整理しながら決定します。
+運用環境へ適用する際に決定が必要な事項は以下です。
 
-- ログイン認証方式とパスワード管理方式
-- Oracle接続情報の管理方法
-- 帳票テンプレートの具体的なレイアウト
-- 作業実績として管理する入力項目の詳細
+- Oracle接続情報の外部化方式
+- 接続プールの設定方式
+- 帳票テンプレートの正式レイアウト
+- 作業実績として管理する入力項目の追加要否
 - 休日、休暇、欠勤などの扱い
 - 帳票ファイル保存先の正式なパス
-- テスト用DBをどのように用意するか
+- テスト用DBと自動テストデータの管理方式
 
 ## docs配下のドキュメント
 

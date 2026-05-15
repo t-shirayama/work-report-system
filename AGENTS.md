@@ -13,6 +13,7 @@
 
 - Java 8で動作するコードにする。
 - Spring Framework / Spring MVC は `4.3.17.RELEASE` を維持する。
+- Spring Security は `4.2.20.RELEASE` を維持し、ログイン認証とCSRF対策を有効にする。
 - Maven WARプロジェクトとして扱い、Spring BootやGradleへ変更しない。
 - Viewは JSP / JSTL を使用し、React / Vue / Angular は使用しない。
 - アプリ本体はDocker化しない。実行は STS / Eclipse + Tomcat 8.5 + Maven WAR を前提にする。
@@ -44,6 +45,7 @@
 - SQLはDAO層に明示し、ユーザー入力を文字列連結で埋め込まない。
 - JSPは `src/main/webapp/WEB-INF/views/` 配下に置き、Controller経由で表示する。
 - JSPではJSTLを使い、Javaスクリプトレットを増やさない。
+- POSTフォームにはSpring SecurityのCSRFトークンを含める。
 - 共通処理は `common`、`util`、`exception` など既存パッケージの役割に合わせる。
 - IDE固有ファイルや生成ファイルはコミットしない。
 

@@ -19,6 +19,7 @@
             <span class="user-avatar" aria-hidden="true">人</span>
             <span><c:out value="${loginUser.employeeName}" /> 様</span>
             <form method="post" action="<c:url value='/logout' />">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                 <button class="logout-button" type="submit">ログアウト</button>
             </form>
         </div>
@@ -52,6 +53,7 @@
                 </c:if>
 
                 <form:form class="entry-form" method="post" action="${pageContext.request.contextPath}/work-reports" modelAttribute="workReportForm">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                     <div class="entry-row">
                         <label for="workDate">作業日 <span class="required">*</span></label>
                         <form:input path="workDate" id="workDate" type="date" cssClass="entry-input medium" />

@@ -81,7 +81,7 @@ users       1 ---- * report_output_histories
 | `user_id` | `NUMBER(10)` | 不可 | ユーザーID |
 | `department_id` | `NUMBER(10)` | 不可 | 所属部署ID |
 | `login_id` | `VARCHAR2(50)` | 不可 | ログインID |
-| `password` | `VARCHAR2(255)` | 不可 | パスワード |
+| `password` | `VARCHAR2(255)` | 不可 | BCryptハッシュ化済みパスワード |
 | `employee_name` | `VARCHAR2(100)` | 不可 | 社員名 |
 | `role_code` | `VARCHAR2(20)` | 不可 | 権限コード |
 | `created_at` | `DATE` | 不可 | 作成日時 |
@@ -89,7 +89,7 @@ users       1 ---- * report_output_histories
 
 `role_code` は当面 `ADMIN` または `USER` を想定します。
 
-サンプルデータでは動作確認用のダミーパスワード文字列を登録しています。運用環境ではハッシュ化したパスワードを保存する方針に変更します。
+サンプルデータでは初期パスワード `password` をBCryptハッシュ化して登録しています。アプリケーションはSpring Securityの `BCryptPasswordEncoder` で入力パスワードとDB上のハッシュを照合します。
 
 ### work_reports
 
@@ -240,7 +240,7 @@ DB制約違反や接続エラーが発生した場合は、利用者には分か
 
 ## 今後の拡張案
 
-- パスワードハッシュ化方式に合わせたカラム名や認証項目の見直し
+- パスワード変更履歴や初回ログイン時変更フラグの追加
 - ユーザーの有効・無効フラグ追加
 - 作業分類をマスタテーブル化
 - 権限をロールマスタとして分離

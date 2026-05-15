@@ -2,7 +2,7 @@
 
 このドキュメントでは、実装済み機能を例にして、Controller / Service / DAO の役割分担を説明します。
 
-本プロジェクトでは、Spring Boot、Spring Security、JPA、MyBatis、Hibernateは使用しません。Spring MVCとSpring JDBCを使い、SQLはDAO層に明示的に記述します。
+本プロジェクトでは、Spring Boot、JPA、MyBatis、Hibernateは使用しません。認証はSpring Security、DBアクセスはSpring JDBCを使い、SQLはDAO層に明示的に記述します。
 
 ## 全体像
 
@@ -31,12 +31,14 @@ Oracle Database
 | `WorkReportController.java` | 作業日報登録、作業実績検索 |
 | `MonthlyReportController.java` | 月次報告書Excel出力 |
 | `ReportHistoryController.java` | 帳票作成履歴検索、詳細、再ダウンロード |
+| `WorkReportUserDetailsService.java` | Spring Securityから呼び出され、ログインIDでユーザー情報を取得 |
+| `LoginSuccessHandler.java` | ログイン成功時のセッション情報設定とダッシュボード遷移 |
 | `LoginForm.java` | ログインIDとパスワードの入力値を保持 |
 | `WorkReportForm.java` | 作業日報登録の入力値を保持 |
 | `WorkReportSearchForm.java` | 作業実績検索条件を保持 |
 | `MonthlyReportForm.java` | 月次報告書出力条件を保持 |
 | `ReportHistorySearchForm.java` | 帳票作成履歴検索条件を保持 |
-| `UserService.java` | 認証処理の業務判断 |
+| `UserService.java` | ユーザー関連処理の補助 |
 | `DashboardService.java` | ダッシュボード集計結果の組み立て |
 | `WorkReportService.java` | 作業日報登録、検索条件チェック |
 | `MonthlyReportService.java` | 月次帳票データ作成と出力処理の制御 |
@@ -52,34 +54,24 @@ Oracle Database
 
 ## Controllerの役割
 
-`LoginController` はHTTPリクエストを受け取り、画面遷移とセッション管理を担当します。
+`LoginController` はログイン画面の表示を担当します。ログインPOST、パスワード照合、ログアウトはSpring Securityが担当します。
 
 主なURLは以下です。
 
 | URL | メソッド | 処理 |
 |---|---|---|
 | `/login` | GET | ログイン画面を表示 |
-| `/login` | POST | ログインIDとパスワードで認証 |
+| `/login` | POST | Spring SecurityがログインIDとパスワードで認証 |
 | `/dashboard` | GET | ログイン済みユーザー向けダッシュボードを表示 |
-| `/logout` | GET / POST | セッションを破棄してログアウト |
+| `/logout` | POST | Spring Securityがセッションを破棄してログアウト |
 
-ControllerにはSQLを書きません。認証処理は `UserService` に委譲します。
+ControllerにはSQLを書きません。認証処理は `WorkReportUserDetailsService` と `UserDao` をSpring Securityから呼び出す形にしています。
 
 Controllerが担当するのはHTTPに近い処理です。具体的には、URL、GET/POST、入力Form、Modelへの表示データ設定、セッション確認、リダイレクトなどです。
 
 ## Serviceの役割
 
-`UserService` はログイン認証の業務判断を担当します。
-
-現在の認証処理では以下を行います。
-
-1. ログインIDとパスワードが空でないか確認する
-2. `UserDao` でログインIDに一致するユーザーを検索する
-3. 入力されたパスワードとDB上のパスワードを比較する
-4. 認証成功時は画面表示用にパスワードを `null` にして返す
-5. 認証失敗時は `null` を返す
-
-現在のサンプルデータは動作確認用の平文パスワードです。運用環境では必ずハッシュ化したパスワードを保存し、ハッシュ照合を行います。
+認証では `WorkReportUserDetailsService` がログインIDをもとに `UserDao` を呼び出し、`users.password` に保存されたBCryptハッシュをSpring Securityが照合します。認証成功後は `LoginSuccessHandler` が画面表示用ユーザー情報とログイン時刻をHTTPセッションに保存します。
 
 Serviceが担当するのは業務ルールです。作業日報登録では「作業時間は0より大きいこと」、月次報告書では「対象年・対象月から月初日と月末日を計算すること」などがServiceの責務です。
 
@@ -114,20 +106,19 @@ DAOが担当するのはDBに近い処理です。SQL文、バインド変数、
 ログイン成功時の流れは以下です。
 
 1. ブラウザから `POST /login` を送信する
-2. `LoginController#login` が `LoginForm` として入力値を受け取る
-3. Controllerが `UserService#authenticate` を呼び出す
-4. Serviceが `UserDao#findByLoginId` を呼び出す
-5. DAOが `NamedParameterJdbcTemplate` で `users` と `departments` を検索する
-6. Serviceがパスワードを比較する
-7. Controllerが認証済みユーザーをHTTPセッションに保存する
-8. `/dashboard` へリダイレクトする
-9. `DashboardController` がDB集計結果を取得し、`dashboard.jsp` にログインユーザー情報とダッシュボード情報を表示する
+2. `springSecurityFilterChain` がログインリクエストを処理する
+3. `WorkReportUserDetailsService` が `UserDao#findByLoginId` を呼び出す
+4. DAOが `NamedParameterJdbcTemplate` で `users` と `departments` を検索する
+5. Spring Securityが入力パスワードとDB上のBCryptハッシュを照合する
+6. `LoginSuccessHandler` が認証済みユーザーをHTTPセッションに保存する
+7. `/dashboard` へリダイレクトする
+8. `DashboardController` がDB集計結果を取得し、`dashboard.jsp` にログインユーザー情報とダッシュボード情報を表示する
 
 ログイン失敗時は、`login.jsp` に戻り、エラーメッセージを表示します。
 
 ## セッション管理
 
-ログイン成功時は、以下のキーで `User` をセッションに保存します。
+ログイン成功時は、Spring Securityの認証情報に加え、画面表示用として以下のキーで `User` をセッションに保存します。
 
 ```text
 loginUser
@@ -135,7 +126,7 @@ loginUser
 
 `/dashboard` ではセッションに `loginUser` が存在するか確認し、存在しない場合は `/login` へリダイレクトします。
 
-ログアウト時は `session.invalidate()` によりセッションを破棄します。
+ログアウト時はSpring Securityのログアウト処理によりセッションを破棄します。POSTフォームにはCSRFトークンを含めます。
 
 ## 作業日報登録機能の責務分担
 

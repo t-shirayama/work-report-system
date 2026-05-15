@@ -11,6 +11,7 @@ Codex公式ドキュメントの [AGENTS.md guide](https://developers.openai.com
 業務システムとして、以下の方針を満たす状態を目指します。
 
 - Spring Bootを使わないSpring MVC構成
+- Spring Securityによるログイン認証とCSRF対策
 - JSP / JSTLによるサーバーサイド画面
 - Controller / Service / DAO の責務分離
 - Spring JDBCによる明示的なSQL実装
@@ -25,6 +26,7 @@ Codex公式ドキュメントの [AGENTS.md guide](https://developers.openai.com
 | Java | Java | 1.8 |
 | Framework | Spring Framework | 4.3.17.RELEASE |
 | Web | Spring MVC | 4.3.17.RELEASE |
+| Security | Spring Security | 4.2.20.RELEASE |
 | View | JSP / JSTL | JSP 2.3 / JSTL 1.2 |
 | Servlet Container | Apache Tomcat | 8.5.x |
 | Excel | Apache POI | 3.17 |
@@ -50,6 +52,7 @@ Codex公式ドキュメントの [AGENTS.md guide](https://developers.openai.com
 | `entity` | DBテーブルの1行に近いデータ |
 | `exception` | 共通例外 |
 | `form` | JSPフォームの入力値 |
+| `security` | Spring Security連携、UserDetails、ログイン成功処理 |
 | `service` | 業務ロジック、トランザクション境界 |
 | `util` | ダウンロード処理などの汎用処理 |
 
@@ -60,6 +63,7 @@ Codex公式ドキュメントの [AGENTS.md guide](https://developers.openai.com
 | `src/main/webapp/WEB-INF/web.xml` | DispatcherServlet、ContextLoaderListener |
 | `src/main/webapp/WEB-INF/spring/dispatcher-servlet.xml` | Spring MVC設定 |
 | `src/main/webapp/WEB-INF/spring/applicationContext.xml` | 共通Bean、DB、トランザクション設定 |
+| `src/main/webapp/WEB-INF/spring/security-context.xml` | Spring Security設定 |
 | `src/main/webapp/WEB-INF/views/` | JSP |
 | `src/main/webapp/resources/css/` | CSS |
 | `src/main/webapp/resources/js/` | JavaScript |
