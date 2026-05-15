@@ -1,0 +1,27 @@
+# STS / Eclipse
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache/
+
+# Maven
+target/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated application files
+generated-reports/
+upload/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
