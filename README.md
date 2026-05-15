@@ -144,6 +144,8 @@ work-report-system/
       java/
   docs/
     README.md
+    project/
+      development-guidelines.md
     architecture/
       spring-mvc-basic.md
       controller-service-dao.md
@@ -191,7 +193,7 @@ work-report-system/
 
 方針は以下です。
 
-- テンプレートExcelを `src/main/resources/report-template/` 配下に配置する
+- テンプレートExcelを `src/main/resources/templates/` 配下に配置する
 - Service層で帳票作成処理の全体制御を行う
 - Report専用クラスでApache POIによるセル操作を行う
 - 出力ファイルは `generated-reports/` 配下に保存する想定とする
@@ -465,6 +467,7 @@ docker compose up -d oracle-db
 | ドキュメント | 内容 |
 |---|---|
 | `docs/README.md` | ドキュメント索引、読む順番、カテゴリ別一覧 |
+| `docs/project/development-guidelines.md` | 固定技術、実装ルール、禁止事項、Codex作業時の詳細ガイドライン |
 | `docs/architecture/spring-mvc-basic.md` | Spring MVCのリクエスト処理、DispatcherServlet、Controller、ViewResolver、JSP表示の流れ |
 | `docs/architecture/controller-service-dao.md` | Controller / Service / DAO の責務分担、DTOとEntity、例外処理とログ出力の考え方 |
 | `docs/database/spring-jdbc-basic.md` | Spring JDBC、NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
@@ -476,13 +479,14 @@ docker compose up -d oracle-db
 
 おすすめの読む順番は以下です。
 
-1. `docs/architecture/spring-mvc-basic.md`
-2. `docs/architecture/controller-service-dao.md`
-3. `docs/database/database-design.md`
-4. `docs/database/oracle-docker-setup.md`
-5. `docs/database/spring-jdbc-basic.md`
-6. `docs/reporting/apache-poi-basic.md`
-7. `docs/reporting/excel-report-generation.md`
-8. `docs/walkthrough/code-walkthrough.md`
+1. `docs/project/development-guidelines.md`
+2. `docs/architecture/spring-mvc-basic.md`
+3. `docs/architecture/controller-service-dao.md`
+4. `docs/database/database-design.md`
+5. `docs/database/oracle-docker-setup.md`
+6. `docs/database/spring-jdbc-basic.md`
+7. `docs/reporting/apache-poi-basic.md`
+8. `docs/reporting/excel-report-generation.md`
+9. `docs/walkthrough/code-walkthrough.md`
 
-最初にSpring MVCとレイヤ構成を理解し、その後DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。
+最初に開発ガイドラインでプロジェクト全体の前提を把握し、その後Spring MVCとレイヤ構成、DBとSpring JDBC、最後にExcel帳票と実装全体の流れを確認すると、面談前の復習資料として使いやすくなります。

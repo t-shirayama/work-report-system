@@ -6,16 +6,25 @@
 
 ## おすすめの読む順番
 
-1. [Spring MVC 基本構成](architecture/spring-mvc-basic.md)
-2. [Controller / Service / DAO 構成](architecture/controller-service-dao.md)
-3. [データベース設計](database/database-design.md)
-4. [Oracle Docker Compose 開発DB](database/oracle-docker-setup.md)
-5. [Spring JDBC 基本](database/spring-jdbc-basic.md)
-6. [Apache POI 基本](reporting/apache-poi-basic.md)
-7. [Excel帳票出力](reporting/excel-report-generation.md)
-8. [コード walkthrough](walkthrough/code-walkthrough.md)
+1. [開発ガイドライン](project/development-guidelines.md)
+2. [Spring MVC 基本構成](architecture/spring-mvc-basic.md)
+3. [Controller / Service / DAO 構成](architecture/controller-service-dao.md)
+4. [データベース設計](database/database-design.md)
+5. [Oracle Docker Compose 開発DB](database/oracle-docker-setup.md)
+6. [Spring JDBC 基本](database/spring-jdbc-basic.md)
+7. [Apache POI 基本](reporting/apache-poi-basic.md)
+8. [Excel帳票出力](reporting/excel-report-generation.md)
+9. [コード walkthrough](walkthrough/code-walkthrough.md)
 
 ## カテゴリ別一覧
+
+### project
+
+プロジェクト全体の前提、固定技術、実装時の判断基準を整理した資料です。
+
+| ドキュメント | 内容 |
+|---|---|
+| [開発ガイドライン](project/development-guidelines.md) | AGENTS.mdから切り出した詳細な開発ルール、固定技術、禁止事項、docs更新ルール |
 
 ### architecture
 
@@ -68,6 +77,7 @@ Apache POIとExcel帳票出力に関する資料です。
 
 ## 更新ルール
 
+- `AGENTS.md` はCodexが毎回読む最小ルールに留め、詳細な説明は `project/development-guidelines.md` または該当カテゴリのdocsへ移します。
 - Controller / Service / DAOを追加・変更した場合は、`architecture/` または `walkthrough/` を更新します。
 - SQL、DDL、DAOの検索条件を変更した場合は、`database/` を更新します。
 - Excelテンプレートや帳票出力処理を変更した場合は、`reporting/` を更新します。
