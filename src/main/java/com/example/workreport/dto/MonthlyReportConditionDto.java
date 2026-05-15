@@ -10,6 +10,8 @@ public class MonthlyReportConditionDto {
 
     private Date dateTo;
 
+    private Long userId;
+
     private String departmentName;
 
     private String employeeName;
@@ -36,6 +38,14 @@ public class MonthlyReportConditionDto {
 
     public void setDateTo(Date dateTo) {
         this.dateTo = dateTo;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getDepartmentName() {

@@ -64,6 +64,8 @@ public class ReportHistoryServiceTest {
         MonthlyReportFileDto file = new MonthlyReportFileDto();
         file.setFileName("report.xlsx");
         file.setContent(new byte[] {4, 5, 6});
+        Path expectedPath = Paths.get("generated-reports", "209912", "report.xlsx").toAbsolutePath().normalize();
+        Files.deleteIfExists(expectedPath);
 
         Path reportPath = service.saveReportFile("209912", file);
 

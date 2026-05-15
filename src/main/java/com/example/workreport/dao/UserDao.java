@@ -2,6 +2,7 @@ package com.example.workreport.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,6 +32,39 @@ public class UserDao {
                     + "    ON u.department_id = d.department_id "
                     + "WHERE u.login_id = :loginId";
 
+    private static final String SELECT_BY_USER_ID =
+            "SELECT "
+                    + "    u.user_id, "
+                    + "    u.department_id, "
+                    + "    d.department_name, "
+                    + "    u.login_id, "
+                    + "    u.password, "
+                    + "    u.employee_name, "
+                    + "    u.role_code, "
+                    + "    u.created_at, "
+                    + "    u.updated_at "
+                    + "FROM users u "
+                    + "INNER JOIN departments d "
+                    + "    ON u.department_id = d.department_id "
+                    + "WHERE u.user_id = :userId";
+
+    private static final String SELECT_REPORT_TARGET_USERS =
+            "SELECT "
+                    + "    u.user_id, "
+                    + "    u.department_id, "
+                    + "    d.department_name, "
+                    + "    u.login_id, "
+                    + "    u.password, "
+                    + "    u.employee_name, "
+                    + "    u.role_code, "
+                    + "    u.created_at, "
+                    + "    u.updated_at "
+                    + "FROM users u "
+                    + "INNER JOIN departments d "
+                    + "    ON u.department_id = d.department_id "
+                    + "WHERE u.role_code = 'USER' "
+                    + "ORDER BY d.department_name, u.employee_name, u.user_id";
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
@@ -47,6 +81,24 @@ public class UserDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    public User findById(Long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userId", userId);
+
+        try {
+            return namedParameterJdbcTemplate.queryForObject(SELECT_BY_USER_ID, params, new UserRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public List<User> findReportTargetUsers() {
+        return namedParameterJdbcTemplate.query(
+                SELECT_REPORT_TARGET_USERS,
+                new MapSqlParameterSource(),
+                new UserRowMapper());
     }
 
     private static class UserRowMapper implements RowMapper<User> {

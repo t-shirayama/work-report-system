@@ -6,6 +6,8 @@ public class MonthlyReportForm {
 
     private String targetMonth;
 
+    private String userId;
+
     private String departmentName;
 
     private String employeeName;
@@ -24,6 +26,14 @@ public class MonthlyReportForm {
 
     public void setTargetMonth(String targetMonth) {
         this.targetMonth = targetMonth;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getDepartmentName() {

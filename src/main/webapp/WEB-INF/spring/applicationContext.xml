@@ -14,6 +14,11 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
+    <!--
+        Local development DataSource.
+        For Tomcat operation, switch this bean to JNDI DataSource.
+        See WEB-INF/spring/datasource-jndi-example.xml.
+    -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="${jdbc.driverClassName}"/>
         <property name="url" value="${jdbc.url}"/>

@@ -20,6 +20,7 @@ import com.example.workreport.dto.MonthlyReportFileDto;
 import com.example.workreport.entity.User;
 import com.example.workreport.form.MonthlyReportForm;
 import com.example.workreport.service.MonthlyReportService;
+import com.example.workreport.service.UserService;
 import com.example.workreport.util.DownloadResponseUtil;
 import com.example.workreport.util.SessionUtils;
 
@@ -30,9 +31,12 @@ public class MonthlyReportController {
 
     private final MonthlyReportService monthlyReportService;
 
+    private final UserService userService;
+
     @Autowired
-    public MonthlyReportController(MonthlyReportService monthlyReportService) {
+    public MonthlyReportController(MonthlyReportService monthlyReportService, UserService userService) {
         this.monthlyReportService = monthlyReportService;
+        this.userService = userService;
     }
 
     @GetMapping("/monthly-reports/new")
@@ -43,11 +47,11 @@ public class MonthlyReportController {
         }
 
         MonthlyReportForm form = new MonthlyReportForm();
+        form.setUserId(loginUser.getUserId().toString());
         form.setDepartmentName(loginUser.getDepartmentName());
         form.setEmployeeName(loginUser.getEmployeeName());
 
-        model.addAttribute("loginUser", loginUser);
-        model.addAttribute("monthlyReportForm", form);
+        setupFormModel(model, loginUser, form);
         return "monthly-report-form";
     }
 
@@ -65,8 +69,7 @@ public class MonthlyReportController {
 
         List<String> errors = monthlyReportService.validate(monthlyReportForm, loginUser);
         if (!errors.isEmpty()) {
-            model.addAttribute("loginUser", loginUser);
-            model.addAttribute("monthlyReportForm", monthlyReportForm);
+            setupFormModel(model, loginUser, monthlyReportForm);
             model.addAttribute("errors", errors);
             return "monthly-report-form";
         }
@@ -88,10 +91,22 @@ public class MonthlyReportController {
     }
 
     private String showExportError(Model model, User loginUser, MonthlyReportForm monthlyReportForm) {
-        model.addAttribute("loginUser", loginUser);
-        model.addAttribute("monthlyReportForm", monthlyReportForm);
+        setupFormModel(model, loginUser, monthlyReportForm);
         model.addAttribute("errors", Arrays.asList("Excel出力に失敗しました。帳票作成履歴にエラー内容を保存しました。"));
         return "monthly-report-form";
+    }
+
+    private void setupFormModel(Model model, User loginUser, MonthlyReportForm monthlyReportForm) {
+        if (!"ADMIN".equals(loginUser.getRoleCode())) {
+            monthlyReportForm.setUserId(loginUser.getUserId().toString());
+            monthlyReportForm.setDepartmentName(loginUser.getDepartmentName());
+            monthlyReportForm.setEmployeeName(loginUser.getEmployeeName());
+        }
+        model.addAttribute("loginUser", loginUser);
+        model.addAttribute("monthlyReportForm", monthlyReportForm);
+        if ("ADMIN".equals(loginUser.getRoleCode())) {
+            model.addAttribute("targetUsers", userService.findReportTargetUsers());
+        }
     }
 
     private User getLoginUser(HttpSession session) {

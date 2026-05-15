@@ -31,7 +31,7 @@ public class MonthlyReportServiceTest {
 
         List<String> errors = service.validate(new MonthlyReportForm(), user("USER"));
 
-        assertEquals(4, errors.size());
+        assertEquals(2, errors.size());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class MonthlyReportServiceTest {
     public void validateRejectsOtherEmployeeForGeneralUser() {
         MonthlyReportService service = new MonthlyReportService(null, null, null);
         MonthlyReportForm form = validForm();
-        form.setEmployeeName("別ユーザー");
+        form.setUserId("99");
 
         List<String> errors = service.validate(form, user("USER"));
 
@@ -57,10 +57,10 @@ public class MonthlyReportServiceTest {
     }
 
     @Test
-    public void validateAllowsOtherEmployeeForAdmin() {
+    public void validateAllowsTargetUserIdForAdmin() {
         MonthlyReportService service = new MonthlyReportService(null, null, null);
         MonthlyReportForm form = validForm();
-        form.setEmployeeName("別ユーザー");
+        form.setUserId("99");
 
         List<String> errors = service.validate(form, user("ADMIN"));
 
@@ -73,26 +73,24 @@ public class MonthlyReportServiceTest {
         MonthlyReportForm form = validForm();
         form.setTargetYear("20A6");
         form.setTargetMonth("AA");
-        form.setDepartmentName(repeat("D", 101));
-        form.setEmployeeName(repeat("E", 101));
+        form.setUserId("bad");
 
         List<String> errors = service.validate(form, user("ADMIN"));
 
         assertTrue(errors.contains("対象年は4桁の数値で入力してください。"));
         assertTrue(errors.contains("対象月は1から12の数値で入力してください。"));
-        assertTrue(errors.contains("部署は100文字以内で入力してください。"));
-        assertTrue(errors.contains("社員は100文字以内で入力してください。"));
+        assertTrue(errors.contains("社員の指定が正しくありません。"));
     }
 
     @Test
-    public void validateDetectsDepartmentMismatchForGeneralUser() {
+    public void validateDetectsUserIdMismatchForGeneralUser() {
         MonthlyReportService service = new MonthlyReportService(null, null, null);
         MonthlyReportForm form = validForm();
-        form.setDepartmentName("営業部");
+        form.setUserId("99");
 
         List<String> errors = service.validate(form, user("USER"));
 
-        assertTrue(errors.contains("一般ユーザーは自分の部署の月次報告書のみ出力できます。"));
+        assertTrue(errors.contains("一般ユーザーは自分の月次報告書のみ出力できます。"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -114,7 +112,7 @@ public class MonthlyReportServiceTest {
 
         assertEquals(Long.valueOf(100L), historyService.processingHistoryId);
         assertEquals(Long.valueOf(100L), historyService.successHistoryId);
-        assertEquals("月次報告書_202605_佐藤花子.xlsx", file.getFileName());
+        assertEquals("月次報告書_202605_佐藤花子_履歴ID100.xlsx", file.getFileName());
         assertArrayEquals(new byte[] {1, 2, 3}, file.getContent());
     }
 

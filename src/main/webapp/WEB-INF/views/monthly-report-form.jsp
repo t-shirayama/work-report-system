@@ -80,26 +80,23 @@
                             </form:select>
                         </div>
                         <div class="search-field">
-                            <label for="departmentName">部署 <span class="required">*</span></label>
+                            <label for="userId">社員 <span class="required">*</span></label>
                             <c:choose>
                                 <c:when test="${loginUser.roleCode == 'ADMIN'}">
-                                    <form:input path="departmentName" id="departmentName" cssClass="entry-input" placeholder="開発部" />
+                                    <form:select path="userId" id="userId" cssClass="entry-input">
+                                        <form:option value="" label="選択してください" />
+                                        <c:forEach var="targetUser" items="${targetUsers}">
+                                            <form:option value="${targetUser.userId}" label="${targetUser.departmentName} / ${targetUser.employeeName}" />
+                                        </c:forEach>
+                                    </form:select>
                                 </c:when>
                                 <c:otherwise>
+                                    <form:hidden path="userId" />
                                     <form:hidden path="departmentName" />
-                                    <div class="readonly-field"><c:out value="${monthlyReportForm.departmentName}" /></div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <div class="search-field">
-                            <label for="employeeName">社員 <span class="required">*</span></label>
-                            <c:choose>
-                                <c:when test="${loginUser.roleCode == 'ADMIN'}">
-                                    <form:input path="employeeName" id="employeeName" cssClass="entry-input" placeholder="佐藤 花子" />
-                                </c:when>
-                                <c:otherwise>
                                     <form:hidden path="employeeName" />
-                                    <div class="readonly-field"><c:out value="${monthlyReportForm.employeeName}" /></div>
+                                    <div class="readonly-field">
+                                        <c:out value="${monthlyReportForm.departmentName}" /> / <c:out value="${monthlyReportForm.employeeName}" />
+                                    </div>
                                 </c:otherwise>
                             </c:choose>
                         </div>

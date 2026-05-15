@@ -68,6 +68,8 @@ Tomcat側では、たとえば `context.xml` に以下のようなResourceを定
 
 切り替える場合は、`applicationContext.xml` の `DriverManagerDataSource` BeanをJNDI参照に置き換え、`namedParameterJdbcTemplate` と `transactionManager` は同じ `dataSource` Beanを参照し続けます。開発環境では現在の設定を使い、運用環境ではTomcat側で接続プールを管理する構成にします。
 
+このリポジトリには、Tomcat JNDI DataSourceへ切り替えるための参考設定として `src/main/webapp/WEB-INF/spring/datasource-jndi-example.xml` を配置しています。実際に運用環境へ適用する場合は、Tomcat側のJNDIリソース定義、接続プールサイズ、接続検証SQL、タイムアウト値を環境に合わせて決定します。
+
 ## DAOでの利用
 
 `UserDao` は `NamedParameterJdbcTemplate` をコンストラクタで受け取ります。

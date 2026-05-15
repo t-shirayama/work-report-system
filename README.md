@@ -16,6 +16,8 @@
 
 業務システムでは、現在でもSpring Bootではなく、Spring Framework、Spring MVC、JSP、Servlet、Tomcat、Spring JDBCで構成された既存システムが運用されているケースがあります。
 
+本プロジェクトは、既存Java業務システムの保守・改修を想定し、あえてSpring BootではなくSpring Framework 4.x / Spring MVC / JSP / WAR構成で実装しています。新規開発での推奨構成を示すものではなく、既存業務システムに近い構成で設計・実装・保守の流れを確認するための構成です。
+
 このプロジェクトでは、既存のJava業務システムで採用される構成を前提に、以下を実現することを目的とします。
 
 - Spring MVCによるWebアプリケーション構成
@@ -237,7 +239,9 @@ work-report-system/
 - `ExcelReportService` でApache POIによるセル操作を行う
 - 出力ファイルは `generated-reports/` 配下に保存する想定とする
 - 作成履歴をDBに登録し、後から再ダウンロードできるようにする
-- ファイル名は保存前に安全な文字へ変換し、再ダウンロード時も `generated-reports/` 配下のファイルだけを読み込む
+- ファイル名は保存前に安全な文字へ変換し、履歴IDを含めて同一年月・同一社員の再出力でも物理ファイルが上書きされないようにする
+- ファイル保存時は既存ファイルを上書きせず、再ダウンロード時も `generated-reports/` 配下のファイルだけを読み込む
+- 月次報告書の集計条件は内部的に `user_id` を使用し、部署名・社員名は表示用として扱う
 - 一般ユーザーは自分の月次報告書と帳票作成履歴のみ扱い、管理者は全ユーザー分を確認できる
 - セル位置や帳票レイアウトの変更に備え、定数化や設定化を検討する
 
@@ -473,7 +477,7 @@ docker compose up -d oracle-db
 - 帳票作成履歴は `GET /report-histories` で検索、`GET /report-histories/{id}` で詳細確認、`GET /report-histories/{id}/download` で再ダウンロード
 - 月次報告書出力では、開始時に帳票履歴を `PROCESSING` で登録し、成功時は `SUCCESS`、失敗時は `ERROR` へ更新する
 
-DB接続情報は環境変数で上書きできる開発用デフォルト値を持ちます。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点では `DriverManagerDataSource` を使用していますが、運用環境ではアプリケーションサーバーまたは接続プール設定でコネクション管理を行う想定です。
+DB接続情報は環境変数で上書きできる開発用デフォルト値を持ちます。運用環境では環境変数、JNDI、外部設定ファイルなどに外部化し、アプリケーションの配布物に接続先・認証情報を固定しない方針とします。コード提出時点のローカル起動設定では `DriverManagerDataSource` を使用していますが、Tomcat運用向けのJNDI DataSource例を `src/main/webapp/WEB-INF/spring/datasource-jndi-example.xml` に用意しています。
 
 ## 15. 設計・実装ポイント
 

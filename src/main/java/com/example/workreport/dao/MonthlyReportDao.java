@@ -50,8 +50,7 @@ public class MonthlyReportDao {
         sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
         sql.append("WHERE wr.work_date >= :dateFrom ");
         sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND d.department_name = :departmentName ");
-        sql.append("  AND u.employee_name = :employeeName ");
+        sql.append("  AND wr.user_id = :userId ");
 
         return namedParameterJdbcTemplate.queryForObject(sql.toString(), createParams(condition), new SummaryRowMapper());
     }
@@ -67,8 +66,7 @@ public class MonthlyReportDao {
         sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
         sql.append("WHERE wr.work_date >= :dateFrom ");
         sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND d.department_name = :departmentName ");
-        sql.append("  AND u.employee_name = :employeeName ");
+        sql.append("  AND wr.user_id = :userId ");
         sql.append("GROUP BY wr.work_category ");
         sql.append("ORDER BY wr.work_category ");
 
@@ -90,8 +88,7 @@ public class MonthlyReportDao {
         sql.append("INNER JOIN departments d ON wr.department_id = d.department_id ");
         sql.append("WHERE wr.work_date >= :dateFrom ");
         sql.append("  AND wr.work_date <= :dateTo ");
-        sql.append("  AND d.department_name = :departmentName ");
-        sql.append("  AND u.employee_name = :employeeName ");
+        sql.append("  AND wr.user_id = :userId ");
         sql.append("ORDER BY wr.work_date, wr.work_report_id ");
 
         return namedParameterJdbcTemplate.query(sql.toString(), createParams(condition), new DailyDetailRowMapper());
@@ -102,8 +99,7 @@ public class MonthlyReportDao {
                 .addValue("targetYearMonth", condition.getTargetYearMonth())
                 .addValue("dateFrom", condition.getDateFrom())
                 .addValue("dateTo", condition.getDateTo())
-                .addValue("departmentName", condition.getDepartmentName())
-                .addValue("employeeName", condition.getEmployeeName());
+                .addValue("userId", condition.getUserId());
     }
 
     private static class SummaryRowMapper implements RowMapper<MonthlyReportSummaryDto> {

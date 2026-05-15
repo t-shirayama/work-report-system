@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,7 @@ public class ReportHistoryService {
         if (!reportPath.startsWith(reportDir)) {
             throw new IOException("Invalid report path: " + reportPath);
         }
-        Files.write(reportPath, reportFile.getContent());
+        Files.write(reportPath, reportFile.getContent(), StandardOpenOption.CREATE_NEW);
         return reportPath;
     }
 
