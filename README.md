@@ -201,6 +201,19 @@ work-report-system/
 
 トップ画面が表示されれば、DispatcherServlet、Controller、ViewResolver、JSP、静的CSSの最小疎通は成功です。
 
+簡易ログイン機能の確認は、サンプルデータ投入後に以下へアクセスします。
+
+```text
+http://localhost:8080/work-report-system/login
+```
+
+サンプルユーザー例は以下です。
+
+| ログインID | パスワード |
+|---|---|
+| `admin` | `password` |
+| `sato` | `password` |
+
 ## 14. Tomcat 8.5での実行方法
 
 実装後は、STS上でTomcat 8.5 Server Runtimeを設定し、Maven WARプロジェクトとしてTomcatへ追加して起動します。
@@ -222,6 +235,10 @@ Dockerを使用する場合は、開発用のOracle Database FreeまたはOracle
 - `src/main/webapp/WEB-INF/spring/applicationContext.xml` は、将来のDB接続、トランザクション、Service/DAO共通設定の追加場所として用意
 - `GET /home` は `HomeController` が受け取り、`/WEB-INF/views/home.jsp` を表示
 - CSSは `/resources/css/common.css` として配信
+- `GET /login`、`POST /login`、`GET /dashboard`、`GET/POST /logout` による簡易ログイン機能を実装
+- ログイン成功時はHTTPセッションにログインユーザーを保存し、ログアウト時にセッションを破棄
+
+現在のログイン機能はポートフォリオ用の簡易実装です。サンプルデータでは平文パスワードを使用していますが、本番では必ずパスワードをハッシュ化して保存・照合する必要があります。
 
 ## 15. 学習ポイント
 
