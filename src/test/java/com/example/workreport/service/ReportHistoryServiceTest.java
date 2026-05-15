@@ -43,6 +43,33 @@ public class ReportHistoryServiceTest {
         Files.deleteIfExists(reportDir);
     }
 
+    @Test(expected = java.io.IOException.class)
+    public void saveReportFileRejectsInvalidTargetYearMonth() throws Exception {
+        ReportHistoryService service = new ReportHistoryService(new ReportHistoryDao(null));
+        MonthlyReportFileDto file = new MonthlyReportFileDto();
+        file.setFileName("report.xlsx");
+        file.setContent(new byte[] {1});
+
+        service.saveReportFile("../202605", file);
+    }
+
+    @Test(expected = java.io.IOException.class)
+    public void saveReportFileRejectsUnsafeFileName() throws Exception {
+        ReportHistoryService service = new ReportHistoryService(new ReportHistoryDao(null));
+        MonthlyReportFileDto file = new MonthlyReportFileDto();
+        file.setFileName("../report.xlsx");
+        file.setContent(new byte[] {1});
+
+        service.saveReportFile("202605", file);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void findAllRejectsMissingLoginUser() {
+        ReportHistoryService service = new ReportHistoryService(new ReportHistoryDao(null));
+
+        service.findAll(null);
+    }
+
     @Test
     public void saveProcessingHistoryCreatesProcessingRow() {
         CapturingReportHistoryDao dao = new CapturingReportHistoryDao();

@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +27,8 @@ import com.example.workreport.util.FileNameUtils;
 
 @Service
 public class MonthlyReportService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonthlyReportService.class);
 
     private static final String ROLE_ADMIN = "ADMIN";
 
@@ -45,6 +49,7 @@ public class MonthlyReportService {
     }
 
     public List<String> validate(MonthlyReportForm form, User loginUser) {
+        requireLoginUser(loginUser);
         List<String> errors = new ArrayList<String>();
 
         if (!StringUtils.hasText(form.getTargetYear())) {
@@ -91,6 +96,7 @@ public class MonthlyReportService {
     }
 
     public MonthlyReportFileDto createReport(MonthlyReportForm form, User loginUser) throws IOException {
+        requireLoginUser(loginUser);
         String targetYearMonth = buildTargetYearMonth(form);
         String fileName = buildFileName(form);
         Path reportPath = null;
@@ -103,12 +109,21 @@ public class MonthlyReportService {
             return file;
         } catch (IOException e) {
             reportHistoryService.deleteReportFile(reportPath);
-            reportHistoryService.updateErrorHistory(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
+            updateErrorHistoryBestEffort(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
             throw e;
         } catch (RuntimeException e) {
             reportHistoryService.deleteReportFile(reportPath);
-            reportHistoryService.updateErrorHistory(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
+            updateErrorHistoryBestEffort(reportOutputHistoryId, targetYearMonth, fileName, e.getMessage());
             throw e;
+        }
+    }
+
+    private void updateErrorHistoryBestEffort(Long reportOutputHistoryId, String targetYearMonth, String fileName, String errorMessage) {
+        try {
+            reportHistoryService.updateErrorHistory(reportOutputHistoryId, targetYearMonth, fileName, errorMessage);
+        } catch (RuntimeException e) {
+            LOGGER.warn("Failed to update error report history. historyId={}, targetYearMonth={}",
+                    reportOutputHistoryId, targetYearMonth, e);
         }
     }
 
@@ -184,5 +199,11 @@ public class MonthlyReportService {
 
     private boolean isAdmin(User user) {
         return user != null && ROLE_ADMIN.equals(user.getRoleCode());
+    }
+
+    private void requireLoginUser(User loginUser) {
+        if (loginUser == null) {
+            throw new IllegalArgumentException("loginUser is required.");
+        }
     }
 }

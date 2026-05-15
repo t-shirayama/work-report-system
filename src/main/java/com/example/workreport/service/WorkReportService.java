@@ -81,6 +81,7 @@ public class WorkReportService {
     }
 
     public void register(WorkReportForm form, User loginUser) {
+        requireLoginUser(loginUser);
         WorkReport workReport = new WorkReport();
         workReport.setUserId(loginUser.getUserId());
         workReport.setDepartmentId(loginUser.getDepartmentId());
@@ -135,10 +136,17 @@ public class WorkReportService {
     }
 
     private Long getSearchUserId(User loginUser) {
-        if (loginUser == null || isAdmin(loginUser)) {
+        requireLoginUser(loginUser);
+        if (isAdmin(loginUser)) {
             return null;
         }
         return loginUser.getUserId();
+    }
+
+    private void requireLoginUser(User loginUser) {
+        if (loginUser == null) {
+            throw new IllegalArgumentException("loginUser is required.");
+        }
     }
 
     private boolean isAdmin(User user) {

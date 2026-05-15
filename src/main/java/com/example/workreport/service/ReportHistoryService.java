@@ -45,6 +45,7 @@ public class ReportHistoryService {
     }
 
     public List<ReportHistoryDto> findAll(User loginUser) {
+        requireLoginUser(loginUser);
         if (isAdmin(loginUser)) {
             return reportHistoryDao.findAll();
         }
@@ -52,6 +53,7 @@ public class ReportHistoryService {
     }
 
     public List<ReportHistoryDto> search(ReportHistorySearchForm form, User loginUser) {
+        requireLoginUser(loginUser);
         if (form == null) {
             return findAll(loginUser);
         }
@@ -62,6 +64,7 @@ public class ReportHistoryService {
     }
 
     public ReportHistoryDto findById(Long reportOutputHistoryId, User loginUser) {
+        requireLoginUser(loginUser);
         ReportHistoryDto history = reportHistoryDao.findById(reportOutputHistoryId);
         if (history == null) {
             return null;
@@ -188,5 +191,11 @@ public class ReportHistoryService {
 
     private boolean isAdmin(User user) {
         return user != null && ROLE_ADMIN.equals(user.getRoleCode());
+    }
+
+    private void requireLoginUser(User loginUser) {
+        if (loginUser == null) {
+            throw new IllegalArgumentException("loginUser is required.");
+        }
     }
 }

@@ -36,6 +36,13 @@ public class WorkReportServiceTest {
         assertNull(dao.userId);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void searchRejectsMissingLoginUser() {
+        WorkReportService service = new WorkReportService(new CapturingWorkReportDao());
+
+        service.search(new WorkReportSearchForm(), null);
+    }
+
     @Test
     public void validateDetectsRequiredFields() {
         WorkReportService service = new WorkReportService(new CapturingWorkReportDao());
