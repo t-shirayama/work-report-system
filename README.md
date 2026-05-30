@@ -206,9 +206,21 @@ work-report-system/
     walkthrough/
       code-walkthrough.md
     designs/
+  replacement-plan/
+    README.md
+    01-current-state.md
+    02-target-architecture.md
+    03-data-migration.md
+    04-api-design.md
+    05-frontend-migration.md
+    06-reporting-migration.md
+    07-test-release-rollback.md
+    08-decisions-risks.md
 ```
 
 `docs/` 配下の各Markdownファイルは、設計、実装方針、運用手順を機能別に整理しています。索引は `docs/README.md` です。
+
+React、C# ASP.NET Core Web API、SQL Serverへのリプレイス計画は `replacement-plan/README.md` から整理します。
 
 ## 11. DB設計概要
 

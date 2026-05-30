@@ -20,6 +20,14 @@ Markdownファイルはカテゴリ別のサブディレクトリに配置して
 
 ## カテゴリ別一覧
 
+### replacement-plan
+
+React、C# ASP.NET Core Web API、SQL Serverへのリプレイス計画は、ルート直下の [`replacement-plan/README.md`](../replacement-plan/README.md) から参照します。
+
+| ドキュメント | 内容 |
+|---|---|
+| [リプレイス計画書](../replacement-plan/README.md) | 現行Spring MVC / JSP / Oracle構成からReact / ASP.NET Core Web API / SQL Server構成へ移行するための計画書索引 |
+
 ### project
 
 プロジェクト全体の前提、固定技術、実装時の判断基準を整理した資料です。
