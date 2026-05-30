@@ -216,6 +216,8 @@ work-report-system/
     06-reporting-migration.md
     07-test-release-rollback.md
     08-decisions-risks.md
+    09-api-processing-flow.md
+    10-backend-layer-sequence.md
 ```
 
 `docs/` 配下の各Markdownファイルは、設計、実装方針、運用手順を機能別に整理しています。索引は `docs/README.md` です。

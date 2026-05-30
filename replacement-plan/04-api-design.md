@@ -9,6 +9,8 @@
 - ExcelダウンロードはBlobレスポンスとして扱います。
 - エラー形式を統一し、React側で表示しやすくします。
 
+主要APIの処理順序は [09-api-processing-flow.md](09-api-processing-flow.md) にMermaidで整理します。
+
 ## 認証API
 
 | Method | Path | 内容 |

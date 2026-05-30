@@ -42,6 +42,8 @@
 | [06-reporting-migration.md](06-reporting-migration.md) | Excel帳票出力、履歴保存、再ダウンロードの移行計画 |
 | [07-test-release-rollback.md](07-test-release-rollback.md) | テスト、リリース、並行稼働、ロールバック計画 |
 | [08-decisions-risks.md](08-decisions-risks.md) | 未決事項、リスク、移行チェックリスト |
+| [09-api-processing-flow.md](09-api-processing-flow.md) | Mermaidで整理した主要API処理フロー |
+| [10-backend-layer-sequence.md](10-backend-layer-sequence.md) | バックエンド内部のレイヤ別Mermaidシーケンス図 |
 
 ## 推奨移行順序
 
