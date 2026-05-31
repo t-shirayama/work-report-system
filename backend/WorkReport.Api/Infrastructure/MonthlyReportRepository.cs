@@ -39,7 +39,11 @@ public sealed class MonthlyReportRepository(SqlConnectionFactory connectionFacto
             """;
 
         await using var connection = connectionFactory.Create();
-        var user = await connection.QuerySingleAsync<MonthlyReportUser>(userSql, new { targetUserId });
+        var user = await connection.QuerySingleOrDefaultAsync<MonthlyReportUser>(userSql, new { targetUserId });
+        if (user is null)
+        {
+            throw new KeyNotFoundException("対象ユーザーが見つかりません。");
+        }
         var details = (await connection.QueryAsync<MonthlyReportDetail>(
             detailsSql,
             new { targetUserId, targetYearMonth })).AsList();

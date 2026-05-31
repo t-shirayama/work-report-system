@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 using WorkReport.Api.Contracts;
 using WorkReport.Api.Infrastructure;
 using WorkReport.Api.Reporting;
@@ -10,6 +11,23 @@ public sealed class MonthlyReportService(
     ReportHistoryRepository reportHistoryRepository,
     IOptions<ReportStorageOptions> storageOptions)
 {
+    public static IReadOnlyList<string> ValidateExport(MonthlyReportExportRequest request)
+    {
+        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(request.TargetYearMonth) ||
+            !Regex.IsMatch(request.TargetYearMonth, "^[0-9]{6}$"))
+        {
+            errors.Add("対象年月は6桁の年月で入力してください。");
+        }
+
+        if (request.TargetUserId <= 0)
+        {
+            errors.Add("対象者を選択してください。");
+        }
+
+        return errors;
+    }
+
     public async Task<ReportFileResult> ExportAsync(MonthlyReportExportRequest request, CurrentUser currentUser)
     {
         if (!currentUser.IsAdmin && request.TargetUserId != currentUser.UserId)

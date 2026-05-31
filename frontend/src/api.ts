@@ -88,12 +88,18 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  login: (loginId: string, password: string) =>
-    request<User>("/auth/login", {
+  login: async (loginId: string, password: string) => {
+    const user = await request<User>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ loginId, password })
-    }),
-  logout: () => request<void>("/auth/logout", { method: "POST" }),
+    });
+    csrfToken = "";
+    return user;
+  },
+  logout: async () => {
+    await request<void>("/auth/logout", { method: "POST" });
+    csrfToken = "";
+  },
   me: () => request<User>("/auth/me"),
   dashboard: () => request<Dashboard>("/dashboard"),
   targetUsers: () => request<User[]>("/monthly-reports/target-users"),

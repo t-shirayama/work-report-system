@@ -94,10 +94,22 @@ npm run dev
 dotnet test WorkReport.slnx
 ```
 
+SQL Serverコンテナを使うAPI結合テストだけを実行する場合:
+
+```powershell
+dotnet test backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.csproj
+```
+
+Dockerが起動していない環境では、結合テストはスキップされます。
+
 ```powershell
 cd frontend
 npm run build
+npm run test
+npm run test:e2e
 ```
+
+`npm run test:e2e` は、APIが `http://localhost:5000/api` で起動済みで、テスト用SQL Serverデータが投入されている前提です。
 
 ## ドキュメント
 
@@ -106,4 +118,5 @@ npm run build
 - [API設計](docs/api.md)
 - [DB設計](docs/database.md)
 - [テスト方針](docs/testing.md)
+- [ITテストケース一覧](docs/integration-test-cases.md)
 - [運用メモ](docs/operations.md)

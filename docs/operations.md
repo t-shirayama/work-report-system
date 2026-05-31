@@ -27,6 +27,22 @@ cd frontend
 npm run dev
 ```
 
+## 結合テスト環境
+
+API結合テストは Testcontainers がSQL Serverコンテナを起動します。事前にDocker Desktopを起動してください。
+
+```powershell
+dotnet test backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.csproj
+```
+
+フロントE2EはAPIとDBを事前に起動してから実行します。
+
+```powershell
+dotnet run --project backend/WorkReport.Api/WorkReport.Api.csproj --urls http://localhost:5000
+cd frontend
+npm run test:e2e
+```
+
 ## 帳票保存
 
 月次帳票は `ReportStorage:BasePath` 配下に保存します。既定値は `generated-reports` です。

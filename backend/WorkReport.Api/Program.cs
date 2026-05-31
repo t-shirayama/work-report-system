@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using WorkReport.Api.Application;
@@ -18,7 +19,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(origins)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition");
     });
 });
 builder.Services.AddAntiforgery(options =>
@@ -37,6 +39,11 @@ builder.Services
         options.Events.OnRedirectToLogin = context =>
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
         };
     });
@@ -64,6 +71,24 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseExceptionHandler(exceptionApp =>
+{
+    exceptionApp.Run(async context =>
+    {
+        var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = error switch
+        {
+            BadHttpRequestException => StatusCodes.Status400BadRequest,
+            AntiforgeryValidationException => StatusCodes.Status400BadRequest,
+            UnauthorizedAccessException => StatusCodes.Status403Forbidden,
+            KeyNotFoundException => StatusCodes.Status404NotFound,
+            _ => StatusCodes.Status500InternalServerError
+        };
+        await context.Response.WriteAsJsonAsync(new ErrorResponse([error?.Message ?? "処理に失敗しました。"]));
+    });
+});
 
 app.UseCors("frontend");
 app.UseAuthentication();
@@ -150,6 +175,12 @@ api.MapPost("/monthly-reports/export", async (
     MonthlyReportService service) =>
 {
     await antiforgery.ValidateRequestAsync(http);
+    var errors = MonthlyReportService.ValidateExport(request);
+    if (errors.Count > 0)
+    {
+        return Results.BadRequest(new ErrorResponse(errors));
+    }
+
     var current = CurrentUser.Require(principal);
     var result = await service.ExportAsync(request, current);
     return Results.File(

@@ -7,11 +7,11 @@ SET IDENTITY_INSERT departments OFF;
 
 SET IDENTITY_INSERT users ON;
 INSERT INTO users (user_id, department_id, login_id, password, employee_name, role_code) VALUES
-(1, 1, N'admin', N'$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'管理 太郎', N'ADMIN'),
-(2, 1, N'sato', N'$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'佐藤 花子', N'USER'),
-(3, 1, N'suzuki', N'$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'鈴木 一郎', N'USER'),
-(4, 2, N'tanaka', N'$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'田中 美咲', N'USER'),
-(5, 3, N'yamada', N'$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'山田 健', N'USER');
+(1, 1, N'admin', N'$2a$11$VeSZPhBiJhqgc5Dqqj34Fu/zDFw77Mq8BMnCVx2/HXzPEvNCFK6be', N'管理 太郎', N'ADMIN'),
+(2, 1, N'sato', N'$2a$11$VeSZPhBiJhqgc5Dqqj34Fu/zDFw77Mq8BMnCVx2/HXzPEvNCFK6be', N'佐藤 花子', N'USER'),
+(3, 1, N'suzuki', N'$2a$11$VeSZPhBiJhqgc5Dqqj34Fu/zDFw77Mq8BMnCVx2/HXzPEvNCFK6be', N'鈴木 一郎', N'USER'),
+(4, 2, N'tanaka', N'$2a$11$VeSZPhBiJhqgc5Dqqj34Fu/zDFw77Mq8BMnCVx2/HXzPEvNCFK6be', N'田中 美咲', N'USER'),
+(5, 3, N'yamada', N'$2a$11$VeSZPhBiJhqgc5Dqqj34Fu/zDFw77Mq8BMnCVx2/HXzPEvNCFK6be', N'山田 健', N'USER');
 SET IDENTITY_INSERT users OFF;
 
 SET IDENTITY_INSERT work_reports ON;

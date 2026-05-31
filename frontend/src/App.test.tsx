@@ -34,7 +34,7 @@ describe("App", () => {
 
   it("logs in and opens the dashboard", async () => {
     vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-      const url = String(input);
+      const url = input instanceof Request ? input.url : String(input);
       if (url.endsWith("/auth/me")) {
         return new Response("", { status: 401 });
       }
@@ -56,7 +56,7 @@ describe("App", () => {
 
     await waitFor(() => expect(screen.getByText("管理 太郎")).toBeInTheDocument());
     expect(screen.getByRole("heading", { name: "ダッシュボード" })).toBeInTheDocument();
-    expect(screen.getByText("12.5h")).toBeInTheDocument();
+    expect(await screen.findByText("12.5h")).toBeInTheDocument();
   });
 });
 
