@@ -31,6 +31,22 @@ export type WorkReportResult = {
   workContent: string;
 };
 
+export type Department = {
+  departmentId: number;
+  departmentCode: string;
+  departmentName: string;
+  displayOrder: number;
+};
+
+export type MasterUser = {
+  userId: number;
+  departmentId: number;
+  departmentName: string;
+  loginId: string;
+  employeeName: string;
+  roleCode: "ADMIN" | "USER";
+};
+
 export type ReportHistory = {
   reportOutputHistoryId: number;
   targetYearMonth: string;
@@ -103,6 +119,28 @@ export const api = {
   me: () => request<User>("/auth/me"),
   dashboard: () => request<Dashboard>("/dashboard"),
   targetUsers: () => request<User[]>("/monthly-reports/target-users"),
+  departments: () => request<Department[]>("/master/departments"),
+  createDepartment: (payload: unknown) =>
+    request<Department>("/master/departments", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateDepartment: (id: number, payload: unknown) =>
+    request<Department>(`/master/departments/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload)
+    }),
+  masterUsers: () => request<MasterUser[]>("/master/users"),
+  createMasterUser: (payload: unknown) =>
+    request<MasterUser>("/master/users", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateMasterUser: (id: number, payload: unknown) =>
+    request<MasterUser>(`/master/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload)
+    }),
   registerWorkReport: (payload: unknown) =>
     request<{ workReportId: number }>("/work-reports", {
       method: "POST",

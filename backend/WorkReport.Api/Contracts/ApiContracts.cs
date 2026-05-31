@@ -12,6 +12,39 @@ public sealed record UserResponse(
     string EmployeeName,
     string RoleCode);
 
+public sealed record DepartmentResponse(
+    int DepartmentId,
+    string DepartmentCode,
+    string DepartmentName,
+    int DisplayOrder);
+
+public sealed record DepartmentUpsertRequest(
+    string? DepartmentCode,
+    string? DepartmentName,
+    int? DisplayOrder);
+
+public sealed record MasterUserResponse(
+    int UserId,
+    int DepartmentId,
+    string DepartmentName,
+    string LoginId,
+    string EmployeeName,
+    string RoleCode);
+
+public sealed record MasterUserCreateRequest(
+    int? DepartmentId,
+    string? LoginId,
+    string? Password,
+    string? EmployeeName,
+    string? RoleCode);
+
+public sealed record MasterUserUpdateRequest(
+    int? DepartmentId,
+    string? LoginId,
+    string? Password,
+    string? EmployeeName,
+    string? RoleCode);
+
 public sealed record ErrorResponse(IReadOnlyList<string> Errors);
 
 public sealed record DashboardResponse(

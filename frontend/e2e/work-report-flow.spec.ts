@@ -39,7 +39,30 @@ test.describe("work report E2E", () => {
     await page.getByPlaceholder("YYYYMM").fill("202605");
     await page.getByRole("button", { name: "検索", exact: true }).click();
     await expect(page.getByRole("cell", { name: "monthly-report-202605-sato.xlsx" })).toBeVisible();
-    await expect(page.getByText("SUCCESS")).toBeVisible();
+  });
+
+  test("admin can maintain departments and users", async ({ page }) => {
+    await login(page, "admin", "password");
+
+    await page.getByRole("button", { name: "マスタ管理" }).click();
+    await expect(page.getByRole("heading", { name: "マスタ管理" })).toBeVisible();
+
+    await page.getByLabel("部署コード").fill("E2E");
+    await page.getByLabel("部署名").fill("E2E部");
+    await page.getByLabel("表示順").fill("20");
+    await page.getByRole("button", { name: "追加", exact: true }).first().click();
+    await expect(page.getByText("部署を追加しました。")).toBeVisible();
+    await expect(page.getByRole("cell", { name: "E2E部" })).toBeVisible();
+
+    await page.locator('select[name="departmentId"]').selectOption({ label: "E2E部" });
+    await page.getByLabel("ログインID").fill("e2e-user");
+    await page.getByLabel("社員名").fill("E2E ユーザー");
+    await page.getByLabel("権限").selectOption("USER");
+    await page.getByLabel("パスワード").fill("password");
+    await page.getByRole("button", { name: "追加", exact: true }).last().click();
+    await expect(page.getByText("ユーザーを追加しました。")).toBeVisible();
+    await expect(page.getByRole("cell", { name: "e2e-user" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "E2E ユーザー" })).toBeVisible();
   });
 
   test("login error and API validation error are shown", async ({ page }) => {

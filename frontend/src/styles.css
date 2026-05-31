@@ -85,6 +85,7 @@ button {
 
 .nav button,
 .primary,
+.secondary,
 .iconButton {
   border: 0;
   display: inline-flex;
@@ -262,6 +263,36 @@ textarea {
   background: #a94333;
 }
 
+.secondary {
+  min-height: 40px;
+  padding: 0 14px;
+  color: #263640;
+  background: #eef3f7;
+  border: 1px solid #c8d3dd;
+  font-weight: 700;
+}
+
+.secondary:hover {
+  background: #dde7ef;
+}
+
+.secondary.compact {
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.masterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .alert,
 .success {
   padding: 12px 14px;
@@ -280,6 +311,10 @@ textarea {
   color: #1d4e34;
   background: #e6f4eb;
   border: 1px solid #a9d5b8;
+}
+
+.success.standalone {
+  margin-bottom: 0;
 }
 
 .activityList {
@@ -398,7 +433,8 @@ th {
 
   .metrics,
   .formGrid,
-  .filters {
+  .filters,
+  .masterGrid {
     grid-template-columns: 1fr;
   }
 

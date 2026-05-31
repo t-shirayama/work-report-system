@@ -60,10 +60,12 @@ builder.Services.AddScoped<DashboardRepository>();
 builder.Services.AddScoped<WorkReportRepository>();
 builder.Services.AddScoped<MonthlyReportRepository>();
 builder.Services.AddScoped<ReportHistoryRepository>();
+builder.Services.AddScoped<MasterDataRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<WorkReportService>();
 builder.Services.AddScoped<MonthlyReportService>();
+builder.Services.AddScoped<MasterDataService>();
 
 var app = builder.Build();
 
@@ -214,6 +216,72 @@ api.MapGet("/report-histories/{id:int}/download", async (int id, MonthlyReportSe
             result.FileName);
 }).RequireAuthorization();
 
+var master = api.MapGroup("/master").RequireAuthorization("Admin");
+
+master.MapGet("/departments", async (MasterDataService service) =>
+    Results.Ok(await service.FindDepartmentsAsync()));
+
+master.MapPost("/departments", async (
+    HttpContext http,
+    IAntiforgery antiforgery,
+    DepartmentUpsertRequest request,
+    MasterDataService service) =>
+{
+    await antiforgery.ValidateRequestAsync(http);
+    var result = await service.CreateDepartmentAsync(request);
+    return ToMasterResult(result, value => Results.Created($"/api/master/departments/{value.DepartmentId}", value));
+});
+
+master.MapPut("/departments/{id:int}", async (
+    int id,
+    HttpContext http,
+    IAntiforgery antiforgery,
+    DepartmentUpsertRequest request,
+    MasterDataService service) =>
+{
+    await antiforgery.ValidateRequestAsync(http);
+    var result = await service.UpdateDepartmentAsync(id, request);
+    return ToMasterResult(result, Results.Ok);
+});
+
+master.MapGet("/users", async (MasterDataService service) =>
+    Results.Ok(await service.FindUsersAsync()));
+
+master.MapPost("/users", async (
+    HttpContext http,
+    IAntiforgery antiforgery,
+    MasterUserCreateRequest request,
+    MasterDataService service) =>
+{
+    await antiforgery.ValidateRequestAsync(http);
+    var result = await service.CreateUserAsync(request);
+    return ToMasterResult(result, value => Results.Created($"/api/master/users/{value.UserId}", value));
+});
+
+master.MapPut("/users/{id:int}", async (
+    int id,
+    HttpContext http,
+    IAntiforgery antiforgery,
+    MasterUserUpdateRequest request,
+    MasterDataService service) =>
+{
+    await antiforgery.ValidateRequestAsync(http);
+    var result = await service.UpdateUserAsync(id, request);
+    return ToMasterResult(result, Results.Ok);
+});
+
 app.Run();
+
+static IResult ToMasterResult<T>(MasterResult<T> result, Func<T, IResult> success)
+{
+    if (result.Missing)
+    {
+        return Results.NotFound();
+    }
+
+    return result.Errors.Count > 0
+        ? Results.BadRequest(new ErrorResponse(result.Errors))
+        : success(result.Value!);
+}
 
 public partial class Program;

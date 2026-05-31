@@ -7,11 +7,20 @@ import {
   Plus,
   Search,
   Send,
+  Settings,
   UserRound
 } from "lucide-react";
-import { api, Dashboard, ReportHistory, User, WorkReportResult } from "./api";
+import {
+  api,
+  Dashboard,
+  Department,
+  MasterUser,
+  ReportHistory,
+  User,
+  WorkReportResult
+} from "./api";
 
-type View = "dashboard" | "register" | "search" | "reports" | "histories";
+type View = "dashboard" | "register" | "search" | "reports" | "histories" | "masters";
 
 const categories = [
   ["DESIGN", "設計"],
@@ -48,7 +57,10 @@ export default function App() {
     { id: "register" as const, label: "日報登録", icon: Plus },
     { id: "search" as const, label: "実績検索", icon: Search },
     { id: "reports" as const, label: "帳票出力", icon: Download },
-    { id: "histories" as const, label: "履歴", icon: FileClock }
+    { id: "histories" as const, label: "履歴", icon: FileClock },
+    ...(user.roleCode === "ADMIN"
+      ? [{ id: "masters" as const, label: "マスタ管理", icon: Settings }]
+      : [])
   ];
 
   return (
@@ -98,6 +110,7 @@ export default function App() {
         {view === "search" && <SearchView setError={setError} />}
         {view === "reports" && <ReportExportView user={user} setError={setError} />}
         {view === "histories" && <HistoriesView setError={setError} />}
+        {view === "masters" && <MasterView setError={setError} />}
       </main>
     </div>
   );
@@ -426,6 +439,246 @@ function HistoriesView({ setError }: { setError: (error: string) => void }) {
   );
 }
 
+function MasterView({ setError }: { setError: (error: string) => void }) {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [users, setUsers] = useState<MasterUser[]>([]);
+  const [departmentEditing, setDepartmentEditing] = useState<Department | null>(null);
+  const [userEditing, setUserEditing] = useState<MasterUser | null>(null);
+  const [message, setMessage] = useState("");
+
+  async function load() {
+    setError("");
+    try {
+      const [nextDepartments, nextUsers] = await Promise.all([
+        api.departments(),
+        api.masterUsers()
+      ]);
+      setDepartments(nextDepartments);
+      setUsers(nextUsers);
+    } catch (error) {
+      setError(messageOf(error));
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function submitDepartment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const payload = {
+      departmentCode: String(form.get("departmentCode") ?? ""),
+      departmentName: String(form.get("departmentName") ?? ""),
+      displayOrder: Number(form.get("displayOrder") || 0)
+    };
+    setError("");
+    setMessage("");
+    try {
+      if (departmentEditing) {
+        await api.updateDepartment(departmentEditing.departmentId, payload);
+        setMessage("部署を更新しました。");
+      } else {
+        await api.createDepartment(payload);
+        setMessage("部署を追加しました。");
+      }
+      setDepartmentEditing(null);
+      formElement.reset();
+      await load();
+    } catch (error) {
+      setError(messageOf(error));
+    }
+  }
+
+  async function submitUser(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const payload = {
+      departmentId: Number(form.get("departmentId")),
+      loginId: String(form.get("loginId") ?? ""),
+      password: String(form.get("password") ?? ""),
+      employeeName: String(form.get("employeeName") ?? ""),
+      roleCode: String(form.get("roleCode") ?? "")
+    };
+    setError("");
+    setMessage("");
+    try {
+      if (userEditing) {
+        await api.updateMasterUser(userEditing.userId, payload);
+        setMessage("ユーザーを更新しました。");
+      } else {
+        await api.createMasterUser(payload);
+        setMessage("ユーザーを追加しました。");
+      }
+      setUserEditing(null);
+      formElement.reset();
+      await load();
+    } catch (error) {
+      setError(messageOf(error));
+    }
+  }
+
+  return (
+    <section className="stack">
+      {message && <div className="success standalone">{message}</div>}
+      <div className="masterGrid">
+        <form className="panel formGrid" onSubmit={submitDepartment} key={departmentEditing?.departmentId ?? "department-new"}>
+          <h2 className="wide">{departmentEditing ? "部署編集" : "部署追加"}</h2>
+          <label>
+            部署コード
+            <input
+              name="departmentCode"
+              defaultValue={departmentEditing?.departmentCode ?? ""}
+              maxLength={20}
+              required
+            />
+          </label>
+          <label>
+            部署名
+            <input
+              name="departmentName"
+              defaultValue={departmentEditing?.departmentName ?? ""}
+              maxLength={100}
+              required
+            />
+          </label>
+          <label>
+            表示順
+            <input
+              name="displayOrder"
+              type="number"
+              min="0"
+              defaultValue={departmentEditing?.displayOrder ?? 0}
+              required
+            />
+          </label>
+          <div className="buttonRow">
+            <button className="primary">
+              <Send size={18} />
+              <span>{departmentEditing ? "更新" : "追加"}</span>
+            </button>
+            {departmentEditing && (
+              <button type="button" className="secondary" onClick={() => setDepartmentEditing(null)}>
+                取消
+              </button>
+            )}
+          </div>
+        </form>
+
+        <form className="panel formGrid" onSubmit={submitUser} key={userEditing?.userId ?? "user-new"}>
+          <h2 className="wide">{userEditing ? "ユーザー編集" : "ユーザー追加"}</h2>
+          <label>
+            部署
+            <select name="departmentId" defaultValue={userEditing?.departmentId ?? departments[0]?.departmentId} required>
+              {departments.map((department) => (
+                <option value={department.departmentId} key={department.departmentId}>
+                  {department.departmentName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            ログインID
+            <input name="loginId" defaultValue={userEditing?.loginId ?? ""} maxLength={50} required />
+          </label>
+          <label>
+            社員名
+            <input name="employeeName" defaultValue={userEditing?.employeeName ?? ""} maxLength={100} required />
+          </label>
+          <label>
+            権限
+            <select name="roleCode" defaultValue={userEditing?.roleCode ?? "USER"}>
+              <option value="USER">一般ユーザー</option>
+              <option value="ADMIN">管理者</option>
+            </select>
+          </label>
+          <label className="wide">
+            パスワード
+            <input
+              name="password"
+              type="password"
+              minLength={8}
+              placeholder={userEditing ? "変更する場合のみ入力" : ""}
+              required={!userEditing}
+            />
+          </label>
+          <div className="buttonRow">
+            <button className="primary">
+              <Send size={18} />
+              <span>{userEditing ? "更新" : "追加"}</span>
+            </button>
+            {userEditing && (
+              <button type="button" className="secondary" onClick={() => setUserEditing(null)}>
+                取消
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="panel tableWrap">
+        <h2>部署一覧</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>コード</th>
+              <th>部署名</th>
+              <th>表示順</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {departments.map((department) => (
+              <tr key={department.departmentId}>
+                <td>{department.departmentCode}</td>
+                <td>{department.departmentName}</td>
+                <td>{department.displayOrder}</td>
+                <td>
+                  <button className="secondary compact" onClick={() => setDepartmentEditing(department)}>
+                    編集
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="panel tableWrap">
+        <h2>ユーザー一覧</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ログインID</th>
+              <th>社員名</th>
+              <th>部署</th>
+              <th>権限</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((masterUser) => (
+              <tr key={masterUser.userId}>
+                <td>{masterUser.loginId}</td>
+                <td>{masterUser.employeeName}</td>
+                <td>{masterUser.departmentName}</td>
+                <td>{masterUser.roleCode}</td>
+                <td>
+                  <button className="secondary compact" onClick={() => setUserEditing(masterUser)}>
+                    編集
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function Metric({ label, value, tone = "blue" }: { label: string; value: string; tone?: string }) {
   return (
     <div className={`metric ${tone}`}>
@@ -488,6 +741,8 @@ function titleFor(view: View) {
       return "月次報告書出力";
     case "histories":
       return "帳票作成履歴";
+    case "masters":
+      return "マスタ管理";
     default:
       return "ダッシュボード";
   }

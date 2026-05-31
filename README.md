@@ -26,9 +26,9 @@ work-report-system/
     WorkReport.Tests/      xUnit tests
   frontend/                React SPA
   database/
-    sqlserver/             DDL and seed data
+    sqlserver/             DDL, seed data, DB init script
   docs/                    Architecture and operation docs
-  docker-compose.yml       SQL Server for local development
+  docker-compose.yml       App, API, SQL Server for local development
   WorkReport.slnx          .NET solution
 ```
 
@@ -42,39 +42,70 @@ work-report-system/
 - 月次報告書Excel出力
 - 帳票作成履歴検索
 - 作成済み帳票の再ダウンロード
+- 部署、ユーザーのマスタ管理
 
 ## ローカル起動
 
-### 1. SQL Server
+### 1. Docker Compose
 
-```powershell
-docker compose up -d
+```sh
+docker compose up -d --build
 ```
 
-`WorkReport` データベースを作成し、以下の順でSQLを実行します。
+以下がすべてDocker上で起動します。
 
-```text
-database/sqlserver/schema.sql
-database/sqlserver/seed.sql
-```
+| Service | URL / 役割 |
+|---|---|
+| `frontend` | `http://localhost:5173` |
+| `backend` | `http://localhost:5000/api` |
+| `sqlserver` | `localhost:1433` |
+| `db-init` | `WorkReport` DB作成、DDL/seed投入 |
 
-既定の接続文字列は [appsettings.json](backend/WorkReport.Api/appsettings.json) にあります。
+`db-init` は `departments` テーブルが存在しない場合だけ `schema.sql` と `seed.sql` を投入します。既に初期化済みのDBはスキップします。
 
-### 2. API
+初期データは `DB_SEED_MODE` で切り替えます。
 
-```powershell
-dotnet run --project backend/WorkReport.Api/WorkReport.Api.csproj --urls http://localhost:5000
-```
+| 値 | 内容 |
+|---|---|
+| `sample` | 部署、ユーザー、日報、帳票履歴のサンプルを投入 |
+| `empty` | 管理者ログインに必要な最小マスタだけ投入 |
+| `none` | DDLのみ投入 |
 
-### 3. フロントエンド
+例:
 
-```powershell
-cd frontend
-npm install
-npm run dev
+```sh
+DB_SEED_MODE=empty docker compose up -d --build
 ```
 
 ブラウザで `http://localhost:5173` を開きます。
+
+### 2. データリセット
+
+現在の `WorkReport` DBを作り直し、`DB_SEED_MODE` に応じた初期データを再投入します。
+
+```sh
+docker compose --profile reset run --rm db-reset
+docker compose up -d --build
+```
+
+初期データなし相当でリセットする場合:
+
+```sh
+DB_SEED_MODE=empty docker compose --profile reset run --rm db-reset
+docker compose up -d --build
+```
+
+### 3. 停止
+
+```sh
+docker compose down
+```
+
+DBデータと帳票ファイルのDocker volumeも削除して初期状態へ戻す場合:
+
+```sh
+docker compose down -v
+```
 
 ## サンプルアカウント
 
@@ -90,19 +121,19 @@ npm run dev
 
 ## 検証
 
-```powershell
+```sh
 dotnet test WorkReport.slnx
 ```
 
 SQL Serverコンテナを使うAPI結合テストだけを実行する場合:
 
-```powershell
+```sh
 dotnet test backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.csproj
 ```
 
 Dockerが起動していない環境では、結合テストはスキップされます。
 
-```powershell
+```sh
 cd frontend
 npm run build
 npm run test

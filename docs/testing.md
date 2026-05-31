@@ -9,7 +9,7 @@
 | `backend/WorkReport.Tests` | UT / API境界の軽量テスト |
 | `backend/WorkReport.IntegrationTests` | SQL Serverコンテナを使うAPI結合テスト |
 
-```powershell
+```sh
 dotnet test WorkReport.slnx
 ```
 
@@ -24,11 +24,11 @@ dotnet test WorkReport.slnx
 
 ### API結合テスト
 
-```powershell
+```sh
 dotnet test backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.csproj
 ```
 
-`WorkReport.IntegrationTests` は Testcontainers で SQL Server 2022 を起動し、`database/sqlserver/schema.sql` と `seed.sql` を適用してから API を検証します。Dockerが起動していない場合は25件すべてスキップします。
+`WorkReport.IntegrationTests` は Testcontainers で SQL Server 2022 を起動し、`database/sqlserver/schema.sql` と `seed.sql` を適用してから API を検証します。Dockerが起動していない場合は30件すべてスキップします。
 
 詳細ケースは [ITテストケース一覧](integration-test-cases.md) にまとめています。
 
@@ -41,10 +41,11 @@ dotnet test backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.cspr
 | `DashboardIntegrationTests` | 集計値取得、最近の活動の降順 |
 | `MonthlyReportsIntegrationTests` | USER自分の帳票出力、ADMIN任意ユーザー出力、他人出力拒否、不正年月、存在しないユーザー、明細0件、再DL404 |
 | `ReportHistoriesIntegrationTests` | 履歴検索条件、履歴詳細、存在しない履歴404 |
+| `MasterDataIntegrationTests` | 部署/ユーザーの追加更新、一般ユーザーの拒否、入力エラー、重複エラー、存在しないID更新 |
 
 ## フロントエンド
 
-```powershell
+```sh
 cd frontend
 npm run test
 npm run build
@@ -61,7 +62,7 @@ npm run build
 
 ### E2E
 
-```powershell
+```sh
 cd frontend
 npm run test:e2e
 ```
@@ -74,6 +75,7 @@ E2Eは Playwright で実行します。APIが `http://localhost:5000/api` で起
 |---|---|
 | `work-report-flow.spec.ts` | 一般ユーザーのログイン、ダッシュボード表示、日報登録、検索反映 |
 | `work-report-flow.spec.ts` | 管理者の帳票出力、ダウンロード、履歴表示 |
+| `work-report-flow.spec.ts` | 管理者の部署追加、ユーザー追加 |
 | `work-report-flow.spec.ts` | ログイン失敗表示、API入力エラー表示 |
 
 ## DB確認

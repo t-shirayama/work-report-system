@@ -50,6 +50,20 @@ public sealed class ApiClient(HttpClient client)
     public async Task<HttpResponseMessage> PostJsonWithoutCsrfAsync<T>(string path, T payload)
         => await client.PostAsJsonAsync(path, payload);
 
+    public async Task<HttpResponseMessage> PutJsonWithCsrfAsync<T>(
+        string path,
+        T payload,
+        string? csrf = null)
+    {
+        csrf ??= await GetCsrfAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Put, path)
+        {
+            Content = JsonContent.Create(payload)
+        };
+        request.Headers.Add("X-CSRF-TOKEN", csrf);
+        return await client.SendAsync(request);
+    }
+
     public async Task<JsonElement> ReadJsonAsync(HttpResponseMessage response)
     {
         var text = await response.Content.ReadAsStringAsync();

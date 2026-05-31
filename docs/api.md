@@ -82,6 +82,41 @@ Base URL: `/api`
 | GET | `/report-histories/{id}` | 帳票履歴詳細 | 必要 |
 | GET | `/report-histories/{id}/download` | 帳票再ダウンロード | 必要 |
 
+## マスタ管理
+
+すべて管理者権限が必要です。
+
+| Method | Path | 説明 | 認証 |
+|---|---|---|---|
+| GET | `/master/departments` | 部署一覧 | 管理者 |
+| POST | `/master/departments` | 部署追加 | 管理者 |
+| PUT | `/master/departments/{id}` | 部署更新 | 管理者 |
+| GET | `/master/users` | ユーザー一覧 | 管理者 |
+| POST | `/master/users` | ユーザー追加 | 管理者 |
+| PUT | `/master/users/{id}` | ユーザー更新 | 管理者 |
+
+`POST /master/departments`
+
+```json
+{
+  "departmentCode": "OPS",
+  "departmentName": "運用部",
+  "displayOrder": 10
+}
+```
+
+`POST /master/users`
+
+```json
+{
+  "departmentId": 1,
+  "loginId": "ito",
+  "password": "password",
+  "employeeName": "伊藤 次郎",
+  "roleCode": "USER"
+}
+```
+
 ## エラー
 
 入力チェックエラーは以下の形式で返します。

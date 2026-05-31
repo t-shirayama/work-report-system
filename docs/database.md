@@ -29,8 +29,34 @@ DBは SQL Server を前提にします。DDLは [schema.sql](../database/sqlserv
 
 ## ローカルDB
 
-```powershell
-docker compose up -d
+```sh
+docker compose up -d --build
+```
+
+`docker-compose.yml` の `db-init` サービスが `WorkReport` データベースを作成し、`schema.sql` と `seed.sql` を投入します。
+
+`db-init` は `departments` テーブルが存在する場合、既に初期化済みと判断してDDL/seed投入をスキップします。
+
+初期データは `DB_SEED_MODE` で切り替えます。
+
+| 値 | 内容 |
+|---|---|
+| `sample` | 部署、ユーザー、日報、帳票履歴のサンプルを投入 |
+| `empty` | 管理者ログインに必要な最小マスタだけ投入 |
+| `none` | DDLのみ投入 |
+
+DBを作り直して再投入する場合:
+
+```sh
+docker compose --profile reset run --rm db-reset
+docker compose up -d --build
+```
+
+初期データなし相当で作り直す場合:
+
+```sh
+DB_SEED_MODE=empty docker compose --profile reset run --rm db-reset
+docker compose up -d --build
 ```
 
 既定のSAパスワードは `docker-compose.yml` の `MSSQL_SA_PASSWORD` を参照してください。

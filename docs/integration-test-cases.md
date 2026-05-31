@@ -36,6 +36,12 @@
 | 履歴検索 | 年月、ステータス、ユーザー条件で履歴検索できる | `ReportHistoriesIntegrationTests.SearchHistories_CanFilterByYearMonthStatusAndTargetUser` |
 | 履歴詳細 | 履歴詳細で対象ユーザー、エラー、ファイル情報を取得できる | `ReportHistoriesIntegrationTests.HistoryDetail_ReturnsJoinedUsersAndFilePath` |
 | 履歴詳細 | 存在しない履歴詳細は404を返す | `ReportHistoriesIntegrationTests.HistoryDetail_ReturnsNotFound_WhenHistoryDoesNotExist` |
+| マスタ管理 | ADMINは部署を追加、更新できる | `MasterDataIntegrationTests.Admin_CanCreateAndUpdateDepartmentsAndUsers` |
+| マスタ管理 | ADMINはユーザーを追加、更新できる | `MasterDataIntegrationTests.Admin_CanCreateAndUpdateDepartmentsAndUsers` |
+| マスタ管理 | USERはマスタ管理APIを利用できない | `MasterDataIntegrationTests.User_CannotReadMasterData` |
+| マスタ管理 | 不正なユーザー入力は400を返す | `MasterDataIntegrationTests.CreateUser_ReturnsBadRequest_WhenInputIsInvalid` |
+| マスタ管理 | 重複した部署コード、ログインIDは400を返す | `MasterDataIntegrationTests.MasterData_ReturnsBadRequest_WhenUniqueConstraintsAreViolated` |
+| マスタ管理 | 存在しない部署/ユーザー更新は404を返す | `MasterDataIntegrationTests.MasterData_ReturnsNotFound_WhenUpdatingMissingRecords` |
 
 ## フロントエンドE2E
 
@@ -45,6 +51,7 @@
 |---|---|---|
 | 一般ユーザー導線 | ログイン、ダッシュボード表示、日報登録、検索結果反映まで通る | `login, open dashboard, register a report, and find it` |
 | 管理者導線 | 管理者ログイン、帳票出力、Excelダウンロード、履歴検索まで通る | `admin can export report and open report history` |
+| マスタ管理 | 管理者ログイン、部署追加、ユーザー追加まで通る | `admin can maintain departments and users` |
 | エラー表示 | ログイン失敗を画面表示する | `login error and API validation error are shown` |
 | エラー表示 | 日報登録APIの入力エラーを画面表示する | `login error and API validation error are shown` |
 

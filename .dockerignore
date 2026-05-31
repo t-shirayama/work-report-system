@@ -1,0 +1,13 @@
+.git/
+.tmp-e2e/
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/coverage/
+**/.npm-cache/
+**/TestResults/
+frontend/playwright-report/
+frontend/test-results/
+generated-reports/
+*.log
