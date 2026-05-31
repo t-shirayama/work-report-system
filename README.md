@@ -150,6 +150,7 @@ npm run test:e2e
 
 - [ドキュメント索引](docs/README.md)
 - [アーキテクチャ](docs/architecture.md)
+- [開発ガイド](docs/development-guide.md)
 - [API設計](docs/api.md)
 - [DB設計](docs/database.md)
 - [テスト方針](docs/testing.md)
