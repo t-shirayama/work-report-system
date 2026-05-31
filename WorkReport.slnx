@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/backend/">
+    <Project Path="backend/WorkReport.Application/WorkReport.Application.csproj" />
+    <Project Path="backend/WorkReport.Domain/WorkReport.Domain.csproj" />
     <Project Path="backend/WorkReport.Api/WorkReport.Api.csproj" />
+    <Project Path="backend/WorkReport.Infrastructure/WorkReport.Infrastructure.csproj" />
     <Project Path="backend/WorkReport.IntegrationTests/WorkReport.IntegrationTests.csproj" />
     <Project Path="backend/WorkReport.Tests/WorkReport.Tests.csproj" />
   </Folder>

@@ -20,7 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WorkReport.Application\WorkReport.Application.csproj" />
     <ProjectReference Include="..\WorkReport.Api\WorkReport.Api.csproj" />
+    <ProjectReference Include="..\WorkReport.Domain\WorkReport.Domain.csproj" />
+    <ProjectReference Include="..\WorkReport.Infrastructure\WorkReport.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

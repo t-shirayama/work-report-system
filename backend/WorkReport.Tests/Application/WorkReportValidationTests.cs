@@ -1,5 +1,5 @@
-using WorkReport.Api.Application;
-using WorkReport.Api.Contracts;
+using WorkReport.Application;
+using WorkReport.Application.Contracts;
 
 namespace WorkReport.Tests.Application;
 

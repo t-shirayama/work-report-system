@@ -1,5 +1,7 @@
 using System.Security.Claims;
-using WorkReport.Api.Application;
+using WorkReport.Api.Security;
+using WorkReport.Application.Mappers;
+using WorkReport.Domain.Models.Identity;
 
 namespace WorkReport.Tests.Application;
 
@@ -18,7 +20,7 @@ public sealed class CurrentUserTests
             new Claim("login_id", "sato")
         ], "Test"));
 
-        var current = CurrentUser.FromPrincipal(principal);
+        var current = principal.ToCurrentUser();
 
         Assert.NotNull(current);
         Assert.Equal(12, current.UserId);
@@ -33,7 +35,7 @@ public sealed class CurrentUserTests
     [Fact]
     public void FromPrincipal_ReturnsNull_WhenPrincipalIsAnonymous()
     {
-        var current = CurrentUser.FromPrincipal(new ClaimsPrincipal(new ClaimsIdentity()));
+        var current = new ClaimsPrincipal(new ClaimsIdentity()).ToCurrentUser();
 
         Assert.Null(current);
     }

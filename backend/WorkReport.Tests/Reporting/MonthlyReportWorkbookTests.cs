@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
-using WorkReport.Api.Reporting;
+using WorkReport.Domain.Models.Reporting;
+using WorkReport.Infrastructure.Reporting;
 
 namespace WorkReport.Tests.Reporting;
 

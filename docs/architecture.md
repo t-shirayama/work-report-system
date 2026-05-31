@@ -10,13 +10,27 @@ React SPA
   |
   | JSON API / Blob Download
   v
-ASP.NET Core Web API
+WorkReport.Api
+  |
+  | Controller / Cookie Auth / CSRF
+  v
+WorkReport.Application
+  |
+  | Use Case / Port Interface
+  v
+WorkReport.Domain
+
+WorkReport.Api
+  |
+  | DI
+  v
+WorkReport.Infrastructure
   |
   | Dapper / Microsoft.Data.SqlClient
   v
 SQL Server
 
-ASP.NET Core Web API
+WorkReport.Infrastructure
   |
   | ClosedXML
   v
@@ -29,11 +43,26 @@ generated-reports/
 |---|---|---|
 | UI | `frontend/src/App.tsx` | 画面表示、フォーム状態、画面切替 |
 | API Client | `frontend/src/api.ts` | API URL、CSRF、Cookie送信、Blobダウンロード |
-| Endpoint | `backend/WorkReport.Api/Program.cs` | HTTP入力、認証/認可、レスポンス形式 |
-| Contracts | `backend/WorkReport.Api/Contracts/` | Request/Response DTO |
-| Application | `backend/WorkReport.Api/Application/` | 業務判断、入力チェック、権限判断 |
-| Infrastructure | `backend/WorkReport.Api/Infrastructure/` | SQL Server接続、Dapper SQL |
-| Reporting | `backend/WorkReport.Api/Reporting/` | Excel生成、帳票データ構造 |
+| API | `backend/WorkReport.Api/` | HTTP入口、Controller、Cookie認証、CSRF、CORS、DI、例外レスポンス |
+| Application | `backend/WorkReport.Application/` | ユースケース、入力チェック、権限判断、Request/Response DTO、Port Interface |
+| Domain | `backend/WorkReport.Domain/` | 認証ユーザー、帳票データなどの業務モデル |
+| Infrastructure | `backend/WorkReport.Infrastructure/` | SQL Server接続、Dapper Repository、パスワードハッシュ、Excel生成、ファイル保存 |
+
+## 依存方向
+
+```text
+WorkReport.Api
+  -> WorkReport.Application
+  -> WorkReport.Domain
+
+WorkReport.Infrastructure
+  -> WorkReport.Application
+  -> WorkReport.Domain
+```
+
+`WorkReport.Application` は `WorkReport.Infrastructure` を参照しません。ApplicationはRepository、パスワードハッシュ、帳票生成、ファイル保存をInterfaceとして定義し、Infrastructureが実装します。`WorkReport.Api` はDIでInterfaceと実装を結び、ControllerからApplication Serviceを呼び出します。
+
+外部公開するJSON形は `WorkReport.Application/Contracts/`、内部で受け渡す業務データは `WorkReport.Domain/Models/`、処理結果モデルは `WorkReport.Application/Models/` に置きます。
 
 ## 認証とCSRF
 
