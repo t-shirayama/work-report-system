@@ -1,106 +1,21 @@
 # ドキュメント索引
 
-このディレクトリは、`work-report-system` の設計、実装方針、環境構築、運用手順を整理するためのドキュメント置き場です。
+このディレクトリは、React + ASP.NET Core Web API + SQL Server 版 `work-report-system` の設計・実装・運用資料です。
 
-まずは「おすすめの読む順番」に沿って読み、実装時は該当カテゴリのドキュメントを更新してください。
+## 読む順番
 
-Markdownファイルはカテゴリ別のサブディレクトリに配置しています。たとえばSpring JDBCの資料は `docs/database/spring-jdbc-basic.md` です。`docs/spring-jdbc-basic.md` のような直下配置は現在使用していません。
-
-## おすすめの読む順番
-
-1. [開発ガイドライン](project/development-guidelines.md)
-2. [Spring MVC 基本構成](architecture/spring-mvc-basic.md)
-3. [Controller / Service / DAO 構成](architecture/controller-service-dao.md)
-4. [データベース設計](database/database-design.md)
-5. [Oracle Docker Compose 開発DB](database/oracle-docker-setup.md)
-6. [Spring JDBC 基本](database/spring-jdbc-basic.md)
-7. [Apache POI 基本](reporting/apache-poi-basic.md)
-8. [Excel帳票出力](reporting/excel-report-generation.md)
-9. [コード walkthrough](walkthrough/code-walkthrough.md)
-
-## カテゴリ別一覧
-
-### replacement-plan
-
-React、C# ASP.NET Core Web API、SQL Serverへのリプレイス計画は、ルート直下の [`replacement-plan/README.md`](../replacement-plan/README.md) から参照します。
-
-| ドキュメント | 内容 |
-|---|---|
-| [リプレイス計画書](../replacement-plan/README.md) | 現行Spring MVC / JSP / Oracle構成からReact / ASP.NET Core Web API / SQL Server構成へ移行するための計画書索引 |
-
-### project
-
-プロジェクト全体の前提、固定技術、実装時の判断基準を整理した資料です。
-
-| ドキュメント | 内容 |
-|---|---|
-| [開発ガイドライン](project/development-guidelines.md) | AGENTS.mdから切り出した詳細な開発ルール、固定技術、禁止事項、docs更新ルール |
-
-### architecture
-
-Spring MVCアプリケーション全体の流れと、レイヤ構成を理解するための資料です。
-
-| ドキュメント | 内容 |
-|---|---|
-| [Spring MVC 基本構成](architecture/spring-mvc-basic.md) | DispatcherServlet、Controller、ViewResolver、JSP表示の流れ |
-| [Controller / Service / DAO 構成](architecture/controller-service-dao.md) | 各レイヤの責務、DTOとEntity、例外処理とログ出力 |
-
-### database
-
-Oracle Database、DDL、Spring JDBC、ローカル開発DBに関する資料です。
-
-| ドキュメント | 内容 |
-|---|---|
-| [データベース設計](database/database-design.md) | テーブル定義、ER図、インデックス、DAO実装との対応 |
-| [Oracle Docker Compose 開発DB](database/oracle-docker-setup.md) | Docker ComposeによるOracle Database Freeの起動、初期化、接続確認 |
-| [Spring JDBC 基本](database/spring-jdbc-basic.md) | NamedParameterJdbcTemplate、バインド変数、SQLとDTOの対応、動的検索条件 |
-
-### reporting
-
-Apache POIとExcel帳票出力に関する資料です。
-
-| ドキュメント | 内容 |
-|---|---|
-| [Apache POI 基本](reporting/apache-poi-basic.md) | Workbook、Sheet、Row、Cell、CellStyle、テンプレート方式 |
-| [Excel帳票出力](reporting/excel-report-generation.md) | 月次報告書Excel出力、履歴保存、再ダウンロード、例外処理 |
-
-### walkthrough
-
-実装済みコードを画面操作の流れに沿って読むための資料です。
-
-| ドキュメント | 内容 |
-|---|---|
-| [コード walkthrough](walkthrough/code-walkthrough.md) | ログイン、日報登録、検索、帳票出力、履歴、ダッシュボードの処理フロー |
-
-### designs
-
-画面実装・調整時に参照するデザイン画像です。
-
-| ファイル | 用途 |
-|---|---|
-| `designs/ログイン画面.png` | ログイン画面 |
-| `designs/ダッシュボード.png` | ダッシュボード |
-| `designs/作業日報登録.png` | 作業日報登録 |
-| `designs/作業実績登録.png` | 作業実績検索 |
-| `designs/帳票出力・履歴.png` | 帳票出力・履歴 |
-| `designs/帳票1.png` から `designs/帳票5.png` | 帳票レイアウト案 |
-
-## 実装済み機能と主な参照先
-
-| 機能 | 主な参照先 |
-|---|---|
-| ログイン、セッション管理 | `architecture/controller-service-dao.md`, `walkthrough/code-walkthrough.md` |
-| ダッシュボードDB連動 | `database/spring-jdbc-basic.md`, `walkthrough/code-walkthrough.md` |
-| 作業日報登録 | `architecture/controller-service-dao.md`, `database/spring-jdbc-basic.md`, `walkthrough/code-walkthrough.md` |
-| 作業実績検索 | `database/spring-jdbc-basic.md`, `walkthrough/code-walkthrough.md` |
-| 月次報告書Excel出力 | `reporting/apache-poi-basic.md`, `reporting/excel-report-generation.md` |
-| 帳票作成履歴検索・詳細・再ダウンロード | `reporting/excel-report-generation.md`, `walkthrough/code-walkthrough.md` |
+1. [アーキテクチャ](architecture.md)
+2. [API設計](api.md)
+3. [DB設計](database.md)
+4. [テスト方針](testing.md)
+5. [運用メモ](operations.md)
 
 ## 更新ルール
 
-- `AGENTS.md` はCodexが毎回読む最小ルールに留め、詳細な説明は `project/development-guidelines.md` または該当カテゴリのdocsへ移します。
-- Controller / Service / DAOを追加・変更した場合は、`architecture/` または `walkthrough/` を更新します。
-- SQL、DDL、DAOの検索条件を変更した場合は、`database/` を更新します。
-- Excelテンプレートや帳票出力処理を変更した場合は、`reporting/` を更新します。
-- 画面デザインを変更する場合は、`designs/` の該当画像との差分を確認します。
-- READMEには概要と導線を置き、詳細説明はこの `docs/README.md` から辿れるようにします。
+| 変更内容 | 更新するドキュメント |
+|---|---|
+| レイヤ構成、依存方向、認証方式 | `architecture.md` |
+| エンドポイント、リクエスト、レスポンス | `api.md` |
+| DDL、SQL、インデックス、seed | `database.md` |
+| テスト観点、テストコマンド、追加テスト | `testing.md` |
+| 起動、設定、ログ、ファイル保存 | `operations.md` |

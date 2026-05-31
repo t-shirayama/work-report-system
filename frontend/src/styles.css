@@ -1,0 +1,414 @@
+:root {
+  color: #172026;
+  background: #eef1f4;
+  font-family: "Segoe UI", "Noto Sans JP", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.boot,
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(120deg, rgba(28, 66, 96, 0.7), rgba(66, 101, 77, 0.62)),
+    url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+}
+
+.loginPanel {
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  gap: 18px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #d8dee5;
+  border-radius: 8px;
+  box-shadow: 0 22px 55px rgba(23, 32, 38, 0.18);
+}
+
+.loginPanel h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 246px 1fr;
+}
+
+.sidebar {
+  background: #16232e;
+  color: #f7fbff;
+  padding: 24px 16px;
+}
+
+.brand {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.nav button,
+.primary,
+.iconButton {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+}
+
+.nav button {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  justify-content: flex-start;
+  color: #d7e0e8;
+  background: transparent;
+}
+
+.nav button.active,
+.nav button:hover {
+  color: #ffffff;
+  background: #2f5e7a;
+}
+
+.workspace {
+  min-width: 0;
+  padding: 24px;
+}
+
+.topbar {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.topbar p,
+.topbar h1 {
+  margin: 0;
+}
+
+.topbar p {
+  color: #65717d;
+  font-size: 14px;
+}
+
+.topbar h1 {
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.account {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #34424d;
+}
+
+.iconButton {
+  width: 38px;
+  height: 38px;
+  color: #263640;
+  background: #ffffff;
+  border: 1px solid #ccd5de;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #d8dee5;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metric {
+  min-height: 116px;
+  padding: 18px;
+  border-radius: 8px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric span {
+  font-size: 14px;
+}
+
+.metric strong {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.metric.blue {
+  background: #2f5e7a;
+}
+
+.metric.green {
+  background: #47715b;
+}
+
+.metric.amber {
+  background: #9a6a2c;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: #34424d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  color: #172026;
+  background: #ffffff;
+  border: 1px solid #bfccd8;
+  border-radius: 6px;
+}
+
+textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr)) 108px;
+  gap: 10px;
+  align-items: end;
+}
+
+.primary {
+  min-height: 40px;
+  padding: 0 16px;
+  color: #ffffff;
+  background: #c1503d;
+  font-weight: 700;
+}
+
+.primary:hover {
+  background: #a94333;
+}
+
+.alert,
+.success {
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.alert {
+  color: #7b1f1f;
+  background: #ffe8e3;
+  border: 1px solid #f1b6ad;
+}
+
+.success {
+  grid-column: 1 / -1;
+  color: #1d4e34;
+  background: #e6f4eb;
+  border: 1px solid #a9d5b8;
+}
+
+.activityList {
+  display: grid;
+}
+
+.activity {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 96px 120px minmax(0, 1fr) 132px;
+  gap: 12px;
+  align-items: center;
+  border-top: 1px solid #e5ebf0;
+}
+
+.activity:first-child {
+  border-top: 0;
+}
+
+.activity time {
+  color: #65717d;
+  text-align: right;
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: #1c2a33;
+  background: #e7edf2;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge.primary,
+.badge.success {
+  color: #164429;
+  background: #dcefe4;
+}
+
+.badge.warning,
+.badge.processing {
+  color: #76510f;
+  background: #fff0ca;
+}
+
+.badge.danger,
+.badge.error {
+  color: #7b1f1f;
+  background: #ffe4df;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+th,
+td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #e2e8ee;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: #4d5b66;
+  background: #f7f9fb;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px;
+  }
+
+  .brand {
+    height: 34px;
+  }
+
+  .nav {
+    display: flex;
+    overflow-x: auto;
+    margin-top: 10px;
+  }
+
+  .nav button {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .workspace {
+    padding: 16px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .metrics,
+  .formGrid,
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .activity {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px 0;
+  }
+
+  .activity time {
+    text-align: left;
+  }
+}

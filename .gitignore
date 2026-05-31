@@ -8,6 +8,15 @@
 # Maven
 target/
 
+# .NET
+bin/
+obj/
+
+# Node / Vite
+node_modules/
+dist/
+*.tsbuildinfo
+
 # Logs
 *.log
 logs/

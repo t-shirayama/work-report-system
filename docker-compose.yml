@@ -1,25 +1,15 @@
-name: work-report-system
-
 services:
-  oracle-db:
-    image: gvenzl/oracle-free:23-slim
-    container_name: work-report-oracle
-    ports:
-      - "1521:1521"
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: work-report-sqlserver
     environment:
-      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-oracle_admin}
-      APP_USER: ${APP_USER:-work_report}
-      APP_USER_PASSWORD: ${APP_USER_PASSWORD:-work_report}
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-WorkReport!2026}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
     volumes:
-      - oracle-data:/opt/oracle/oradata
-      - ./docker/oracle/init:/container-entrypoint-initdb.d:ro
-      - ./src/main/resources/sql:/opt/work-report-system/sql:ro
-    healthcheck:
-      test: ["CMD", "healthcheck.sh"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 60s
+      - sqlserver-data:/var/opt/mssql
 
 volumes:
-  oracle-data:
+  sqlserver-data:

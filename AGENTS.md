@@ -1,72 +1,48 @@
 # AGENTS.md
 
-このファイルは、Codexが本リポジトリで作業するときに毎回読む最小限のルールです。
-詳細な設計・実装方針は [docs/README.md](docs/README.md) から辿ってください。
+このリポジトリは React + ASP.NET Core Web API + SQL Server の業務システムです。
 
-## プロジェクト目的
+## 固定スタック
 
-`work-report-system` は、作業日報登録と月次報告書Excel出力を行うSpring MVC業務システムです。
-
-保守性、責務分離、Oracle Database前提のSQL、Tomcat 8.5上での安定稼働を重視します。
-
-## 最重要制約
-
-- Java 8で動作するコードにする。
-- Spring Framework / Spring MVC は `4.3.17.RELEASE` を維持する。
-- Spring Security は `4.2.20.RELEASE` を維持し、ログイン認証とCSRF対策を有効にする。
-- Maven WARプロジェクトとして扱い、Spring BootやGradleへ変更しない。
-- Viewは JSP / JSTL を使用し、React / Vue / Angular は使用しない。
-- アプリ本体はDocker化しない。実行は STS / Eclipse + Tomcat 8.5 + Maven WAR を前提にする。
-- 開発用DBのみ Docker Compose のOracle Database Freeを使用してよい。
-- DB、DDL、SQL、DAOはOracle Database前提で作成し、H2 / PostgreSQL / MySQL向けに寄せない。
-- DBアクセスは原則 `NamedParameterJdbcTemplate` を使用し、JPA / Hibernate / MyBatis は使用しない。
-- Excel出力は Apache POI `3.17` を使用し、テンプレートExcelへの差し込み方式を基本にする。
-- Java 9以降のAPI、最新Spring、POI 3.17以外への更新は勝手に行わない。
+- フロントエンドは React + TypeScript + Vite を使用する。
+- バックエンドは C# ASP.NET Core Web API を使用する。
+- DBは SQL Server を前提にする。
+- DBアクセスは Dapper と `Microsoft.Data.SqlClient` を基本にする。
+- 認証は Cookie認証、CSRF対策は ASP.NET Core Antiforgery を基本にする。
+- 帳票出力は ClosedXML を使用する。
+- テストは xUnit を使用する。
 
 ## 作業前に読む場所
 
-- 全体索引: [docs/README.md](docs/README.md)
-- 開発ルール詳細: [docs/project/development-guidelines.md](docs/project/development-guidelines.md)
-- Spring MVC: [docs/architecture/spring-mvc-basic.md](docs/architecture/spring-mvc-basic.md)
-- レイヤ責務: [docs/architecture/controller-service-dao.md](docs/architecture/controller-service-dao.md)
-- DB / SQL: [docs/database/spring-jdbc-basic.md](docs/database/spring-jdbc-basic.md)
-- 帳票: [docs/reporting/excel-report-generation.md](docs/reporting/excel-report-generation.md)
-- 実装の流れ: [docs/walkthrough/code-walkthrough.md](docs/walkthrough/code-walkthrough.md)
-
-画面を変更する場合は、先に `docs/designs/` 配下の該当画像を確認してください。
+- 全体索引: `docs/README.md`
+- アーキテクチャ: `docs/architecture.md`
+- API設計: `docs/api.md`
+- DB設計: `docs/database.md`
+- テスト方針: `docs/testing.md`
+- 運用メモ: `docs/operations.md`
 
 ## 実装ルール
 
-- 既存コードとドキュメントを確認してから、指示範囲に絞って変更する。
-- Controller、Service、DAOの責務を分離する。
-- ControllerにSQLや重い業務ロジックを書かない。
-- Serviceに業務判断、入力チェック、トランザクション境界を置く。
-- DAOにSQL、バインド変数、RowMapper、DB例外に近い処理を置く。
-- SQLはDAO層で扱う。複雑なSELECTは `src/main/resources/sql/dao/` のSQLファイルへ外出しし、短いINSERT/UPDATEやシーケンス取得はDAO内に残してよい。
-- ユーザー入力をSQL文字列へ直接連結せず、必ずバインド変数を使う。
-- JSPは `src/main/webapp/WEB-INF/views/` 配下に置き、Controller経由で表示する。
-- JSPではJSTLを使い、Javaスクリプトレットを増やさない。
-- POSTフォームにはSpring SecurityのCSRFトークンを含める。
-- 共通処理は `common`、`util`、`exception` など既存パッケージの役割に合わせる。
-- IDE固有ファイルや生成ファイルはコミットしない。
+- API Endpoint、Application Service、Repository、Reporting の責務を分離する。
+- EndpointにはSQLや重い業務判断を書かない。
+- Application Serviceに入力チェック、業務判断、権限判断、トランザクション境界を置く。
+- RepositoryにSQL Server向けSQL、バインド変数、DB例外に近い処理を置く。
+- ユーザー入力をSQL文字列へ直接連結せず、Dapperのパラメータを使う。
+- Reactコンポーネントは画面状態と表示に寄せ、API仕様は `frontend/src/api.ts` に集約する。
+- unsafe methodでは `X-CSRF-TOKEN` を付与する。
+- 帳票ファイル名、保存パス、履歴IDはAPI側で管理する。
+- 生成物、IDE固有ファイル、DBデータファイルはコミットしない。
 
 ## ドキュメント更新
 
-実装後は、変更内容に応じて関連ドキュメントを更新してください。
-
-- Controller / Service / DAOを変更したら `docs/architecture/` と `docs/walkthrough/` を確認する。
-- SQL、DDL、DAO検索条件を変更したら `docs/database/` を確認する。
-- Excel出力、テンプレート、履歴保存を変更したら `docs/reporting/` を確認する。
-- ドキュメント構成を変えたら `docs/README.md` と `README.md` の索引も更新する。
+- APIを変更したら `docs/api.md` を更新する。
+- DB、DDL、SQLを変更したら `docs/database.md` を更新する。
+- レイヤ構成や責務を変更したら `docs/architecture.md` を更新する。
+- テストを追加・変更したら `docs/testing.md` を更新する。
+- 起動・運用手順を変えたら `README.md` と `docs/operations.md` を更新する。
 
 ## 検証ルール
 
-- 可能であれば `mvn test` と `mvn package` を実行する。
-- MavenやDockerなどローカル環境都合で実行できない場合は、できなかった理由を最終報告に書く。
-- DB関連の変更では、Oracle Database Free起動後のSQLまたは画面確認手順も示す。
-
-## 判断に迷ったとき
-
-- 技術スタックや大きな設計変更は、勝手に変更せずユーザーへ確認する。
-- 影響が小さい不明点は、実装を止めずにREADMEやdocsの未決事項として整理する。
-- 詳細ルールはAGENTS.mdへ追記しすぎず、原則として `docs/` 配下へ吸収して索引する。
+- C#変更後は可能な限り `dotnet test WorkReport.slnx` を実行する。
+- フロントエンド変更後は可能な限り `npm run build` を `frontend/` で実行する。
+- DB関連変更では、SQL Server起動後の確認手順も最終報告に含める。
