@@ -3,7 +3,7 @@ using WorkReport.Application.Contracts;
 using WorkReport.Application.Interfaces;
 using WorkReport.Domain.Models.Identity;
 
-namespace WorkReport.Application;
+namespace WorkReport.Application.MonthlyReports;
 
 public sealed class MonthlyReportService(
     IUserRepository userRepository,

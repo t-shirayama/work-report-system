@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WorkReport.Application;
 using WorkReport.Application.Contracts;
+using WorkReport.Application.Dashboard;
 
 namespace WorkReport.Api.Controllers;
 

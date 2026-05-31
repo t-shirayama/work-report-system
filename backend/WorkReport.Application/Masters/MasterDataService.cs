@@ -1,10 +1,9 @@
 using WorkReport.Application.Contracts;
 using WorkReport.Application.Exceptions;
 using WorkReport.Application.Interfaces;
-using WorkReport.Application.Masters;
 using WorkReport.Application.Models.Results;
 
-namespace WorkReport.Application;
+namespace WorkReport.Application.Masters;
 
 public sealed class MasterDataService(IMasterDataRepository repository, IPasswordHasher passwordHasher)
 {

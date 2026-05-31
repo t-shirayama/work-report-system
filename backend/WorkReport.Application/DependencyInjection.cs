@@ -1,4 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
+using WorkReport.Application.Auth;
+using WorkReport.Application.Dashboard;
+using WorkReport.Application.Masters;
+using WorkReport.Application.MonthlyReports;
+using WorkReport.Application.ReportHistories;
+using WorkReport.Application.WorkReports;
 
 namespace WorkReport.Application;
 

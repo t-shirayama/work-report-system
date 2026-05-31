@@ -1,4 +1,5 @@
 using WorkReport.Application.Contracts;
+using WorkReport.Domain.Codes;
 
 namespace WorkReport.Application.Masters;
 

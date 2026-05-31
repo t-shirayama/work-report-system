@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkReport.Api.Security;
-using WorkReport.Application;
+using WorkReport.Application.Auth;
 using WorkReport.Application.Contracts;
 using WorkReport.Application.Mappers;
 

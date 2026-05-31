@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WorkReport.Application;
 using WorkReport.Application.Contracts;
+using WorkReport.Application.MonthlyReports;
+using WorkReport.Application.ReportHistories;
 
 namespace WorkReport.Api.Controllers;
 

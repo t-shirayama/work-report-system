@@ -1,7 +1,7 @@
 using WorkReport.Application.Contracts;
 using WorkReport.Application.Interfaces;
 
-namespace WorkReport.Application;
+namespace WorkReport.Application.ReportHistories;
 
 public sealed class ReportHistoryService(IReportHistoryRepository repository)
 {

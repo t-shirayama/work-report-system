@@ -8,5 +8,5 @@ public sealed record CurrentUser(
     string EmployeeName,
     string RoleCode)
 {
-    public bool IsAdmin => RoleCode == "ADMIN";
+    public bool IsAdmin => WorkReport.Domain.Codes.RoleCode.IsAdmin(RoleCode);
 }

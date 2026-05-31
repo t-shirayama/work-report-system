@@ -2,7 +2,7 @@ using WorkReport.Application.Contracts;
 using WorkReport.Application.Interfaces;
 using WorkReport.Application.Mappers;
 
-namespace WorkReport.Application;
+namespace WorkReport.Application.Auth;
 
 public sealed class AuthService(IUserRepository userRepository, IPasswordHasher passwordHasher)
 {

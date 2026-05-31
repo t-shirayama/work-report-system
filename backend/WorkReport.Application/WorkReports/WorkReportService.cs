@@ -2,9 +2,8 @@ using WorkReport.Application.Contracts;
 using WorkReport.Application.Interfaces;
 using WorkReport.Domain.Models.Identity;
 using WorkReport.Application.Models.Results;
-using WorkReport.Application.WorkReports;
 
-namespace WorkReport.Application;
+namespace WorkReport.Application.WorkReports;
 
 public sealed class WorkReportService(IWorkReportRepository repository)
 {

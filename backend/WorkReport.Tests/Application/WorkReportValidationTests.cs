@@ -1,4 +1,3 @@
-using WorkReport.Application;
 using WorkReport.Application.Contracts;
 using WorkReport.Application.WorkReports;
 

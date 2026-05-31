@@ -45,7 +45,7 @@ generated-reports/
 | API Client | `frontend/src/api.ts` | API URL、CSRF、Cookie送信、Blobダウンロード |
 | API | `backend/WorkReport.Api/` | HTTP入口、Controller、Cookie認証、CSRF、CORS、DI、例外レスポンス |
 | Application | `backend/WorkReport.Application/` | ユースケース、入力検証、入力正規化、固定コード、Request/Response DTO、Port Interface |
-| Domain | `backend/WorkReport.Domain/` | 認証ユーザー、帳票データなどの業務モデル |
+| Domain | `backend/WorkReport.Domain/` | 認証ユーザー、帳票データ、固定コードなどの業務モデル |
 | Infrastructure | `backend/WorkReport.Infrastructure/` | SQL Server接続、Dapper Repository、パスワードハッシュ、Excel生成、ファイル保存 |
 
 ## 依存方向
@@ -70,7 +70,9 @@ DI登録は各レイヤの拡張メソッドへ分けます。Application Servic
 
 Contractsは機能単位のフォルダへ分けます。例: `Auth/`、`Dashboard/`、`WorkReports/`、`MonthlyReports/`、`ReportHistories/`、`Masters/`、`Common/`。namespaceは `WorkReport.Application.Contracts` に統一し、利用側は機能別フォルダ構成に依存しないようにします。
 
-入力検証と正規化はServiceへ抱え込まず、機能単位のValidatorへ分けます。作業日報は `WorkReports/WorkReportValidator.cs`、マスタ管理は `Masters/DepartmentValidator.cs` と `Masters/UserValidator.cs` に置き、固定コードは `WorkCategory.cs` や `RoleCode.cs` で管理します。Serviceはユースケースの流れ、Repository呼び出し、外部制約エラーの扱いを中心にします。
+Application Serviceは機能単位のフォルダへ置きます。例: `Auth/AuthService.cs`、`Dashboard/DashboardService.cs`、`WorkReports/WorkReportService.cs`、`MonthlyReports/MonthlyReportService.cs`、`ReportHistories/ReportHistoryService.cs`、`Masters/MasterDataService.cs`。
+
+入力検証と正規化はServiceへ抱え込まず、機能単位のValidatorへ分けます。作業日報は `WorkReports/WorkReportValidator.cs`、マスタ管理は `Masters/DepartmentValidator.cs` と `Masters/UserValidator.cs` に置きます。作業分類や権限コードのような業務上の固定コードは `WorkReport.Domain/Codes/` で管理します。Serviceはユースケースの流れ、Repository呼び出し、外部制約エラーの扱いを中心にします。
 
 ## 認証とCSRF
 
