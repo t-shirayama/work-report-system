@@ -22,8 +22,12 @@
 ```text
 work-report-system/
   backend/
-    WorkReport.Api/        ASP.NET Core Web API
-    WorkReport.Tests/      xUnit tests
+    WorkReport.Api/                ASP.NET Core Web API, Controllers, auth, DI
+    WorkReport.Application/        Use cases, contracts, validators, port interfaces
+    WorkReport.Domain/             Domain models
+    WorkReport.Infrastructure/     SQL Server, Dapper, BCrypt, ClosedXML, file storage
+    WorkReport.Tests/              Unit tests
+    WorkReport.IntegrationTests/   API integration tests with SQL Server
   frontend/                React SPA
   database/
     sqlserver/             DDL, seed data, DB init script

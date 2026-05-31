@@ -1,77 +1,18 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using WorkReport.Api.Extensions;
 using WorkReport.Application;
 using WorkReport.Application.Contracts;
-using WorkReport.Application.Interfaces;
-using WorkReport.Infrastructure.Persistence;
-using WorkReport.Infrastructure.Reporting;
-using WorkReport.Infrastructure.Security;
+using WorkReport.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("frontend", policy =>
-    {
-        var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:5173"];
-        policy.WithOrigins(origins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials()
-            .WithExposedHeaders("Content-Disposition");
-    });
-});
-builder.Services.AddAntiforgery(options =>
-{
-    options.Cookie.Name = "WORKREPORT-XSRF";
-    options.HeaderName = "X-CSRF-TOKEN";
-});
-builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.Cookie.Name = "WORKREPORT-AUTH";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.SlidingExpiration = true;
-        options.Events.OnRedirectToLogin = context =>
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Task.CompletedTask;
-        };
-        options.Events.OnRedirectToAccessDenied = context =>
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return Task.CompletedTask;
-        };
-    });
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Admin", policy => policy.RequireRole("ADMIN"));
-});
-
-builder.Services.Configure<ReportStorageOptions>(
-    builder.Configuration.GetSection("ReportStorage"));
-builder.Services.AddSingleton<SqlConnectionFactory>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
-builder.Services.AddScoped<IWorkReportRepository, WorkReportRepository>();
-builder.Services.AddScoped<IMonthlyReportRepository, MonthlyReportRepository>();
-builder.Services.AddScoped<IReportHistoryRepository, ReportHistoryRepository>();
-builder.Services.AddScoped<IMasterDataRepository, MasterDataRepository>();
-builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
-builder.Services.AddScoped<IMonthlyReportWorkbookGenerator, MonthlyReportWorkbookGenerator>();
-builder.Services.AddScoped<IReportFileStorage, LocalReportFileStorage>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<DashboardService>();
-builder.Services.AddScoped<WorkReportService>();
-builder.Services.AddScoped<MonthlyReportService>();
-builder.Services.AddScoped<ReportHistoryService>();
-builder.Services.AddScoped<MasterDataService>();
+builder.Services.AddApiCors(builder.Configuration);
+builder.Services.AddApiAuthentication();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

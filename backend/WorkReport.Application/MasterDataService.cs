@@ -1,17 +1,13 @@
 using WorkReport.Application.Contracts;
 using WorkReport.Application.Exceptions;
 using WorkReport.Application.Interfaces;
+using WorkReport.Application.Masters;
 using WorkReport.Application.Models.Results;
 
 namespace WorkReport.Application;
 
 public sealed class MasterDataService(IMasterDataRepository repository, IPasswordHasher passwordHasher)
 {
-    private static readonly HashSet<string> RoleCodes = new(StringComparer.Ordinal)
-    {
-        "ADMIN", "USER"
-    };
-
     public Task<IReadOnlyList<DepartmentResponse>> FindDepartmentsAsync()
         => repository.FindDepartmentsAsync();
 
@@ -20,8 +16,8 @@ public sealed class MasterDataService(IMasterDataRepository repository, IPasswor
 
     public async Task<MasterResult<DepartmentResponse>> CreateDepartmentAsync(DepartmentUpsertRequest request)
     {
-        var normalized = NormalizeDepartment(request);
-        var errors = ValidateDepartment(normalized);
+        var normalized = DepartmentValidator.Normalize(request);
+        var errors = DepartmentValidator.Validate(normalized);
         if (errors.Count > 0)
         {
             return MasterResult<DepartmentResponse>.Failed(errors);
@@ -40,8 +36,8 @@ public sealed class MasterDataService(IMasterDataRepository repository, IPasswor
 
     public async Task<MasterResult<DepartmentResponse>> UpdateDepartmentAsync(int id, DepartmentUpsertRequest request)
     {
-        var normalized = NormalizeDepartment(request);
-        var errors = ValidateDepartment(normalized);
+        var normalized = DepartmentValidator.Normalize(request);
+        var errors = DepartmentValidator.Validate(normalized);
         if (errors.Count > 0)
         {
             return MasterResult<DepartmentResponse>.Failed(errors);
@@ -65,8 +61,8 @@ public sealed class MasterDataService(IMasterDataRepository repository, IPasswor
 
     public async Task<MasterResult<MasterUserResponse>> CreateUserAsync(MasterUserCreateRequest request)
     {
-        var normalized = NormalizeCreateUser(request);
-        var errors = ValidateUser(normalized, requirePassword: true);
+        var normalized = UserValidator.Normalize(request);
+        var errors = UserValidator.Validate(normalized, requirePassword: true);
         if (errors.Count > 0)
         {
             return MasterResult<MasterUserResponse>.Failed(errors);
@@ -90,8 +86,8 @@ public sealed class MasterDataService(IMasterDataRepository repository, IPasswor
 
     public async Task<MasterResult<MasterUserResponse>> UpdateUserAsync(int id, MasterUserUpdateRequest request)
     {
-        var normalized = NormalizeUpdateUser(request);
-        var errors = ValidateUser(normalized, requirePassword: false);
+        var normalized = UserValidator.Normalize(request);
+        var errors = UserValidator.Validate(normalized, requirePassword: false);
         if (errors.Count > 0)
         {
             return MasterResult<MasterUserResponse>.Failed(errors);
@@ -121,109 +117,4 @@ public sealed class MasterDataService(IMasterDataRepository repository, IPasswor
         }
     }
 
-    private static DepartmentUpsertRequest NormalizeDepartment(DepartmentUpsertRequest request)
-        => new(
-            request.DepartmentCode?.Trim().ToUpperInvariant(),
-            request.DepartmentName?.Trim(),
-            request.DisplayOrder ?? 0);
-
-    private static MasterUserCreateRequest NormalizeCreateUser(MasterUserCreateRequest request)
-        => new(
-            request.DepartmentId,
-            request.LoginId?.Trim(),
-            request.Password,
-            request.EmployeeName?.Trim(),
-            request.RoleCode?.Trim().ToUpperInvariant());
-
-    private static MasterUserUpdateRequest NormalizeUpdateUser(MasterUserUpdateRequest request)
-        => new(
-            request.DepartmentId,
-            request.LoginId?.Trim(),
-            request.Password,
-            request.EmployeeName?.Trim(),
-            request.RoleCode?.Trim().ToUpperInvariant());
-
-    private static IReadOnlyList<string> ValidateDepartment(DepartmentUpsertRequest request)
-    {
-        var errors = new List<string>();
-        if (string.IsNullOrWhiteSpace(request.DepartmentCode))
-        {
-            errors.Add("部署コードは必須です。");
-        }
-        else if (request.DepartmentCode.Length > 20)
-        {
-            errors.Add("部署コードは20文字以内で入力してください。");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.DepartmentName))
-        {
-            errors.Add("部署名は必須です。");
-        }
-        else if (request.DepartmentName.Length > 100)
-        {
-            errors.Add("部署名は100文字以内で入力してください。");
-        }
-
-        if (request.DisplayOrder < 0)
-        {
-            errors.Add("表示順は0以上で入力してください。");
-        }
-
-        return errors;
-    }
-
-    private static IReadOnlyList<string> ValidateUser(MasterUserCreateRequest request, bool requirePassword)
-    {
-        var errors = new List<string>();
-        if (!request.DepartmentId.HasValue || request.DepartmentId <= 0)
-        {
-            errors.Add("部署は必須です。");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.LoginId))
-        {
-            errors.Add("ログインIDは必須です。");
-        }
-        else if (request.LoginId.Length > 50)
-        {
-            errors.Add("ログインIDは50文字以内で入力してください。");
-        }
-
-        if (requirePassword && string.IsNullOrWhiteSpace(request.Password))
-        {
-            errors.Add("パスワードは必須です。");
-        }
-        else if (!string.IsNullOrWhiteSpace(request.Password) && request.Password.Length < 8)
-        {
-            errors.Add("パスワードは8文字以上で入力してください。");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.EmployeeName))
-        {
-            errors.Add("社員名は必須です。");
-        }
-        else if (request.EmployeeName.Length > 100)
-        {
-            errors.Add("社員名は100文字以内で入力してください。");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.RoleCode))
-        {
-            errors.Add("権限は必須です。");
-        }
-        else if (!RoleCodes.Contains(request.RoleCode))
-        {
-            errors.Add("権限の値が正しくありません。");
-        }
-
-        return errors;
-    }
-
-    private static IReadOnlyList<string> ValidateUser(MasterUserUpdateRequest request, bool requirePassword)
-        => ValidateUser(new MasterUserCreateRequest(
-            request.DepartmentId,
-            request.LoginId,
-            request.Password,
-            request.EmployeeName,
-            request.RoleCode), requirePassword);
 }

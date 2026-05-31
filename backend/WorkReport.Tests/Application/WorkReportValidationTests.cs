@@ -1,5 +1,6 @@
 using WorkReport.Application;
 using WorkReport.Application.Contracts;
+using WorkReport.Application.WorkReports;
 
 namespace WorkReport.Tests.Application;
 
@@ -15,7 +16,7 @@ public sealed class WorkReportValidationTests
             7.5m,
             "API移行とテスト追加");
 
-        var errors = WorkReportService.ValidateRegister(request);
+        var errors = WorkReportValidator.ValidateRegister(request);
 
         Assert.Empty(errors);
     }
@@ -25,7 +26,7 @@ public sealed class WorkReportValidationTests
     {
         var request = new WorkReportRegisterRequest(null, "", "", null, "");
 
-        var errors = WorkReportService.ValidateRegister(request);
+        var errors = WorkReportValidator.ValidateRegister(request);
 
         Assert.Contains("作業日は必須です。", errors);
         Assert.Contains("プロジェクト名は必須です。", errors);
@@ -46,7 +47,7 @@ public sealed class WorkReportValidationTests
             1m,
             "分類チェック");
 
-        var errors = WorkReportService.ValidateRegister(request);
+        var errors = WorkReportValidator.ValidateRegister(request);
 
         Assert.Contains(expected, errors);
     }
@@ -64,7 +65,7 @@ public sealed class WorkReportValidationTests
             decimal.Parse(value),
             "時間チェック");
 
-        var errors = WorkReportService.ValidateRegister(request);
+        var errors = WorkReportValidator.ValidateRegister(request);
 
         Assert.Contains(expected, errors);
     }
@@ -79,7 +80,7 @@ public sealed class WorkReportValidationTests
             2m,
             new string('B', 1001));
 
-        var errors = WorkReportService.ValidateRegister(request);
+        var errors = WorkReportValidator.ValidateRegister(request);
 
         Assert.Contains("プロジェクト名は100文字以内で入力してください。", errors);
         Assert.Contains("作業内容は1000文字以内で入力してください。", errors);
@@ -96,7 +97,7 @@ public sealed class WorkReportValidationTests
             null,
             null);
 
-        var errors = WorkReportService.ValidateSearch(request);
+        var errors = WorkReportValidator.ValidateSearch(request);
 
         Assert.Equal(["対象期間 From は To 以前の日付を入力してください。"], errors);
     }
@@ -106,7 +107,7 @@ public sealed class WorkReportValidationTests
     {
         var request = new WorkReportSearchRequest(null, null, null, null, "BAD", null);
 
-        var errors = WorkReportService.ValidateSearch(request);
+        var errors = WorkReportValidator.ValidateSearch(request);
 
         Assert.Equal(["作業分類の値が正しくありません。"], errors);
     }
