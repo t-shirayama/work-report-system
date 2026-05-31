@@ -1,13 +1,3 @@
-# STS / Eclipse
-.project
-.classpath
-.settings/
-.springBeans
-.sts4-cache/
-
-# Maven
-target/
-
 # .NET
 bin/
 obj/
@@ -27,10 +17,6 @@ Thumbs.db
 
 # Generated application files
 generated-reports/
-upload/
-
-# Local Docker / database data
-oracle-data/
 .env
 !.env.example
 

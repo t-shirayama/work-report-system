@@ -2,7 +2,7 @@
 
 作業日報登録と月次報告書Excel出力を行う業務システムです。
 
-このリポジトリは React + ASP.NET Core Web API + SQL Server 構成へ完全に置き換え済みです。旧 Spring MVC / JSP / Oracle / Maven WAR 構成は削除しています。
+このリポジトリは React + ASP.NET Core Web API + SQL Server 構成です。
 
 ## 技術スタック
 
